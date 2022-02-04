@@ -1,0 +1,97 @@
+user.01.config.php
+
+// kosmo 인증키 환경변수 추가
+$g5['kosmo_erp_crtfckey'] = '$5$API$3Ue8EDeh9uh5SBT98qSOmiuz636aFqZyV5aMgFmL4rD';
+
+
+###################################################################################
+
+user.02.function.php
+
+//KOSMO에 log데이터 전송 함수 정의
+if(!function_exists('send_kosmo_log')){
+function send_kosmo_log(){
+	global $g5, $board, $is_member, $member, $w, $stx, $mb;
+	if(!$is_member)
+		return;
+
+	if(!$g5['kosmo_erp_crtfckey'])
+		return;
+
+	if(!$member['mb_id'])
+		return;
+	
+	$user_status = '';
+	if(preg_match('/update$/i',$g5['file_name'])){
+		if(!$w) $user_status = '등록';
+		else if($w == 'u') $user_status = '수정';
+		else if($w == 'd') $user_status = '삭제';
+	}
+	else if(preg_match('/list$/i',$g5['file_name'])){
+		if($stx) $user_status = '검색';
+	}
+	else{
+		if($g5['file_name'] == 'login_check'){
+			//print_r2($member);exit;
+			$user_status = '접속';
+		}
+		else if($g5['file_name'] == 'logout'){
+			$user_status = '종료';
+		}
+	}
+	
+	if(!$user_status)
+		return;
+	//print_r3($user_status);return;
+	$url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
+	/*
+	$crtcKey = $g5['kosmo_erp_crtfckey'];
+	$logDt = G5_TIME_YMDHIS;
+	$useSe = $user_status;
+	$sysUser = $member['mb_id'];
+	$conectIp = $member['mb_login_ip'];
+	$dataUsgqty = '';
+	*/
+	$darr = array(
+		'crtfcKey' => $g5['kosmo_erp_crtfckey'],
+		'logDt' => G5_TIME_YMDHIS,
+		'useSe' => $user_status,
+		'sysUser' => $member['mb_id'],
+		'conectIp' => $member['mb_login_ip'],
+		'dataUsgqty' => ''
+	);
+
+	$opt = array(
+		'http' => array(
+			'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+			'method' => 'POST',
+			'content' => http_build_query($darr)
+		)
+	);
+	$context = stream_context_create($opt); //데이터 가공
+	$result = file_get_contents($url, false, $context); //전송 ~ 결과값 반환
+	$data = json_decode($result, true);
+}
+}
+
+
+###################################################################################
+
+
+user.03.default.php
+
+function u_common_header()함수 안 제일 하단에 아래 소스 추가
+
+//kosmo에 사용현황 log 전송 함수(extend/suer.02.function.php에 정의)
+send_kosmo_log();
+
+
+###################################################################################
+
+
+user.08.hook.php
+
+function u_member_login_check()함수 안 제일 하단에 아래 소스 추가
+
+//kosmo에 사용현황 log 전송 함수(extend/suer.02.function.php에 정의)
+send_kosmo_log();

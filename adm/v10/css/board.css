@@ -1,0 +1,22 @@
+@charset "utf-8";
+/*  인트라 게시판(관리자단 내부) 설정을 위한 css */
+/*  /adm/v10/_head.php 에서 선언된 파일입니다.   */
+
+html {
+    background: #f3f3f3;
+}
+
+#container {margin-top:50px;}
+
+#container_title {
+    top: unset;
+    padding-left:237px;
+}
+#container.container-small #container_title {
+    padding-left: 67px;
+}
+
+.container_wr {
+    padding-top: 70px;
+    min-height:600px;
+}
