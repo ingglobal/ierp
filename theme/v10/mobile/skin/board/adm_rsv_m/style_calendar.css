@@ -1,0 +1,9 @@
+@charset "utf-8";
+.container_wr{overflow-x:auto !important;}
+#calendar{min-width:1000px;}
+
+.fc-daygrid-day-number{cursor:pointer;}
+.fc-day-sat .fc-daygrid-day-number,.fc-day-sat .fc-col-header-cell-cushion { color:blue; }
+.fc-day-sun .fc-daygrid-day-number,.fc-day-sun .fc-col-header-cell-cushion { color:red;  }
+.fc-toolbar-chunk{position:relative;}
+.fc-toolbar-chunk .fc-toolbar-title{position:absolute;left:-250px;top:-15px;}

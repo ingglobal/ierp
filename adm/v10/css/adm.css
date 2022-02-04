@@ -1,0 +1,145 @@
+@charset "utf-8";
+/* 영카트 기본 관리자단의 후킹을 위한 css */
+/* /adm/css/admin.css 내부에서 @import된 파일입니다. */
+/* 영카트 기본 관리자단에 없는 영역이 추가될 때, 기본관리자단에서도 존재해야 하는 스타일이면 현재 파일에 설정해야 됩니다. ex. 왼편메뉴 아이콘 설정.. */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
+/* 
+font-family: 'Noto Sans KR', sans-serif; 
+*/
+body {font-family: 'Noto Sans KR', sans-serif;background: #fefefe;font-size:0.82em;}
+h1, h2, h3, h4, h5, h6 {font-family: 'Noto Sans KR', sans-serif;}
+input, button {font-family: 'Noto Sans KR', sans-serif;}
+textarea, select {font-family: 'Noto Sans KR', sans-serif;}
+
+
+/* 레이아웃  (default_project에서 width:1100px 선언된 부분 무력화  */
+#container {width: inherit;}
+#container_title {font-size:1.3em;}
+.container_wr {padding:15px 15px;}
+
+/* 배경 컬러 */
+#hd_top {background:#564c46;}
+#logo {background:#3e3732;}
+#btn_gnb {background-color:#564c46;}
+#gnb .gnb_oparea {background: #ececec;}
+#btn_gnb.btn_gnb_open {
+    background-color:#564c46;
+}
+#gnb .gnb_li .btn_op {background-color:#363c5e;}
+#tnb .tnb_community:hover {
+    background-color: #776a61;
+}
+
+
+/* 관리자단 왼편 하단 아이콘 */
+#gnb .gnb_ul {
+    background: #cacaca;
+}
+#gnb .gnb_li .btn_op{background-color:#cacaca}
+#gnb .on .btn_op{background-color:#ececec}
+#gnb .gnb_li .btn_op.menu-100{background-color:#cacaca }
+#gnb .on .btn_op.menu-100{background-color:#ececec}
+#gnb .gnb_li .btn_op.menu-200{background-color:#cacaca }
+#gnb .on .btn_op.menu-200{background-color:#ececec}
+#gnb .gnb_li .btn_op.menu-300{background-color:#cacaca }
+#gnb .on .btn_op.menu-300{background-color:#ececec}
+#gnb .gnb_li .btn_op.menu-400{background-color:#cacaca }
+#gnb .on .btn_op.menu-400{background-color:#ececec}
+#gnb .gnb_li .btn_op.menu-500{background-color:#cacaca }
+#gnb .on .btn_op.menu-500{background-color:#ececec}
+#gnb .gnb_li .btn_op.menu-900{background-color:#cacaca }
+#gnb .on .btn_op.menu-900{background-color:#ececec}
+#gnb .gnb_li {
+    border-bottom: 1px solid #b5b5b5;
+}
+#gnb .gnb_li .btn_op.menu-950{background:url(../img/menu-950-1.png) 50% 50% no-repeat #cacaca }
+#gnb .on .btn_op.menu-950{background:url(../img/menu-950.png) 50% 50% no-repeat #ececec}
+#gnb .gnb_li .btn_op.menu-960{background:url(../img/menu-960-1.png) 50% 50% no-repeat #cacaca }
+#gnb .on .btn_op.menu-960{background:url(../img/menu-960.png) 50% 50% no-repeat #ececec}
+
+/* 왼편 메뉴 부분 */
+#gnb .gnb_oparea {color: #3a3a3a;}
+#gnb .gnb_oparea li{line-height:25px;}
+#gnb .gnb_oparea li a {color: #5a5a5a;}
+#gnb .gnb_oparea li a:hover, #gnb .gnb_oparea li .on {
+    color: #d67e5b;
+}
+#container_title {
+    background: #e1e5e8;
+}
+#gnb .gnb_oparea {
+    border-right: 1px solid #b3b3b3;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: 2px 0 2px rgba(150,150,150,0.1);
+    box-shadow: none;
+}
+
+/*관리자단 메뉴숨김*/
+#gnb .gnb_li {display:none;}
+.tnb_li .tnb_shop {display:none !important;} /*오른편 상단 쇼핑몰바로가기 아이콘 숨김*/
+.tnb_li .tnb_service {display:none !important;} /*오른편 상단 부가서비스 숨김*/
+/*.menu-400, .menu-500, .menu-900 {display:none;} */
+.tnb_mb_area li:first-child {display:none;}
+
+/*  메뉴 포커스 제거 */
+#gnb .gnb_li .btn_op{
+    -moz-outline: none;
+    outline: none;
+    ie-dummy: expression(this.hideFocus=true);
+}
+
+/* 회원사이트뷰 세로 진열 안 되게 처리함 */
+.tbl_wrap .sv_wrap > a {white-space:nowrap;}
+
+/* 장바구니 (상단 오른편) */
+#tnb .tnb_cart{width:30px;height:30px;overflow:hidden;border-radius:5px;text-indent:-1px;}
+#tnb .tnb_cart:hover{background-color:#2b3d9f}
+#tnb button {
+    background: #80756e;
+}
+#tnb button span {
+    background-color:#988d86;
+}
+#tnb .tnb_mb_area {
+    background: #7f756e;
+}
+#tnb button:hover {
+    background: #736a64;
+}
+
+/* 테이블 관련 */
+.tbl_head01 thead tr th {white-space:nowrap;}
+.tbl_head01 thead th {
+    background: #54565a;
+    border: 1px solid #6f7177;
+}
+
+/* 설명문구 테두리 부분 */
+.local_desc01 {
+    border: 1px solid #d5d5d5;
+}
+
+.top_inf{}
+.top_inf:after{display:block;visibility:hidden;clear:both;content:"";}
+.top_inf .top_c{padding:10px 5px;}
+.top_inf .top_no{float:left;}
+.top_inf .top_mag{float:right}
+.top_inf .top_mag a{border:1px solid #ddd;display:inline-block;height:35px;line-height:35px;padding:0 10px;border-radius:4px;}
+.top_inf .top_mag .mag_com{margin-right:10px;background:#555;color:#fff;}
+.top_inf .top_mag #mag_act_txt{width:30px;text-align:right;position:relative;top:-3px;}
+.top_inf .top_mag .mag_act{background:#d67e5b;color:#fff;margin-left:5px;}
+.top_inf .top_mag span{margin-left:5px;}
+
+.top_inf .top_mag .mng_com_mb{background:#555;color:#fff;}
+.top_inf .top_mag input[type="text"]{position:relative;top:-3px;}
+.top_inf .top_mag #com_name{width:120px;}
+.top_inf .top_mag #mng_name{width:120px;}
+.top_inf .top_mag #mng_email{width:200px;}
+
+.txt_blueblink{color:#0000ff;animation:blink .5s ease-in-out infinite alternate;-webkit-animation:blink .5s ease-in-out infinite alternate;-moz-animation:blink .5s ease-in-out infinite alternate;-ms-animation:blink .5s ease-in-out infinite alternate;-o-animation:blink .5s ease-in-out infinite alternate;}
+.txt_redblink{color:#ff0000;animation:blink .5s ease-in-out infinite alternate;-webkit-animation:blink .5s ease-in-out infinite alternate;-moz-animation:blink .5s ease-in-out infinite alternate;-ms-animation:blink .5s ease-in-out infinite alternate;-o-animation:blink .5s ease-in-out infinite alternate;}
+.txt_gray{color:#aaa;}
+.txt_green{color:green;}
+
+
+#pc_change{display:block;position:fixed;bottom:10px;right:70px;width:30px;height:30px;line-height:28px;text-align:center;font-size:1.2em;background: rgba(0,0,0,0.1);}
