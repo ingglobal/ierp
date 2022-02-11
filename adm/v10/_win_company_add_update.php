@@ -20,6 +20,7 @@ else {
                 com_name = '".addslashes($_POST['com_name'])."'
                 , com_type = 'buyer'
                 , com_tel = '{$com_tel}'
+                , com_type = 'ok'
                 , com_president = '{$com_president}'
                 , com_reg_dt = '".G5_TIME_YMDHIS."'
                 , com_update_dt = '".G5_TIME_YMDHIS."'
