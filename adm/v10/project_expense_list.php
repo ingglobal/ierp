@@ -92,7 +92,7 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 10;
+if($super_admin) $colspan = 11;
 else $colspan = 8;
 
 ?>
@@ -118,6 +118,7 @@ else $colspan = 8;
 .td_grp .per{position:absolute;top:-4px;left:0px;font-size:0.7em;}
 .grp_box{display:block;position:absolute;bottom:2px;left:0px;width:100%;height:5px;background:#ccc;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
+.grp_box .grp_in_mi{background:red;}
 </style>
 
 <div class="local_ov01 local_ov">
@@ -163,7 +164,10 @@ else $colspan = 8;
         <th scope="col">번호</th>
         <th scope="col">의뢰기업</th>
         <th scope="col">공사프로젝트</th>
-        <?php if($super_admin){ ?><th scope="col">수주금액</th><?php } ?>
+        <?php if($super_admin){ ?>
+        <th scope="col">미수금<br>(수주금액기준%)</th>
+        <th scope="col">수주금액</th>
+        <?php } ?>
         <th scope="col">총지출액<?php if($super_admin){ ?><br>(수주금액기준%)<?php } ?></th>
         <th scope="col">기계지출액<br>(총지출액기준%)</th>
         <th scope="col">전기지출액<br>(총지출액기준%)</th>
@@ -184,8 +188,21 @@ else $colspan = 8;
         // print_r2($row);
         // 관리 버튼
         $s_mod = '<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1">수정</a>';
+
+        //수금완료 합계를 구한다
+        $ssql = " SELECT SUM(prp_price) AS sum_price
+                    FROM {$g5['project_price_table']}
+                    WHERE prj_idx = '".$row['prj_idx']."'
+                        AND prp_type NOT IN ('submit','nego','order','')
+                        AND prp_pay_date != '0000-00-00'
+                        AND prp_status = 'ok'
+        ";
+        //echo $ssql;
+        $sugeum = sql_fetch($ssql);
+        $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
         $row['prp_dif_exprice'] = $row['prp_order_price'] - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
+        $mis_per = ($row['prj_mi_price'])?round($row['prj_mi_price']/$row['prp_order_price']*100,1):0;
         $exp_per = ($row['prx_sum_exprice'])?round($row['prx_sum_exprice']/$row['prp_order_price']*100,1):0;
         $dif_per = ($row['prp_dif_exprice'])?round($row['prp_dif_exprice']/$row['prp_order_price']*100,1):0;
         $mcn_per = ($row['prx_mcn_exprice'])?round($row['prx_mcn_exprice']/$row['prx_sum_exprice']*100,1):0;
@@ -202,6 +219,11 @@ else $colspan = 8;
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
             <?php if($super_admin){ ?>
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
+                <span class="prc"><?=number_format($row['prj_mi_price'])?></span>
+                <div class="grp_box"><div class="grp_in grp_in_mi" style="width:<?=$mis_per?>%"></div></div>
+                <span class="per">(<?=$mis_per?>%)</span>
+            </td>
             <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
             <?php } ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
