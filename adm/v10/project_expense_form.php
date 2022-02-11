@@ -143,9 +143,10 @@ $super_admin
 .th_exprice i{position:absolute;bottom:15px;right:10px;font-size:1.2em;cursor:pointer;}
 .lst_exp{margin-top:5px;}
 .lst_exp strong{display:inline-block;width:40px;}
-.prx_price{text-align:right;}
-.prx_content{width:250px;}
-.com_name{background:#ddd;cursor:pointer;}
+.prx_price{text-align:right;width:90px;}
+.prx_name{width:90px;}
+.prx_content{width:150px;}
+.com_name{background:#ddd;cursor:pointer;width:100px;}
 .exp_box input[type="text"]{padding:0 5px;}
 .prx_price{width:110px;}
 .prx_done_date{width:90px;}
