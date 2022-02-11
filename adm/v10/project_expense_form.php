@@ -247,7 +247,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 					</tr>
 					<?php if($super_admin){ ?>
 					<tr>
-						<th class="th_dif">차액(<?=$dif_per?>%)<br>(수주금액기준%)</th>
+						<th class="th_dif">잔액(<?=$dif_per?>%)<br>(수주금액기준%)</th>
 						<td class="td_dif">
 							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
 							<?=number_format($dif_price)?>원
