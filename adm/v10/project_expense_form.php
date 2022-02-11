@@ -277,7 +277,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="지출내용" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
+						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
 						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
 						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
@@ -322,10 +322,10 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
 							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
 						</span>
-						<span><input type="text" name="prx_name" placeholder="지출내용" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
+						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="지출내용" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
+						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
 						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
 						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
@@ -370,10 +370,10 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
 							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
 						</span>
-						<span><input type="text" name="prx_name" placeholder="지출내용" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
+						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="지출내용" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
+						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
 						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
 						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
@@ -438,7 +438,7 @@ $('.i_exp').on('click',function(){
 			<span><input type="text" name="prx_name" placeholder="지출제목" value="" class="frm_input prx_name"></span>
 			<span><input type="text" name="prx_price" placeholder="지출금액" value="" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 			<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="" readonly class="frm_input prx_done_date"></span>
-			<span><input type="text" name="prx_content" placeholder="지출내용" value="" class="frm_input prx_content"></span>
+			<span><input type="text" name="prx_content" placeholder="메모" value="" class="frm_input prx_content"></span>
 			<span><button type="button" class="btn btn_01 lst_reg" typ="${typ}">등록</button></span>
 			<span><button type="button" class="btn btn_00 lst_del" typ="${typ}">삭제</button></span>
 		</div>
