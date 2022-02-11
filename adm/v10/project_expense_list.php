@@ -168,7 +168,7 @@ else $colspan = 8;
         <th scope="col">기계지출액<br>(총지출액기준%)</th>
         <th scope="col">전기지출액<br>(총지출액기준%)</th>
         <th scope="col">기타지출액<br>(총지출액기준%)</th>
-        <?php if($super_admin){ ?><th scope="col">잔액<br>(수주액-총지출액)</th><?php } ?>
+        <?php if($super_admin){ ?><th scope="col">잔액<br>(수주액-총지출액)<?php if($super_admin){ ?><br>(수주금액기준%)<?php } ?></th><?php } ?>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
 	</thead>
@@ -187,6 +187,7 @@ else $colspan = 8;
         $row['prp_dif_exprice'] = $row['prp_order_price'] - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
         $exp_per = ($row['prx_sum_exprice'])?round($row['prx_sum_exprice']/$row['prp_order_price']*100,1):0;
+        $dif_per = ($row['prp_dif_exprice'])?round($row['prp_dif_exprice']/$row['prp_order_price']*100,1):0;
         $mcn_per = ($row['prx_mcn_exprice'])?round($row['prx_mcn_exprice']/$row['prx_sum_exprice']*100,1):0;
         $elt_per = ($row['prx_elt_exprice'])?round($row['prx_elt_exprice']/$row['prx_sum_exprice']*100,1):0;
         $etc_per = ($row['prx_etc_exprice'])?round($row['prx_etc_exprice']/$row['prx_sum_exprice']*100,1):0;
@@ -224,7 +225,11 @@ else $colspan = 8;
                 <span class="per">(<?=$etc_per?>%)</span>
             </td>
             <?php if($super_admin){ ?>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:100px;"><?=number_format($row['prp_dif_exprice'])?></td>
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+                <span class="prc"><?=number_format($row['prp_dif_exprice'])?></span>
+                <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div><?php } ?>
+                <?php if($super_admin){ ?><span class="per">(<?=$dif_per?>%)</span><?php } ?>
+            </td>
             <?php } ?>
             <td class="td_mngsmall">
                 <?=$s_mod?>

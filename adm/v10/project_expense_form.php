@@ -92,6 +92,9 @@ $prs1 = sql_fetch('SELECT prp_price FROM '.$g5['project_price_table'].' WHERE pr
 //계약금에 대한 총지출금액 비율
 $exp_per = round($exp['total'] / $prs1['prp_price'] * 100,2);
 
+$dif_price = $prs1['prp_price'] - $exp['total'];
+$dif_per = round($dif_price / $prs1['prp_price'] * 100,2);
+
 if($exp['mcn_total']){
 	$mcn_per = round($exp['mcn_total']/$exp['total']*100,2);
 }
@@ -213,8 +216,11 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 					</tr>
 					<?php if($super_admin){ ?>
 					<tr>
-						<th class="th_dif">차액</th>
-						<td class="td_dif"><?=number_format($prs1['prp_price'] - $exp['total'])?>원</td>
+						<th class="th_dif">차액<?php if($super_admin){ ?>(<?=$dif_per?>%)<br>(수주금액기준%)<?php } ?></th>
+						<td class="td_dif">
+							<?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div><?php } ?>
+							<?=number_format($dif_price)?>원
+						</td>
 					</tr>
 					<?php } ?>
 					<?php if($exp['mcn_total']){ ?>
