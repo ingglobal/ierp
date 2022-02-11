@@ -173,6 +173,9 @@ html,body{overflow:hidden;}
 			?>
 			</tbody>
 			</table>
+			<div style="text-align:right;padding-top:10px;">
+			<a href="javascript:" class="a_mag btn btn_02" com_idx="25" com_name="아이엔지글로벌(주)">아이엔지글로벌선택</a>
+			</div>
 		</div>
 		<?php
 		//echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;ser_com_type='.$ser_com_type.'&amp;page=');
@@ -235,6 +238,7 @@ function chk_number(obj){
 		$(this).val(num);
 	});
 }
+
 
 function com_reg(com,name,tel){
 	var link = '<?=G5_USER_ADMIN_URL?>/_win_company_add_update.php';

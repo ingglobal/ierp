@@ -6,6 +6,7 @@ include_once('./_common.php');
 $prx_type = trim($_POST['prx_type']);
 if($mode == 'r' || $mode == 'u'){
 	$prx_name = trim($_POST['prx_name']);
+	$prx_content = trim($_POST['prx_content']);
 	$prx_price = trim($_POST['prx_price']);
 	$prx_done_date = trim($_POST['prx_done_date']);
 	$prx_price = preg_replace("/,/","",$prx_price);
@@ -15,7 +16,7 @@ if($mode == 'r' || $mode == 'u'){
 		,prx_type = '{$prx_type}'
 		,prx_price = '{$prx_price}'
 		,prx_name = '{$prx_name}'
-		,prx_content = '{$prx_name}'
+		,prx_content = '{$prx_content}'
 		,prx_plan_date = '{$prx_done_date}'
 		,prx_done_date = '{$prx_done_date}'
 		,mb_id = '{$member['mb_id']}'

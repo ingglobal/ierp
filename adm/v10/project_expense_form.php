@@ -125,6 +125,7 @@ $super_admin
 .lst_exp{margin-top:5px;}
 .lst_exp strong{display:inline-block;width:40px;}
 .prx_price{text-align:right;}
+.prx_content{width:350px;}
 .com_name{background:#ddd;cursor:pointer;}
 .exp_box input[type="text"]{padding:0 5px;}
 .prx_price{width:110px;}
@@ -273,9 +274,10 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
 							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
 						</span>
-						<span><input type="text" name="prx_name" placeholder="지출내용" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
+						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
+						<span><input type="text" name="prx_content" placeholder="지출내용" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
 						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
 						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
@@ -323,6 +325,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<span><input type="text" name="prx_name" placeholder="지출내용" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
+						<span><input type="text" name="prx_content" placeholder="지출내용" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
 						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
 						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
@@ -370,6 +373,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<span><input type="text" name="prx_name" placeholder="지출내용" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
+						<span><input type="text" name="prx_content" placeholder="지출내용" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
 						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
 						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
@@ -431,9 +435,10 @@ $('.i_exp').on('click',function(){
 				<input type="hidden" name="com_idx" value="">
 				<input type="text" name="com_name" placeholder="업체명" value="" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
 			</span>
-			<span><input type="text" name="prx_name" placeholder="지출내용" value="" class="frm_input prx_name"></span>
+			<span><input type="text" name="prx_name" placeholder="지출제목" value="" class="frm_input prx_name"></span>
 			<span><input type="text" name="prx_price" placeholder="지출금액" value="" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
 			<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="" readonly class="frm_input prx_done_date"></span>
+			<span><input type="text" name="prx_content" placeholder="지출내용" value="" class="frm_input prx_content"></span>
 			<span><button type="button" class="btn btn_01 lst_reg" typ="${typ}">등록</button></span>
 			<span><button type="button" class="btn btn_00 lst_del" typ="${typ}">삭제</button></span>
 		</div>
@@ -451,7 +456,7 @@ function events_reg(){
 		e.preventDefault();
 		cur_obj = $(this).closest('.lst_exp');
 		var href = $(this).attr('link');
-		winProviderSelect = window.open(href, "winProviderSelect","left=400,top=150,width=550,height=600,scrollbars=1");
+		winProviderSelect = window.open(href, "winProviderSelect","left=600,top=150,width=550,height=600,scrollbars=1");
 		winProviderSelect.focus();
 	});
 	//지출완료일
@@ -465,6 +470,7 @@ function events_reg(){
 		var com_idx = cur_obj.find('input[name="com_idx"]').val();
 		var com_name = $.trim(cur_obj.find('input[name="com_name"]').val());
 		var prx_name = $.trim(cur_obj.find('input[name="prx_name"]').val());
+		var prx_content = $.trim(cur_obj.find('input[name="prx_content"]').val());
 		var prx_price = $.trim(cur_obj.find('input[name="prx_price"]').val());
 		var prx_done_date = $.trim(cur_obj.find('input[name="prx_done_date"]').val());
 		var type = $(this).attr('typ');
@@ -478,7 +484,7 @@ function events_reg(){
 			return false;
 		}
 		if(!prx_name){
-			alert('지출내용을 입력해 주세요.');
+			alert('지출제목을 입력해 주세요.');
 			cur_obj.find('input[name="prx_name"]').focus();
 			return false;
 		}
@@ -492,7 +498,7 @@ function events_reg(){
 			cur_obj.find('input[name="prx_done_date"]').focus();
 			return false;
 		}
-		exp_reg(prj_idx,type,com_idx,prx_name,prx_price,prx_done_date);
+		exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date);
 	});
 
 	//수정버튼
@@ -509,6 +515,7 @@ function events_reg(){
 		var com_idx = cur_obj.find('input[name="com_idx"]').val();
 		var com_name = $.trim(cur_obj.find('input[name="com_name"]').val());
 		var prx_name = $.trim(cur_obj.find('input[name="prx_name"]').val());
+		var prx_content = $.trim(cur_obj.find('input[name="prx_content"]').val());
 		var prx_price = $.trim(cur_obj.find('input[name="prx_price"]').val());
 		var prx_done_date = $.trim(cur_obj.find('input[name="prx_done_date"]').val());
 		var type = $(this).attr('typ');
@@ -536,7 +543,7 @@ function events_reg(){
 			cur_obj.find('input[name="prx_done_date"]').focus();
 			return false;
 		}
-		exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_price,prx_done_date); 
+		exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date); 
 	});
 
 
@@ -652,14 +659,14 @@ function only_number_comma(inp){
 }
 
 //새로운 지출내역 등록
-function exp_reg(prj_idx,type,com_idx,prx_name,prx_price,prx_done_date){
+function exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date){
 	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
 	
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_price': prx_price, 'mode': 'r', 'prx_done_date': prx_done_date},
+		data : {'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'r', 'prx_done_date': prx_done_date},
 		success : function(res){
 			if(res == 'reg'){
 				alert('지출내역을 성공적으로 등록했습니다.');
@@ -673,14 +680,14 @@ function exp_reg(prj_idx,type,com_idx,prx_name,prx_price,prx_done_date){
 }
 
 //새로운 지출내역 수정
-function exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_price,prx_done_date){
+function exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date){
 	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
 	
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'prx_idx': prx_idx,'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_price': prx_price, 'mode': 'u', 'prx_done_date': prx_done_date},
+		data : {'prx_idx': prx_idx,'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'u', 'prx_done_date': prx_done_date},
 		success : function(res){
 			if(res == 'upd'){
 				alert('지출내역을 성공적으로 수정했습니다.');

@@ -7,7 +7,7 @@ $com_tel = trim($_POST['com_tel']);
 
 $msg = '';
 
-$chk_sql = " SELECT COUNT(*) AS cnt FROM {$g5['company_table']} WHERE com_status NOT IN('delete','del','trash','cancel') AND com_tel = '{$com_tel}' ";
+$chk_sql = " SELECT COUNT(*) AS cnt FROM {$g5['company_table']} WHERE com_status NOT IN('delete','del','trash','cancel') AND com_name = '{$com_name}' AND com_president = '{$com_president}' ";
 $chk = sql_fetch($chk_sql);
 
 //중복여부 확인
@@ -20,7 +20,7 @@ else {
                 com_name = '".addslashes($_POST['com_name'])."'
                 , com_type = 'buyer'
                 , com_tel = '{$com_tel}'
-                , com_type = 'ok'
+                , com_status = 'ok'
                 , com_president = '{$com_president}'
                 , com_reg_dt = '".G5_TIME_YMDHIS."'
                 , com_update_dt = '".G5_TIME_YMDHIS."'
