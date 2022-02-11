@@ -451,7 +451,7 @@ function events_reg(){
 		e.preventDefault();
 		cur_obj = $(this).closest('.lst_exp');
 		var href = $(this).attr('link');
-		winProviderSelect = window.open(href, "winProviderSelect","left=300,top=150,width=550,height=600,scrollbars=1");
+		winProviderSelect = window.open(href, "winProviderSelect","left=400,top=150,width=550,height=600,scrollbars=1");
 		winProviderSelect.focus();
 	});
 	//지출완료일
