@@ -38,10 +38,10 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 		<table>
 		<caption>기본설정</caption>
 		<colgroup>
-			<col class="grid_4">
-			<col>
-			<col class="grid_4">
-			<col>
+			<col class="grid_4" style="width:15%;">
+			<col style="width:35%;">
+			<col class="grid_4" style="width:15%;">
+			<col style="width:35%;">
 		</colgroup>
 		<tbody>
 		<tr>
@@ -134,14 +134,14 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
         <tr>
             <th scope="row">지출 금액타입</th>
             <td colspan="3">
-                <?php echo help('금액타입 중에서 지출에 표시할 타입을 입력하세요.') ?>
+                <?php echo help('금액타입 중에서 지출에 표시할 타입을 입력하세요. ex) machine=기계지출,electricity=전기지출,etc=기타지출') ?>
                 <input type="text" name="set_exprice_type" value="<?php echo $g5['setting']['set_exprice_type']; ?>" class="frm_input" style="width:80%;">
             </td>
         </tr>
         <tr>
             <th scope="row">지출 금액상태</th>
             <td colspan="3">
-                <?php echo help('금액유형 중에서 지출에 표시할 상태를 입력하세요.') ?>
+                <?php echo help('금액유형 중에서 지출에 표시할 상태를 입력하세요. ex) pending=대기,ok=정상') ?>
                 <input type="text" name="set_exprice_status" value="<?php echo $g5['setting']['set_exprice_status']; ?>" class="frm_input" style="width:80%;">
             </td>
         </tr>

@@ -9,8 +9,8 @@ $menu["menu960"] = array (
 	array('960250', '영업관리', ''.G5_BBS_URL.'/board.php?bo_table=sales', 'sales_list'),
 	array('960280', '프로젝트안건', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=agenda', 'bbs_board'),
 	array('960210', '프로젝트견적', ''.G5_USER_ADMIN_URL.'/quot_list.php', 'quot_list'),
-	array('960240', '수입관리', ''.G5_USER_ADMIN_URL.'/project_group_price_list.php', 'project_group_price_list'), 
-	//array('960250', 'PR지출관리', ''.G5_USER_ADMIN_URL.'/project_pr_expense_list.php', 'project_pr_expense_list'),	
+	array('960240', '수입관리', ''.G5_USER_ADMIN_URL.'/project_group_price_list.php', 'project_group_price_list'),
+	array('960245', '지출관리', ''.G5_USER_ADMIN_URL.'/project_expense_list.php', 'project_expense_list'),
 	array('960215', '프로젝트관리', ''.G5_USER_ADMIN_URL.'/project_list.php', 'project_list'),
 	array('960230', '프로젝트일정', ''.G5_USER_ADMIN_URL.'/project_gantt.php', 'project_gantt'),
 	array('960260', '회의록', ''.G5_BBS_URL.'/board.php?bo_table=meeting', 'meeting_list'),
@@ -25,7 +25,7 @@ $menu["menu960"] = array (
 	//array('960740', '매뉴얼', G5_BBS_URL.'/board.php?bo_table=manual', 'manual_list'),
 	array('960700', '공지사항', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=notice1', 'notice1'),
 	array('960800', '자료실', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=erpdata', 'bbs_board')
-);	
+);
 }
 else{
 $menu["menu960"] = array (
@@ -37,8 +37,8 @@ $menu["menu960"] = array (
 	array('960250', '영업관리', ''.G5_BBS_URL.'/board.php?bo_table=sales', 'sales_list'),
 	array('960280', '프로젝트안건', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=agenda', 'bbs_board'),
 	array('960210', '프로젝트견적', ''.G5_USER_ADMIN_URL.'/quot_list.php', 'quot_list'),
-	array('960240', '수입관리', ''.G5_USER_ADMIN_URL.'/project_group_price_list.php', 'project_group_price_list'), 
-	//array('960250', 'PR지출관리', ''.G5_USER_ADMIN_URL.'/project_pr_expense_list.php', 'project_pr_expense_list'),	
+	array('960240', '수입관리', ''.G5_USER_ADMIN_URL.'/project_group_price_list.php', 'project_group_price_list'),
+	array('960245', '지출관리', ''.G5_USER_ADMIN_URL.'/project_expense_list.php', 'project_expense_list'),	
 	array('960215', '프로젝트관리', ''.G5_USER_ADMIN_URL.'/project_list.php', 'project_list'),
 	array('960230', '프로젝트일정', ''.G5_USER_ADMIN_URL.'/project_gantt.php', 'project_gantt'),
 	array('960260', '회의록', ''.G5_BBS_URL.'/board.php?bo_table=meeting', 'meeting_list'),
@@ -53,6 +53,6 @@ $menu["menu960"] = array (
 	//array('960740', '매뉴얼', G5_BBS_URL.'/board.php?bo_table=manual', 'manual_list'),
 	array('960700', '공지사항', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=notice1', 'notice1'),
 	array('960800', '자료실', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=erpdata', 'bbs_board')
-);	
+);
 }
 ?>

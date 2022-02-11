@@ -118,6 +118,10 @@ label[for^=set_] input[type=radio] {margin-right:2px;}
     vertical-align: middle;
 }
 .btn_00,a.btn_00{background:#555;color:#fff;}
+.btn_01,a.btn_01{background:#852c2c;color:#fff;}
+.btn_02,a.btn_02{background:#3738a0;color:#fff;}
+.btn_03,a.btn_03{background:#134937;color:#fff;}
+.btn_04,a.btn_04{background:#595a0a;color:#fff;}
 
 
 

@@ -189,7 +189,7 @@ function get_table($db_table,$db_field,$db_id,$db_fields='*')
 
 	if(!$db_table||!$db_field||!$db_id)
 		return false;
-    
+
     // 게시판인 경우
     if($db_field=='wr_id') {
         $table_name = $g5['write_prefix'].$db_table;
@@ -197,7 +197,7 @@ function get_table($db_table,$db_field,$db_id,$db_fields='*')
     else {
         $table_name = $g5[$db_table.'_table'];
     }
-    
+
     $sql = " SELECT ".$db_fields." FROM ".$table_name." WHERE ".$db_field." = '".$db_id."' LIMIT 1 ";
     //print_r3($sql);
     //echo $sql.'<br>';
@@ -217,7 +217,7 @@ function get_table_meta($db_table,$db_field,$db_id,$db_table2='')
 
 	if(!$db_table||!$db_field||!$db_id)
 		return false;
-    
+
     // 게시판인 경우
     if($db_field=='wr_id') {
         $table_name = $g5['write_prefix'].$db_table;
@@ -225,10 +225,10 @@ function get_table_meta($db_table,$db_field,$db_id,$db_table2='')
     else {
         $table_name = $g5[$db_table.'_table'];
     }
-    
+
 	// db_table2가 없으면 db_table과 같은 값
     $db_table2 = (!$db_table2) ? $db_table : $db_table2;
-	
+
     $sql = " SELECT * FROM ".$table_name." WHERE ".$db_field." = '".$db_id."' LIMIT 1 ";
     // print_r3($sql);
     //echo $sql.'<br>';
@@ -276,7 +276,7 @@ if(!function_exists('get_meta')){
 function get_meta($db_table,$db_id,$code64=1)
 {
     global $g5;
-	
+
 	if(!$db_table||!$db_id)
 		return false;
 
@@ -296,7 +296,7 @@ function get_meta($db_table,$db_id,$code64=1)
                         $mta2[$k1] = stripslashes64($v1);
                     else
                         $mta2[$k1] = stripslashes($v1);
-                }    
+                }
             }
         }
     }
@@ -315,7 +315,7 @@ function get_serialized($text)
             foreach ($unser as $k1=>$v1) {
                 //echo $k1.'='.stripslashes64($v1);.'<br>';
                 $a[$k1] = stripslashes64($v1); // " 와 ' 를 html code 로 변환
-            }    
+            }
         }
         return $a;
     }
@@ -332,7 +332,7 @@ function serialized_update($key,$str,$text)
 {
     if(!$key)
         return $text;
-    
+
     $a = array();
     if(is_serialized($text)) {
         $unser = unserialize($text);
@@ -366,7 +366,7 @@ function keys_update($key,$str,$text)
 {
     if(!$key)
         return $text;
-    
+
     $a = array();
     $b = explode(",",$text);
     for($i=0;$i<sizeof($b);$i++) {
@@ -443,30 +443,30 @@ if(!function_exists('meta_update')){
 function meta_update($meta_array)
 {
 	global $g5,$config;
-	
+
 	if(!$meta_array['mta_key'])
 		return 0;
 
 	$mta_country = ($meta_array['mta_country'])? $meta_array['mta_country']:$g5['setting']['set_default_country'];
 
-	$row1 = sql_fetch("	SELECT * FROM {$g5['meta_table']} 
-							WHERE mta_country = '$mta_country' 
-								AND mta_db_table='{$meta_array['mta_db_table']}' 
-								AND mta_db_id='{$meta_array['mta_db_id']}' 
+	$row1 = sql_fetch("	SELECT * FROM {$g5['meta_table']}
+							WHERE mta_country = '$mta_country'
+								AND mta_db_table='{$meta_array['mta_db_table']}'
+								AND mta_db_id='{$meta_array['mta_db_id']}'
 								AND mta_key='{$meta_array['mta_key']}' ");
 	if($row1['mta_idx']) {
-		$sql = " UPDATE {$g5['meta_table']} SET 
-					mta_value='{$meta_array['mta_value']}' 
+		$sql = " UPDATE {$g5['meta_table']} SET
+					mta_value='{$meta_array['mta_value']}'
 				WHERE mta_idx='".$row1['mta_idx']."' ";
 		sql_query($sql);
 	}
 	else {
-		$sql = " INSERT INTO {$g5['meta_table']} SET 
-					mta_country = '$mta_country', 
-					mta_db_table='{$meta_array['mta_db_table']}', 
-					mta_db_id='{$meta_array['mta_db_id']}', 
-					mta_key='{$meta_array['mta_key']}', 
-					mta_value='{$meta_array['mta_value']}', 
+		$sql = " INSERT INTO {$g5['meta_table']} SET
+					mta_country = '$mta_country',
+					mta_db_table='{$meta_array['mta_db_table']}',
+					mta_db_id='{$meta_array['mta_db_id']}',
+					mta_key='{$meta_array['mta_key']}',
+					mta_value='{$meta_array['mta_value']}',
 					mta_reg_dt='".G5_TIME_YMDHIS."' ";
 		sql_query($sql);
 	}
@@ -484,23 +484,23 @@ function setting_update($set_array)
 	$set_key = ($set_array['set_key']) ? $set_array['set_key']:'ypage';
 	$set_auto_yn = ($set_array['set_auto_yn'])? 1:0;
 
-	$row1 = sql_fetch(" SELECT * FROM {$g5['setting_table']} 
-						WHERE set_name='{$set_array['set_name']}' 
-							AND set_country='$set_country' 
+	$row1 = sql_fetch(" SELECT * FROM {$g5['setting_table']}
+						WHERE set_name='{$set_array['set_name']}'
+							AND set_country='$set_country'
 							AND set_key = '{$set_key}' ");
 	if($row1['set_idx']) {
-		sql_query(" UPDATE {$g5['setting_table']} SET 
-						set_key='{$set_key}', 
-						set_value='{$set_array['set_value']}', 
-						set_auto_yn='$set_auto_yn' 
+		sql_query(" UPDATE {$g5['setting_table']} SET
+						set_key='{$set_key}',
+						set_value='{$set_array['set_value']}',
+						set_auto_yn='$set_auto_yn'
 					WHERE set_idx='".$row1['set_idx']."' ", 1);
 	}
 	else {
-		sql_query(" INSERT INTO {$g5['setting_table']} SET 
-						set_key='{$set_key}', 
-						set_name='{$set_array['set_name']}', 
-						set_value='{$set_array['set_value']}', 
-						set_country='$set_country', 
+		sql_query(" INSERT INTO {$g5['setting_table']} SET
+						set_key='{$set_key}',
+						set_name='{$set_array['set_name']}',
+						set_value='{$set_array['set_value']}',
+						set_country='$set_country',
 						set_auto_yn='$set_auto_yn' ", 1);
 	}
 }
@@ -518,7 +518,7 @@ function delete_post($pst_idx, $delete=0) {
 		sql_query($sql);
 	}
 	//-- 완전 삭제하기
-	else {		
+	else {
 	    //-- 관련 파일 삭제
 	    delete_jt_files('post', $pst_idx);
 
@@ -552,7 +552,7 @@ function get_post($pst_idx, $fields='*')
 	$result = sql_query(" SELECT mta_key,mta_value FROM {$g5['meta_table']} WHERE mta_db_table = 'post' AND mta_db_id='$pst_idx' ");
 	for ($i=0; $row=sql_fetch_array($result); $i++)
 		$pst[$row['mta_key']] = $row['mta_value'];
-	
+
     return $pst;
 }
 }
@@ -603,7 +603,7 @@ function get_jt_file($fle_idx, $fields='*')
 	$result = sql_query(" SELECT mta_key,mta_value FROM {$g5['meta_table']} WHERE mta_db_table = 'jt_file' AND mta_db_id='$fle_idx' ");
 	for ($i=0; $row=sql_fetch_array($result); $i++)
 		$pst[$row['mta_key']] = $row['mta_value'];
-	
+
     return $pfl;
 }
 }
@@ -624,10 +624,10 @@ function make_jt_file_thumbnail($fle_array) {
 	// 디비가 존재하지 않으면 리턴
 	if(!$pfl['fle_idx'])
 		return false;
-		
+
 	// 썸네일 생성
     $thumb = thumbnail($pfl['fle_name'], G5_PATH.$pfl['fle_path'], G5_PATH.$pfl['fle_path'], $fle_array['target_width'], $fle_array['target_height'], false, false, 'center', true, $um_value='80/0.5/3');
-    	    		
+
     // 파일 크기 추출
 	$dir = G5_PATH.$pfl['fle_path'];
     $file = $dir.'/'.$thumb;
@@ -638,7 +638,7 @@ function make_jt_file_thumbnail($fle_array) {
     }
 	else
 		return false;
-    
+
 	// 파일명 변경 (변경하려고 하는 파일명이 있으면 일련번호롤 붙여준다.)
 	$target_name = $fle_array['target_file_name'];	// 확장자 없는 파일명
 	if(file_exists(rtrim($dir,'/').'/'.$file_parts['filename'])) {
@@ -657,16 +657,16 @@ function make_jt_file_thumbnail($fle_array) {
 		}
 		else
 			$file_no = 1;
-		
+
 		//-- 파일명 재 설정 --//
 		$new_thumb = $target_name.'('.$file_no.').'.$file_parts['extension'];
 	}
 	else
 		$new_thumb = $target_name.'.'.$file_parts['extension'];
-	
+
 	// 썸네일 파일명 변경
 	@copy($dir.'/'.$thumb, $dir.'/'.$new_thumb);
-	@unlink($dir.'/'.$thumb);		
+	@unlink($dir.'/'.$thumb);
 
 	// fle_type 없으면
 	if(!$fle_array['fle_type'])
@@ -701,7 +701,7 @@ function make_jt_file_thumbnail($fle_array) {
 	if(!$fle_array['fle_exist']) {
 		delete_jt_file( array("fle_idx"=>$fle_array['fle_idx'],"fle_delete"=>1) );
 	}
-    
+
     return array("upfile_name"=>$new_thumb
 					,"upfile_width"=>$size[0]
 					,"upfile_height"=>$size[1]
@@ -736,7 +736,7 @@ function get_jt_file_thumbnail($fle_thumb_array)
     if($fle_thumb_array['target_width'] && !$fle_thumb_array['target_height']) {
         $fle_thumb_array['target_height'] = round(($fle_thumb_array['target_width'] * $img_height) / $img_width);
     }
-	
+
     $thumb = thumbnail($filename, $filepath, $filepath, $fle_thumb_array['target_width'], $fle_thumb_array['target_height'], false, false, 'center', true, $um_value='80/0.5/3');
 
     if($thumb) {
@@ -769,7 +769,7 @@ function delete_jt_files($fle_array)
     if(!$fle_db_table || !$fle_db_id)
         return;
 
-    $sql = "SELECT * FROM {$g5['file_table']} 
+    $sql = "SELECT * FROM {$g5['file_table']}
 			WHERE fle_db_table = '".$fle_db_table."' AND fle_db_id = '".$fle_db_id."' ORDER BY fle_sort, fle_idx DESC ";
     $result = sql_query($sql);
     while ( $row = sql_fetch_array($result) ) {
@@ -797,7 +797,7 @@ function delete_jt_files($fle_array)
 }
 
 // jt file 삭제 - 한개
-//관련 변수: $fle_idx, $fle_db_table, $fle_db_id, $fle_sort, 
+//관련 변수: $fle_idx, $fle_db_table, $fle_db_id, $fle_sort,
 // $fle_delete (1이면 DB까지 완전삭제)
 // $fle_delete (0이면 상태값만 변경)
 // -- $fle_delete_file (1이면 파일만 삭제, 상태값 trash)
@@ -806,7 +806,7 @@ if(!function_exists('delete_jt_file')){
 function delete_jt_file($fle_array)
 {
     global $g5;
-	
+
     if(!$fle_array['fle_idx'] && !$fle_array['fle_db_table'])
         return;
 
@@ -816,10 +816,10 @@ function delete_jt_file($fle_array)
     }
     //-- 없으면 해당 db_table, db_id, sort 조건으로 추출
 	else if($fle_array['fle_db_table'] && $fle_array['fle_db_id']) {
-    	$pfl = sql_fetch("	SELECT * FROM {$g5['file_table']} 
-							WHERE fle_db_table = '{$fle_array['fle_db_table']}' 
-								AND fle_db_id = '{$fle_array['fle_db_id']}' 
-								AND fle_type = '{$fle_array['fle_type']}' 
+    	$pfl = sql_fetch("	SELECT * FROM {$g5['file_table']}
+							WHERE fle_db_table = '{$fle_array['fle_db_table']}'
+								AND fle_db_id = '{$fle_array['fle_db_id']}'
+								AND fle_type = '{$fle_array['fle_type']}'
 								AND fle_sort = '{$fle_array['fle_sort']}' ");
 	}
 
@@ -850,7 +850,7 @@ function delete_jt_file_thumbnail($path, $file)
 {
     if(!$path || !$file)
         return;
-	
+
 	$path = G5_PATH.'/'.$path;
 
     $filename = preg_replace("/\.[^\.]+$/i", "", $file); // 확장자제거
@@ -865,16 +865,16 @@ function delete_jt_file_thumbnail($path, $file)
 
 
 // Post File 업로드 함수
-//설정 변수: mb_id, fle_src_file, fle_orig_file, fle_mime_type, fle_path, fle_db_table, fle_db_id, fle_sort .... 
+//설정 변수: mb_id, fle_src_file, fle_orig_file, fle_mime_type, fle_path, fle_db_table, fle_db_id, fle_sort ....
 if(!function_exists('upload_jt_file')){
 function upload_jt_file($fle_array)
 {
 	global $g5,$config,$member;
-	
-	//-- 원본 파일명이 없으면 리턴 
-    if($fle_array['fle_orig_file'] == "") 
+
+	//-- 원본 파일명이 없으면 리턴
+    if($fle_array['fle_orig_file'] == "")
     	return false;
-	
+
 	//-- 파일명 재설정, 한글인 경우는 변경
     $fle_array['fle_dest_file'] = preg_replace("/\s+/", "", $fle_array['fle_orig_file']);
     $fle_array['fle_dest_file'] = preg_replace("/[#\&\+\-%@=\/\\:;,'\"\^`~\|\!\?\*\$#<>\(\)\[\]\{\}]/", "", $fle_array['fle_dest_file']);
@@ -884,27 +884,27 @@ function upload_jt_file($fle_array)
                           $fle_array['fle_dest_file']);
 	$fle_array['fle_dest_file'] = preg_replace("/\+/", "", $fle_array['fle_dest_file']);	// 한글변환후 + 기호가 있으면 제거해야 함
 	$fle_array['fle_dest_file'] = preg_replace("/\//", "", $fle_array['fle_dest_file']);	// 한글변환후 / 기호가 있으면 제거해야 함
-	
+
 	// 상태값이 있으면 업데이트
 	if($fle_array['fle_status'])
 		$sql_status = ", fle_status='".$fle_array['fle_status']."' ";
-	else 
+	else
 		$sql_status = ", fle_status='ok' ";
 
 	//-- 파일 업로드 처리
 	$upload_file = upload_common_file($fle_array['fle_src_file'], $fle_array['fle_dest_file'], $fle_array['fle_path']);
     //print_r2($upload_file);
 
-	$pfl = sql_fetch(" SELECT * FROM {$g5['file_table']} 
-						WHERE fle_db_table = '{$fle_array['fle_db_table']}' 
-							AND fle_type = '{$fle_array['fle_type']}' 
+	$pfl = sql_fetch(" SELECT * FROM {$g5['file_table']}
+						WHERE fle_db_table = '{$fle_array['fle_db_table']}'
+							AND fle_type = '{$fle_array['fle_type']}'
 							AND fle_db_id = '{$fle_array['fle_db_id']}' AND fle_sort = '{$fle_array['fle_sort']}' ");
 	if($pfl['fle_idx']) {
 		//-- 파일이 존재하면 기존 파일만 삭제 (같은 파일명이 로칼, 서버에 모두 존재하면 삭제가 되어 버리는군.)
 		//delete_jt_file( array("fle_idx"=>$pfl['fle_idx'],"fle_delete_file"=>1) );
-		
+
 		//-- 관련 디비 업데이트
-		$sql = " UPDATE {$g5['file_table']} SET 
+		$sql = " UPDATE {$g5['file_table']} SET
 						fle_name='".$upload_file[0]."'
 						, fle_name_orig='{$fle_array['fle_orig_file']}'
 						, fle_width='".$upload_file[1]."'
@@ -915,16 +915,16 @@ function upload_jt_file($fle_array)
 		sql_query($sql);
 	}
 	else {
-		
+
 		//-- pst_host 설정
-		$fle_array['fle_host'] = ($fle_array['fle_host']) ? $fle_array['fle_host']:'localhost'; 
-		
+		$fle_array['fle_host'] = ($fle_array['fle_host']) ? $fle_array['fle_host']:'localhost';
+
 		//-- pst_expire_date 설정
 		$fle_array['fle_expire_date'] = ($fle_array['fle_expire_date']) ? $fle_array['fle_expire_date']:'9999-12-31';
-		
+
 		// 파일의 mime_type 추출
 		if(!$fle_array['fle_mime_type'])
-			$fle_array['fle_mime_type'] = mime_content_type($filename); 
+			$fle_array['fle_mime_type'] = mime_content_type($filename);
 
 		$sql = " INSERT INTO {$g5['file_table']} SET
 						mb_id='$fle_array[mb_id]'
@@ -980,13 +980,13 @@ function upload_common_file($srcfile, $destfile, $dir)
 
     //-- 디렉토리 재설정
 	$dir = G5_PATH.$dir;
-	
+
 	//-- 디렉토리내 동일 파일명이 존재하면 일련번호 붙인 형태로 생성하고 파일명 리턴
 	$file_parts = pathinfo($dir.'/'.$destfile);
 	$file_name = $file_parts['filename'];
 	$full_name = $file_name.'.'.$file_parts['extension'];
 	$file_name_with_path = rtrim($dir,'/').'/'.$full_name;
-	
+
 	if(file_exists($file_name_with_path)) {
 		$a = glob($dir.'/'.$file_name.'*');
 		natcasesort($a);
@@ -1007,13 +1007,13 @@ function upload_common_file($srcfile, $destfile, $dir)
 		}
 		else
 			$file_no = 1;
-		
+
 		//-- 파일명 재 설정 --//
 		$full_name = $file_name.'('.$file_no.').'.$file_parts['extension'];
 	}
-	else  
+	else
 		$full_name = $destfile;
-    
+
     // 업로드 한후 , 퍼미션을 변경함
     @move_uploaded_file($srcfile, $dir.'/'.$full_name);
     @chmod($dir.'/'.$full_name, G5_FILE_PERMISSION);
@@ -1071,46 +1071,46 @@ function delete_idx_file($fle_idx_array=array()) {
 
 
 // Post File 업로드 함수
-//설정 변수: mb_id, fle_src_file, fle_orig_file, fle_mime_type, fle_path, fle_db_table, fle_db_id, fle_sort .... 
+//설정 변수: mb_id, fle_src_file, fle_orig_file, fle_mime_type, fle_path, fle_db_table, fle_db_id, fle_sort ....
 if(!function_exists('upload_insert_file')){
 function upload_insert_file($fle_array){
 	global $g5,$config,$member;
-	
-	//-- 원본 파일명이 없으면 리턴 
-	if($fle_array['fle_orig_file'] == "") 
+
+	//-- 원본 파일명이 없으면 리턴
+	if($fle_array['fle_orig_file'] == "")
 		return false;
-	
+
 	//-- 파일명 재설정, 한글인 경우는 변경
 	$fle_array['fle_dest_file'] = preg_replace("/\s+/", "", $fle_array['fle_orig_file']);
 	$fle_array['fle_dest_file'] = preg_replace("/[#\&\+\-%@=\/\\:;,'\"\^`~\|\!\?\*\$#<>\(\)\[\]\{\}]/", "", $fle_array['fle_dest_file']);
 	$fle_array['fle_dest_file'] = preg_replace_callback(
-							"/[가-힣]+/",
+							"/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]+/",
 							create_function('$matches', 'return base64_encode($matches[0]);'),
 							$fle_array['fle_dest_file']);
 	$fle_array['fle_dest_file'] = preg_replace("/\+/", "", $fle_array['fle_dest_file']);	// 한글변환후 + 기호가 있으면 제거해야 함
 	$fle_array['fle_dest_file'] = preg_replace("/\//", "", $fle_array['fle_dest_file']);	// 한글변환후 / 기호가 있으면 제거해야 함
-	
+
 	// 상태값이 있으면 업데이트
 	if($fle_array['fle_status'])
 		$sql_status = ", fle_status='".$fle_array['fle_status']."' ";
-	else 
+	else
 		$sql_status = ", fle_status='ok' ";
 
 	//-- 파일 업로드 처리
 	$upload_file = upload_common_file($fle_array['fle_src_file'], $fle_array['fle_dest_file'], $fle_array['fle_path']);
 	//print_r2($upload_file);
 
-	
-		
+
+
 	//-- pst_host 설정
-	$fle_array['fle_host'] = ($fle_array['fle_host']) ? $fle_array['fle_host']:'localhost'; 
-	
+	$fle_array['fle_host'] = ($fle_array['fle_host']) ? $fle_array['fle_host']:'localhost';
+
 	//-- pst_expire_date 설정
 	$fle_array['fle_expire_date'] = ($fle_array['fle_expire_date']) ? $fle_array['fle_expire_date']:'9999-12-31';
-	
+
 	// 파일의 mime_type 추출
 	if(!$fle_array['fle_mime_type'])
-		$fle_array['fle_mime_type'] = mime_content_type($filename); 
+		$fle_array['fle_mime_type'] = mime_content_type($filename);
 
 	$sql = " INSERT INTO {$g5['file_table']} SET
 					mb_id='$fle_array[mb_id]'
@@ -1161,10 +1161,10 @@ function term_relation_update($trm_array)
 	global $g5,$config;
 
 	$taxonomy1 = sql_fetch(" SELECT trm_taxonomy FROM {$g5['term_table']} WHERE trm_idx='{$trm_array['trm_idx']}' ");
-	
+
 	//-- prod_tags 같은 것들은 복수개이어도 괜찮음
 	if($trm_array['dup_permit']) {
-		$row1 = sql_fetch(" SELECT tmr_idx,trm_idx FROM {$g5['term_relation_table']} 
+		$row1 = sql_fetch(" SELECT tmr_idx,trm_idx FROM {$g5['term_relation_table']}
 							WHERE tmr_db_table='{$trm_array['tmr_db_table']}'
 								AND tmr_db_key='{$trm_array['tmr_db_key']}'
 								AND trm_idx='{$trm_array['trm_idx']}'
@@ -1172,7 +1172,7 @@ function term_relation_update($trm_array)
 	}
 	//-- 복수 허용 안 함, prod_type,prod_cat,dept_cat와 같은 타입은 복수 허용 안함
 	else {
-		$row1 = sql_fetch(" SELECT tmr_idx,trm_idx FROM {$g5['term_relation_table']} 
+		$row1 = sql_fetch(" SELECT tmr_idx,trm_idx FROM {$g5['term_relation_table']}
 							WHERE tmr_db_table='{$trm_array['tmr_db_table']}'
 								AND tmr_db_key='{$trm_array['tmr_db_key']}'
 								AND tmr_db_id='{$trm_array['tmr_db_id']}'
@@ -1180,20 +1180,20 @@ function term_relation_update($trm_array)
 	}
 
 	if($row1['tmr_idx']) {
-		$sql = " UPDATE {$g5['term_relation_table']} SET 
+		$sql = " UPDATE {$g5['term_relation_table']} SET
 					trm_idx='{$trm_array['trm_idx']}'
-					, tmr_db_key='{$trm_array['tmr_db_key']}' 
-					, tmr_more='{$trm_array['tmr_more']}' 
+					, tmr_db_key='{$trm_array['tmr_db_key']}'
+					, tmr_more='{$trm_array['tmr_more']}'
 				WHERE tmr_idx='".$row1['tmr_idx']."' ";
 		sql_query($sql,1);
-		
+
 		//-- term 테이블 count 업데이트
-		$sql = " UPDATE {$g5['term_table']} SET 
+		$sql = " UPDATE {$g5['term_table']} SET
 					trm_count = (SELECT count(*) FROM {$g5['term_relation_table']} WHERE trm_idx = '$row1[trm_idx]')
 				WHERE trm_idx = '$row1[trm_idx]' ";
 		sql_query($sql,1);
-		$sql = " UPDATE {$g5['term_table']} SET 
-					trm_count = (SELECT count(*) FROM {$g5['term_relation_table']} WHERE trm_idx = '{$trm_array['trm_idx']}') 
+		$sql = " UPDATE {$g5['term_table']} SET
+					trm_count = (SELECT count(*) FROM {$g5['term_relation_table']} WHERE trm_idx = '{$trm_array['trm_idx']}')
 				WHERE trm_idx = '{$trm_array['trm_idx']}' ";
 		sql_query($sql,1);
 
@@ -1201,25 +1201,25 @@ function term_relation_update($trm_array)
 	// taxonomy 값이 없으면 입력 안함 (Null값 입력할 필요 없음)
 	else if($taxonomy1['trm_taxonomy']){
 
-		$sql = " INSERT INTO {$g5['term_relation_table']} SET 
+		$sql = " INSERT INTO {$g5['term_relation_table']} SET
 					tmr_db_table='{$trm_array['tmr_db_table']}'
 					, tmr_db_key='{$trm_array['tmr_db_key']}'
 					, trm_idx='{$trm_array['trm_idx']}'
 					, tmr_db_id='{$trm_array['tmr_db_id']}'
-					, tmr_more='{$trm_array['tmr_more']}' 
+					, tmr_more='{$trm_array['tmr_more']}'
 					, tmr_reg_dt='".G5_TIME_YMDHIS."' ";
 		sql_query($sql,1);
 		//echo $sql.'<br>';
-		
+
 		//-- term 테이블 count 업데이트
-		$sql = " UPDATE {$g5['term_table']} SET 
-					trm_count = (SELECT count(*) FROM {$g5['term_relation_table']} WHERE trm_idx = '{$trm_array['trm_idx']}') 
+		$sql = " UPDATE {$g5['term_table']} SET
+					trm_count = (SELECT count(*) FROM {$g5['term_relation_table']} WHERE trm_idx = '{$trm_array['trm_idx']}')
 				WHERE trm_idx = '{$trm_array['trm_idx']}' ";
 		sql_query($sql,1);
 	}
-	
+
 	return $sql;
-	
+
 }
 }
 
@@ -1230,8 +1230,8 @@ function mime_content_type($filename) {
 	$idx = explode( '.', $filename );
 	$count_explode = count($idx);
 	$idx = strtolower($idx[$count_explode-1]);
- 
-	$mimet = array(	
+
+	$mimet = array(
 		'ai' =>'application/postscript',
 		'aif' =>'audio/x-aiff',
 		'aifc' =>'audio/x-aiff',
@@ -1474,7 +1474,7 @@ function strip_g5_url($url)
     else {
         $url = preg_replace("~".preg_replace("~(^https?:\/\/)~","",G5_URL)."~","",$url);
     }
-    
+
     return $url;
 }
 }
@@ -1487,14 +1487,14 @@ function get_dayAddDate($dateInfo,$dayNum){//임채완이 재정의 한 함수(�
 	$day_ = $dtArr[2];
 	$dt = mktime(0,0,0,$month_,$day_+$dayNum,$year_);
 	return date("Y-m-d",$dt);
-} 
-} 
+}
+}
 
 //인수금액의 공급액 반환
 if(!function_exists('get_supply_price')){
 function get_supply_price($price=0){
 	global $g5;
-	
+
 	if($g5['setting']['set_tariff']){
 		$price = $price * ((100 - $g5['setting']['set_tariff']) / 100);
 	}
@@ -1670,7 +1670,7 @@ function send_kosmo_log(){
 
 	if(!$member['mb_id'])
 		return;
-	
+
 	$user_status = '';
 	if(preg_match('/update$/i',$g5['file_name'])){
 		if(!$w) $user_status = '등록';
@@ -1689,7 +1689,7 @@ function send_kosmo_log(){
 			$user_status = '종료';
 		}
 	}
-	
+
 	if(!$user_status)
 		return;
 	//print_r3($user_status);return;

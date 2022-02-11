@@ -1,5 +1,5 @@
 <?php
-$sub_menu = "960250";
+$sub_menu = "960245";
 include_once('./_common.php');
 
 auth_check($auth[$sub_menu],"r");
@@ -13,7 +13,7 @@ $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파�
 //$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
 
 
-$g5['title'] = 'PR지출관리';
+$g5['title'] = '지출관리';
 //include_once('./_top_menu_company.php');
 //include_once('./_top_menu_price.php');
 include_once('./_head.php');
@@ -29,7 +29,7 @@ $where[] = " prj_status = 'ok' ";   // 디폴트 검색조건
 
 // 운영권한이 없으면 자기 업체만
 if (!$member['mb_manager_yn']) {
-    $where[] = " prj.com_idx = '".$member['mb_4']."' ";
+    ;//$where[] = " prj.com_idx = '".$member['mb_4']."' ";
 }
 
 if ($stx) {
@@ -37,8 +37,8 @@ if ($stx) {
 		case ( $sfl == 'prj.com_idx' || $sfl == 'prj_idx' ) :
             $where[] = " ({$sfl} = '{$stx}') ";
             break;
-		case ($sfl == 'mb_hp') :
-            $where[] = " REGEXP_REPLACE(mb_hp,'-','') LIKE '".preg_replace("/-/","",$stx)."' ";
+		case ($sfl == 'prj.prj_name') :
+            $where[] = " ({$sfl} LIKE '%{$stx}%') ";
             break;
 		case ($sfl == 'mb_id_saler' || $sfl == 'mb_name_saler' ) :
             $where[] = " (mb_id_salers LIKE '%^{$stx}^%') ";
@@ -68,15 +68,16 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , com.com_idx AS com_idx
             , (SELECT prp_price FROM {$g5['project_price_table']} WHERE prj_idx = prj.prj_idx AND prp_type = 'order' AND prp_status = 'ok' ) AS prp_order_price
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_type = 'pr' AND prx_status = 'ok' ) AS prx_sum_exprice
-            , (SELECT mb_hp FROM {$g5['member_table']} WHERE mb_id = prj.mb_id_account ) AS prj_mb_hp
-            , (SELECT mb_name FROM {$g5['member_table']} WHERE mb_id = prj.mb_id_account ) AS prj_mb_name
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' ) AS prx_sum_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'machine' ) AS prx_mcn_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'electricity' ) AS prx_elt_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'etc' ) AS prx_etc_exprice
         {$sql_common}
 		{$sql_search}
         {$sql_order}
 		LIMIT {$from_record}, {$rows} 
 ";
-//echo $sql;
+// echo $sql;
 $result = sql_query($sql,1);
 $count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") ); 
 $total_count = $count['total'];
@@ -90,6 +91,9 @@ $cur_url = (preg_match("/\?/",$cur_url)) ? $cur_url.'&' : $cur_url.'?';
 $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_url);
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
+
+if($super_admin) $colspan = 10;
+else $colspan = 8;
 
 ?>
 <style>
@@ -108,6 +112,12 @@ $cur_url = str_replace('&&','&',$cur_url);
 .file_box:after{display:block;visibility:hidden;clear:both;content:'';}
 .file_in{float:left;width:50%;position:relative;}
 .file_in:first-child::after{content:'/';position:absolute;top:50%;right:-3px;transform:translateY(-50%);}
+.tbl_head01 .table td{}
+.td_grp{position:relative;}
+.td_grp .prc{position:relative;z-index:3;}
+.td_grp .per{position:absolute;top:-4px;left:0px;font-size:0.7em;}
+.grp_box{display:block;position:absolute;bottom:2px;left:0px;width:100%;height:5px;background:#ccc;}
+.grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 </style>
 
 <div class="local_ov01 local_ov">
@@ -119,8 +129,8 @@ $cur_url = str_replace('&&','&',$cur_url);
 <label for="sfl" class="sound_only">검색대상</label>
 <select name="sfl" id="sfl">
 	<option value="com.com_name"<?php echo get_selected($_GET['sfl'], "com.com_name"); ?>>업체명</option>
-	<option value="prj_name"<?php echo get_selected($_GET['sfl'], "prj_name"); ?>>프로젝트명</option>
-	<option value="prj_idx"<?php echo get_selected($_GET['sfl'], "prj_idx"); ?>>프로젝트번호</option>
+	<option value="prj.prj_name"<?php echo get_selected($_GET['sfl'], "prj.prj_name"); ?>>프로젝트명</option>
+	<option value="prj.prj_idx"<?php echo get_selected($_GET['sfl'], "prj.prj_idx"); ?>>프로젝트번호</option>
 </select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
@@ -153,9 +163,12 @@ $cur_url = str_replace('&&','&',$cur_url);
         <th scope="col">번호</th>
         <th scope="col">의뢰기업</th>
         <th scope="col">공사프로젝트</th>
-        <th scope="col">수주금액</th>
-        <th scope="col">발주금액</th>
-        <th scope="col">수주-발주차액</th>
+        <?php if($super_admin){ ?><th scope="col">수주금액</th><?php } ?>
+        <th scope="col">총지출액<?php if($super_admin){ ?><br>(수주금액기준%)<?php } ?></th>
+        <th scope="col">기계지출액<br>(총지출액기준%)</th>
+        <th scope="col">전기지출액<br>(총지출액기준%)</th>
+        <th scope="col">기타지출액<br>(총지출액기준%)</th>
+        <?php if($super_admin){ ?><th scope="col">잔액<br>(수주액-총지출액)</th><?php } ?>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
 	</thead>
@@ -163,67 +176,20 @@ $cur_url = str_replace('&&','&',$cur_url);
     <?php
     $fle_width = 100;
     $fle_height = 80;
-    /*
-    [prj_idx] => 9
-    [com_idx] => 1
-    [mb_id_company] => test01
-    [mb_id_saler] => test02
-    [mb_id_account] => 
-    [prj_doc_no] => ING-138169-9a
-    [prj_name] => 4축 트랜스퍼
-    [prj_end_company] => 이앤에프㈜
-    [prj_content] => 
-    [prj_belongto] => first
-    [prj_receivable] => 0
-    [prj_percent] => 10
-    [prj_keys] => 
-    [prj_status] => ok
-    [prj_ask_date] => 2020-09-06
-    [prj_submit_date] => 2020-09-10
-    [prj_reg_dt] => 2020-09-09 11:51:28
-    [prj_update_dt] => 2020-09-11 22:36:10
-    [prp_order_price] => 78000000
-    [com_name] => 아진산업
-    [com_name_eng] => AJIN INDUSTRIAL Co.,LTD.
-    [com_names] => , 아진산업(20-08-02~)
-    [com_homepage] => www.wamc.co.kr
-    [com_tel] => 053-856-9100
-    [com_fax] => 053-856-9111
-    [com_email] => master@wamc.co.kr
-    [com_type] => carparts
-    [com_class] => 
-    [com_president] => 서중호
-    [com_biz_no] => 000-00-00000
-    [com_biz_type1] => 설비
-    [com_biz_type2] => 자동차
-    [com_zip1] => 384
-    [com_zip2] => 62
-    [com_addr1] => 경북 경산시 진량읍 공단8로26길 40
-    [com_addr2] => 
-    [com_addr3] =>  (신제리)
-    [com_addr_jibeon] => R
-    [com_b_zip1] => 
-    [com_b_zip2] => 
-    [com_b_addr1] => 
-    [com_b_addr2] => 
-    [com_b_addr3] => 
-    [com_b_addr_jibeon] => 
-    [com_latitude] => 
-    [com_longitude] => 
-    [com_memo] => 
-    [com_keys] => 
-    [com_status] => ok
-    [com_reg_dt] => 2020-08-02 16:08:13
-    [com_update_dt] => 2020-08-05 10:47:06
-    */
+
     $misu1_price = 0;
     $misu2_price = 0;
     
     for ($i=0; $row=sql_fetch_array($result); $i++) {
+        // print_r2($row);
         // 관리 버튼
         $s_mod = '<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1">수정</a>';
         $row['prp_dif_exprice'] = $row['prp_order_price'] - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
+        $exp_per = ($row['prx_sum_exprice'])?round($row['prx_sum_exprice']/$row['prp_order_price']*100,1):0;
+        $mcn_per = ($row['prx_mcn_exprice'])?round($row['prx_mcn_exprice']/$row['prx_sum_exprice']*100,1):0;
+        $elt_per = ($row['prx_elt_exprice'])?round($row['prx_elt_exprice']/$row['prx_sum_exprice']*100,1):0;
+        $etc_per = ($row['prx_etc_exprice'])?round($row['prx_etc_exprice']/$row['prx_sum_exprice']*100,1):0;
         ?>
         <tr class="<?=$bg?>">
             <td class="td_chk" rowspan="<?=$p_cnt?>" style="display:<?=(!$member['mb_manager_yn'])?'none':'none'?>;">
@@ -234,9 +200,32 @@ $cur_url = str_replace('&&','&',$cur_url);
             <td rowspan="<?=$p_cnt?>"><?=$row['prj_idx']?></td><!-- 번호 -->
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;"><?=number_format($row['prp_order_price'])?></td>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;"><?=number_format($row['prx_sum_exprice'])?></td>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;"><?=number_format($row['prp_dif_exprice'])?></td>
+            <?php if($super_admin){ ?>
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
+            <?php } ?>
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
+                <span class="prc"><?=number_format($row['prx_sum_exprice'])?></span>
+                <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
+                <?php if($super_admin){ ?><span class="per">(<?=$exp_per?>%)</span><?php } ?>
+            </td>
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+                <span class="prc"><?=number_format($row['prx_mcn_exprice'])?></span>
+                <div class="grp_box"><div class="grp_in" style="width:<?=$mcn_per?>%"></div></div>
+                <span class="per">(<?=$mcn_per?>%)</span>
+            </td>
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+                <span class="prc"><?=number_format($row['prx_elt_exprice'])?></span>
+                <div class="grp_box"><div class="grp_in" style="width:<?=$elt_per?>%"></div></div>
+                <span class="per">(<?=$elt_per?>%)</span>
+            </td>
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+                <span class="prc"><?=number_format($row['prx_etc_exprice'])?></span>
+                <div class="grp_box"><div class="grp_in" style="width:<?=$etc_per?>%"></div></div>
+                <span class="per">(<?=$etc_per?>%)</span>
+            </td>
+            <?php if($super_admin){ ?>
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:100px;"><?=number_format($row['prp_dif_exprice'])?></td>
+            <?php } ?>
             <td class="td_mngsmall">
                 <?=$s_mod?>
             </td>
@@ -244,7 +233,7 @@ $cur_url = str_replace('&&','&',$cur_url);
     <?php
     }
 	if ($i == 0)
-        echo '<tr><td colspan="8" class="empty_table">자료가 없습니다.</td></tr>';
+        echo '<tr><td colspan="'.$colspan.'" class="empty_table">자료가 없습니다.</td></tr>';
     ?>
 	</tbody>
 	</table>

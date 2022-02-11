@@ -338,6 +338,7 @@ if(defined('G5_IS_ADMIN')){
 
 		// 
         echo '<script>'.PHP_EOL;
+		echo 'var dir_name = "'.$g5['dir_name'].'";'.PHP_EOL;
 		echo 'var file_name = "'.$g5['file_name'].'";'.PHP_EOL;
 		echo 'var dir_path = "'.$g5['dir_path'].'";'.PHP_EOL;
 		echo 'var mb_id = "'.$member['mb_id'].'";'.PHP_EOL;

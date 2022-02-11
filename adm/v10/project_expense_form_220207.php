@@ -11,7 +11,7 @@ $g5_table_name = $g5[$table_name.'_table'];
 $fields = sql_field_names($g5_table_name);
 $pre = substr($fields[0],0,strpos($fields[0],'_'));
 $fname = preg_replace("/_form/","",$g5['file_name']); // _form을 제외한 파일명
-$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
+// $qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
 
 if ($w == 'u') {
     $u_display_none = ';display:none;';  // 수정에서 숨김
@@ -22,6 +22,7 @@ if ($w == 'u') {
 
 	
 	//관련파일 추출
+	/*
 	$sql = "SELECT * FROM {$g5['file_table']} 
 			WHERE fle_db_table = 'expense' AND fle_type IN ('prexp_con','prexp_ord') AND fle_db_id = '".$prj_idx."' ORDER BY fle_reg_dt DESC ";
 	$rs = sql_query($sql,1);
@@ -35,7 +36,7 @@ if ($w == 'u') {
 		@array_push($row['prj_f_'.$row2['fle_type']],array('file'=>$file_down_del));
 		@array_push($row['prj_'.$row2['fle_type'].'_fidxs'],$row2['fle_idx']);
 	}
-	
+	*/
 }
 else
     alert('제대로 된 값이 넘어오지 않았습니다.');
@@ -47,9 +48,14 @@ for ($i=0;$i<sizeof($check_array);$i++) {
 }
 
 $html_title = '';//($w=='')?'추가':'수정'; 
-$g5['title'] = 'PR지출관리 '.$html_title;
+$g5['title'] = '지출관리 '.$html_title;
 //include_once('./_top_menu_data.php');
 include_once ('./_head.php');
+/*
+$g5['setting']['set_exprice_type']	machine=기계지출,electricity=전기지출,etc=기타지출
+$g5['setting']['set_exprice_status'] pending=대기,ok=정상
+$super_admin
+*/
 ?>
 <style>
 .tbl_frm01 td .btn{height:35px;line-height:35px;}
