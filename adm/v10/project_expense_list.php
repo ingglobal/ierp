@@ -188,7 +188,7 @@ else $colspan = 8;
         // print_r2($row);
         // 관리 버튼
         $s_mod = '<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1">수정</a>';
-
+        
         //수금완료 합계를 구한다
         $ssql = " SELECT SUM(prp_price) AS sum_price
                     FROM {$g5['project_price_table']}

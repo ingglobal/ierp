@@ -84,11 +84,30 @@ else
     alert('제대로 된 값이 넘어오지 않았습니다.');
 
 
+
+
 //해당 프로젝트 정보 추출
 $pj_field = sql_fetch('SELECT prj_name,prj_reg_dt,prj_type FROM '.$g5['project_table'].' WHERE prj_idx = "'.$prj_idx.'" ');
 $prj_name = $pj_field['prj_name'];
 // 수주금액 추출
 $prs1 = sql_fetch('SELECT prp_price FROM '.$g5['project_price_table'].' WHERE prj_idx = "'.$prj_idx.'" AND prp_type = "order" ');
+
+
+//수금완료 합계를 구한다
+$ssql = " SELECT SUM(prp_price) AS sum_price
+FROM {$g5['project_price_table']}
+WHERE prj_idx = '".$prj_idx."'
+	AND prp_type NOT IN ('submit','nego','order','')
+	AND prp_pay_date != '0000-00-00'
+	AND prp_status = 'ok'
+";
+//미수금관련
+$sugeum = sql_fetch($ssql);
+$mis_price = $prs1['prp_price'] - $sugeum['sum_price'];
+$mis_per = round($mis_price / $prs1['prp_price'] * 100,2);
+
+
+
 //계약금에 대한 총지출금액 비율
 $exp_per = round($exp['total'] / $prs1['prp_price'] * 100,2);
 
@@ -157,6 +176,8 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .sm_tbl .td_ord{font-weight:600;color:orange;}
 .sm_tbl .th_tot{color:darkred;}
 .sm_tbl .td_tot{color:red;}
+.sm_tbl .th_mis{color:red;}
+.sm_tbl .td_mis{color:red;}
 .sm_tbl .th_dif{color:darkblue;}
 .sm_tbl .td_dif{color:blue;}
 .sm_tbl .th_mcn{}
@@ -168,6 +189,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 
 .grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;background:#ccc;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
+.grp_box .grp_in_mi{background:red;}
 </style>
 <form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
 <input type="hidden" name="w" value="<?php echo $w ?>">
@@ -207,6 +229,13 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<th class="th_ord">수주금액</th>
 						<td class="td_ord"><?=number_format($prs1['prp_price'])?>원</td>
 					</tr>
+					<tr>
+						<th class="th_mis">미수금(<?=$mis_per?>%)<br>(수주금액기준%)</th>
+						<td class="td_mis">
+							<div class="grp_box"><div class="grp_in grp_in_mi" style="width:<?=$mis_per?>%"></div></div>
+							<?=number_format($mis_price)?>원
+						</td>
+					</tr>
 					<?php } ?>
 					<tr>
 						<th class="th_tot">총지출금액<?php if($super_admin){ ?>(<?=$exp_per?>%)<br>(수주금액기준%)<?php } ?></th>
@@ -217,9 +246,9 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 					</tr>
 					<?php if($super_admin){ ?>
 					<tr>
-						<th class="th_dif">차액<?php if($super_admin){ ?>(<?=$dif_per?>%)<br>(수주금액기준%)<?php } ?></th>
+						<th class="th_dif">차액(<?=$dif_per?>%)<br>(수주금액기준%)</th>
 						<td class="td_dif">
-							<?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div><?php } ?>
+							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
 							<?=number_format($dif_price)?>원
 						</td>
 					</tr>
