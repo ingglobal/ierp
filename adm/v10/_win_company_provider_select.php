@@ -6,7 +6,7 @@ $sql_common = " FROM {$g5['company_table']} AS com";
 $where = array();
 $where[] = " com_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
 //$where[] = " com_class = 'normal' ";   // 디폴트 검색조건
-$where[] = " com_type = 'buyer' ";   // 기본 매입처(provider) 목록만 표시
+// $where[] = " com_type = 'buyer' ";   // 기본 매입처(provider) 목록만 표시
 
 if ($stx) {
     switch ($sfl) {
