@@ -125,7 +125,7 @@ $super_admin
 .lst_exp{margin-top:5px;}
 .lst_exp strong{display:inline-block;width:40px;}
 .prx_price{text-align:right;}
-.prx_content{width:350px;}
+.prx_content{width:250px;}
 .com_name{background:#ddd;cursor:pointer;}
 .exp_box input[type="text"]{padding:0 5px;}
 .prx_price{width:110px;}
