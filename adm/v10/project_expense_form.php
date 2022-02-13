@@ -87,11 +87,14 @@ else
 
 
 //해당 프로젝트 정보 추출
-$pj_field = sql_fetch('SELECT prj_name,prj_reg_dt,prj_type FROM '.$g5['project_table'].' WHERE prj_idx = "'.$prj_idx.'" ');
+$pj_field = sql_fetch('SELECT prj_name,prj_reg_dt,prj_type,prj_mng_rate FROM '.$g5['project_table'].' WHERE prj_idx = "'.$prj_idx.'" ');
 $prj_name = $pj_field['prj_name'];
 // 수주금액 추출
 $prs1 = sql_fetch('SELECT prp_price FROM '.$g5['project_price_table'].' WHERE prj_idx = "'.$prj_idx.'" AND prp_type = "order" ');
 
+
+$prj_mng_rate = $pj_field['prj_mng_rate'];
+$prj_mng_price = round(($pj_field['prj_mng_rate']*$prs1['prp_price'])/100);
 
 //수금완료 합계를 구한다
 $ssql = " SELECT SUM(prp_price) AS sum_price
@@ -188,6 +191,11 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .sm_tbl .th_etc{}
 .sm_tbl .td_etc{}
 
+#td_info{position:relative;}
+#td_info #mng_box{position:fixed;top:130px;right:30px;border:2px dotted #ddd;padding:10px;background:#efefef;}
+#td_info #mng_box #mng_rate{text-align:right;padding:0 5px;}
+#td_info #mng_box #mng_rate_price{margin-left:20px;}
+
 .grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;background:#ccc;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
@@ -222,7 +230,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 	<tbody>
     <tr>
 		<th scope="row"><label for="prj_idx">지출정보</label></th>
-		<td colspan="3">
+		<td colspan="3" id="td_info">
 			<table class="sm_tbl">
 				<tbody>
 					<?php if($super_admin){ ?>
@@ -284,6 +292,11 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 				</tbody>
 			</table>
 			<span style="color:#818181;">(등록일 : <?=substr($pj_field['prj_reg_dt'],0,10)?>)</span>
+			<div id="mng_box">
+				<strong>관리비율: </strong>
+				<input type="text" id="mng_rate" value="<?=$prj_mng_rate?>" class="frm_input" style="width:35px;" onclick="javascript:only_number(this)"> &nbsp;%
+				<span id="mng_rate_price"><?=number_format($prj_mng_price)?></span> 원
+			</div>
 		</td>
     </tr>
 	<tr>
@@ -440,6 +453,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 </div>
 
 <script>
+var prj_idx = <?=$prj_idx?>;
 var cur_obj; //현재 지출그룹객체
 var multifile;//현재 멀티파일 객체
 $(function(){ //###########################################################
@@ -479,7 +493,7 @@ $('.i_exp').on('click',function(){
 });
 
 }); //#####################################################################
-
+var prj_price = <?=$prs1['prp_price']?>;
 function events_reg(){
 	//업체명 선택팝업
 	$('.com_name').on('click',function(e){
@@ -677,6 +691,36 @@ function multifile_remove(){
 	$('.lst_fle').find('i').attr('class','fa fa-angle-down');
 	$('.lst_down').removeClass('focus');
 	$('#mfile').remove();
+}
+
+//관리비 0~100까지의 숫자만 입력 가능한 함수
+function only_number(inp){ //inp = #mng_rate
+	$(inp).keyup(function(){
+		var rate = $.trim($(this).val());
+		rate = $(this).val().replace(/[^0-9]/g,"");
+		if(rate > 100) rate = 100;
+		else if(rate < 0) rate = 0;
+		else if(rate == '') rate = 10;
+		$(this).val(rate);
+
+		var prj_mng_price = Math.round((rate*prj_price)/100);
+		var prj_mng_price_str = thousand_comma(prj_mng_price);
+		$('#mng_rate_price').text(prj_mng_price_str);
+
+		var link = '<?=G5_USER_ADMIN_URL?>/project_expense_mng_rate_update.php';
+		$.ajax({
+			type : "POST",
+			url : link,
+			dataType : "text",
+			data : {'prj_idx': prj_idx, 'rate': rate},
+			success : function(res){
+				;
+			},
+			error : function(xmlReq){
+				alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
+			}
+		});
+	});
 }
 
 //지출금액 숫자만 입력 출력은 천단위 콤마로표시
