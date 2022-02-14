@@ -1718,8 +1718,16 @@ function send_kosmo_log(){
 			'content' => http_build_query($darr)
 		)
 	);
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	$result = curl_exec($ch);
+	/*
 	$context = stream_context_create($opt); //데이터 가공
 	$result = file_get_contents($url, false, $context); //전송 ~ 결과값 반환
+	*/
 	$data = json_decode($result, true);
 }
 }
