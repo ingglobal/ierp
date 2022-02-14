@@ -285,12 +285,14 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 				</tbody>
 			</table>
 			<span style="color:#818181;">(등록일 : <?=substr($pj_field['prj_reg_dt'],0,10)?>)</span>
+			<?php if($super_admin){ ?>
 			<div id="mng_box">
 				<strong>관리비율: </strong>
 				<input type="text" id="mng_rate" value="<?=$prj_mng_rate?>" class="frm_input" style="width:35px;" onclick="javascript:only_number(this)"> &nbsp;%
 				<button type="button" id="rate_btn" class="btn btn_03">적용</button>
 				<span id="mng_rate_price"><?=number_format($prj_mng_price)?></span> 원
 			</div>
+			<?php } ?>
 		</td>
     </tr>
 	<tr>
