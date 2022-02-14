@@ -202,12 +202,12 @@ else $colspan = 8;
         $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
         $row['prp_dif_exprice'] = $row['prp_order_price'] - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
-        $mis_per = ($row['prj_mi_price'])?round($row['prj_mi_price']/$row['prp_order_price']*100,1):0;
-        $exp_per = ($row['prx_sum_exprice'])?round($row['prx_sum_exprice']/$row['prp_order_price']*100,1):0;
-        $dif_per = ($row['prp_dif_exprice'])?round($row['prp_dif_exprice']/$row['prp_order_price']*100,1):0;
-        $mcn_per = ($row['prx_mcn_exprice'])?round($row['prx_mcn_exprice']/$row['prx_sum_exprice']*100,1):0;
-        $elt_per = ($row['prx_elt_exprice'])?round($row['prx_elt_exprice']/$row['prx_sum_exprice']*100,1):0;
-        $etc_per = ($row['prx_etc_exprice'])?round($row['prx_etc_exprice']/$row['prx_sum_exprice']*100,1):0;
+        $mis_per = ($row['prp_order_price'])?round($row['prj_mi_price']/$row['prp_order_price']*100,1):0;
+        $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/$row['prp_order_price']*100,1):0;
+        $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/$row['prp_order_price']*100,1):0;
+        $mcn_per = ($row['prx_sum_exprice'])?round($row['prx_mcn_exprice']/$row['prx_sum_exprice']*100,1):0;
+        $elt_per = ($row['prx_sum_exprice'])?round($row['prx_elt_exprice']/$row['prx_sum_exprice']*100,1):0;
+        $etc_per = ($row['prx_sum_exprice'])?round($row['prx_etc_exprice']/$row['prx_sum_exprice']*100,1):0;
         ?>
         <tr class="<?=$bg?>">
             <td class="td_chk" rowspan="<?=$p_cnt?>" style="display:<?=(!$member['mb_manager_yn'])?'none':'none'?>;">

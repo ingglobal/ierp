@@ -107,25 +107,18 @@ WHERE prj_idx = '".$prj_idx."'
 //미수금관련
 $sugeum = sql_fetch($ssql);
 $mis_price = $prs1['prp_price'] - $sugeum['sum_price'];
-$mis_per = round($mis_price / $prs1['prp_price'] * 100,2);
+$mis_per = ($prs1['prp_price'])?round($mis_price / $prs1['prp_price'] * 100,2):0;
 
 
 
 //계약금에 대한 총지출금액 비율
-$exp_per = round($exp['total'] / $prs1['prp_price'] * 100,2);
+$exp_per = ($prs1['prp_price'])?round($exp['total'] / $prs1['prp_price'] * 100,2):0;
 
 $dif_price = $prs1['prp_price'] - $exp['total'];
-$dif_per = round($dif_price / $prs1['prp_price'] * 100,2);
-
-if($exp['mcn_total']){
-	$mcn_per = round($exp['mcn_total']/$exp['total']*100,2);
-}
-if($exp['elt_total']){
-	$elt_per = round($exp['elt_total']/$exp['total']*100,2);
-}
-if($exp['etc_total']){
-	$etc_per = round($exp['etc_total']/$exp['total']*100,2);
-}
+$dif_per = ($prs1['prp_price'])?round($dif_price / $prs1['prp_price'] * 100,2):0;
+$mcn_per = ($exp['total'])?round($exp['mcn_total']/$exp['total']*100,2):0;
+$elt_per = ($exp['total'])?round($exp['elt_total']/$exp['total']*100,2):0;
+$etc_per = ($exp['total'])?round($exp['etc_total']/$exp['total']*100,2):0;
 
 
 $html_title = '';//($w=='')?'추가':'수정'; 
