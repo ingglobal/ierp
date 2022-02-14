@@ -288,6 +288,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 			<div id="mng_box">
 				<strong>관리비율: </strong>
 				<input type="text" id="mng_rate" value="<?=$prj_mng_rate?>" class="frm_input" style="width:35px;" onclick="javascript:only_number(this)"> &nbsp;%
+				<button type="button" id="rate_btn" class="btn btn_03">적용</button>
 				<span id="mng_rate_price"><?=number_format($prj_mng_price)?></span> 원
 			</div>
 		</td>
@@ -686,6 +687,28 @@ function multifile_remove(){
 	$('#mfile').remove();
 }
 
+$('#rate_btn').on('click',function(){
+	var rate = Number($(this).siblings('#mng_rate').val());
+
+	var prj_mng_price = (prj_price)?Math.round((rate * prj_price)/100):0;
+	var prj_mng_price_str = thousand_comma(prj_mng_price);
+	$('#mng_rate_price').text(prj_mng_price_str);
+
+	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_mng_rate_update.php';
+	$.ajax({
+		type : "POST",
+		url : link,
+		dataType : "text",
+		data : {'prj_idx': prj_idx, 'rate': rate},
+		success : function(res){
+			;
+		},
+		error : function(xmlReq){
+			alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
+		}
+	});
+});
+
 //관리비 0~100까지의 숫자만 입력 가능한 함수
 function only_number(inp){ //inp = #mng_rate
 	$(inp).keyup(function(){
@@ -694,25 +717,7 @@ function only_number(inp){ //inp = #mng_rate
 		if(rate > 100) rate = 100;
 		else if(rate < 0) rate = 0;
 		else if(rate == '') rate = 10;
-		$(this).val(rate);
-
-		var prj_mng_price = Math.round((rate*prj_price)/100);
-		var prj_mng_price_str = thousand_comma(prj_mng_price);
-		$('#mng_rate_price').text(prj_mng_price_str);
-
-		var link = '<?=G5_USER_ADMIN_URL?>/project_expense_mng_rate_update.php';
-		$.ajax({
-			type : "POST",
-			url : link,
-			dataType : "text",
-			data : {'prj_idx': prj_idx, 'rate': rate},
-			success : function(res){
-				;
-			},
-			error : function(xmlReq){
-				alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
-			}
-		});
+		$(this).val(rate);		
 	});
 }
 
