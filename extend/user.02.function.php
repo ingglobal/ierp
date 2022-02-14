@@ -1718,10 +1718,12 @@ function send_kosmo_log(){
 			'content' => http_build_query($darr)
 		)
 	);
-
+	$_opt = json_encode($opt);
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $_opt);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	$result = curl_exec($ch);
 	/*
