@@ -305,6 +305,12 @@ if(!$leave_flag){
             sql_query($auth_ins_sql,1);
         }
     }
+
+    if($mb_manager_yn){
+        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+            ('{$mb_id}', '960245', 'r,w,d') ";
+        sql_query($auth_ins_sql,1);
+    }
 }
 
 // 검색어 확장
