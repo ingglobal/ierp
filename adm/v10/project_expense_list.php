@@ -267,7 +267,7 @@ else $colspan = 8;
 </div>
 
 <div class="btn_fixed_top">
-    <?php if($member['mb_manager_yn']) { ?>
+    <?php if(false){ //($member['mb_manager_yn']) { ?>
         <a href="./project_pr_exprice_list_excel_down.php?<?=$qstr?>" id="btn_excel_down" class="btn btn_03">엑셀다운</a>
     <?php } ?>
     <?php if(false) { ?>
