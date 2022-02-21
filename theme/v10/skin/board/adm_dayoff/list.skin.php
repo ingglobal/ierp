@@ -89,7 +89,7 @@ if($board['bo_5_subj'] && $board['bo_5'] && preg_match("/,/",$board['bo_5']) && 
                 <?php echo $bo_dayoff_type_options; ?>
             </select>
             <select name="sfl" id="sfl">
-                <option value="wr_worker_name"<?php echo get_selected($sfl, 'wr_worker_name'); ?>>신청자명</option>
+                <option value="wr_applicant_name"<?php echo get_selected($sfl, 'wr_applicant_name'); ?>>신청자명</option>
                 <option value="wr_approver_name"<?php echo get_selected($sfl, 'wr_approver_name'); ?>>승인자명</option>
                 <option value="wr_subject"<?php echo get_selected($sfl, 'wr_subject', true); ?>>연차사유</option>
                 <option value="wr_mb_part"<?php echo get_selected($sfl, 'wr_mb_part'); ?>>부서명</option>
