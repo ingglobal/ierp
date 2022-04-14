@@ -247,7 +247,11 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style2.css">', 
     </div>
     
 
-    <?php for ($i=0; $is_file && $i<$file_count; $i++) { ?>
+    <?php 
+    set_session('ss_view_'.$bo_table.'_'.$wr_id, TRUE);
+    for ($i=0; $is_file && $i<$file_count; $i++) { 
+        
+    ?>
     <div class="bo_w_flie write_div">
         <div class="file_wr write_div">
             <label for="bf_file_<?php echo $i+1 ?>" class="lb_icon"><i class="fa fa-download" aria-hidden="true"></i><span class="sound_only"> 파일 #<?php echo $i+1 ?></span></label>
@@ -258,7 +262,9 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style2.css">', 
         <?php } ?>
 
         <?php if($w == 'u' && $file[$i]['file']) { 
-          print_r2($file[$i]); 
+            preg_match('/^http(.*?)no=\d/',$file[$i]['href'], $hrefs);
+            $file[$i]['href'] = $hrefs[0];
+            // print_r2($file[$i]); 
         ?>
         <span class="file_del">
             <input type="checkbox" id="bf_file_del<?php echo $i ?>" name="bf_file_del[<?php echo $i;  ?>]" value="1"> <label for="bf_file_del<?php echo $i ?>"> 파일 삭제</label>
