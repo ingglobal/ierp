@@ -258,7 +258,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style2.css">', 
         <?php } ?>
 
         <?php if($w == 'u' && $file[$i]['file']) { 
-        //   print_r2($file[$i]); 
+          print_r2($file[$i]); 
         ?>
         <span class="file_del">
             <input type="checkbox" id="bf_file_del<?php echo $i ?>" name="bf_file_del[<?php echo $i;  ?>]" value="1"> <label for="bf_file_del<?php echo $i ?>"> 파일 삭제</label>
