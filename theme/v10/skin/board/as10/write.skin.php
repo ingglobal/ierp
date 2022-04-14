@@ -248,7 +248,9 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style2.css">', 
     
 
     <?php 
+
     set_session('ss_view_'.$bo_table.'_'.$wr_id, TRUE);
+    
     for ($i=0; $is_file && $i<$file_count; $i++) { 
         
     ?>

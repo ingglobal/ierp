@@ -132,6 +132,20 @@ if($notcnt){
 }
 echo $alrm_not;
 
+//AS 알람추가
+$alrm_as = '';
+$as_table = $g5['write_prefix'].'as';
+$assql = sql_fetch(" SELECT COUNT(*) AS cnt FROM {$as_table} WHERE wr_6 = '{$member['mb_id']}' AND wr_10 = 'receipt'  ");
+$ascnt = $assql['cnt'];
+if($ascnt){
+    $alrm_as .= '<li id="alrm_as" class="blink_a" style="display:none;">'.PHP_EOL;
+    $alrm_as .= '<a href="'.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=as" class="txt_redblink" style="color:yellow;">'.PHP_EOL;
+    $alrm_as .= 'AS관리확인';
+    $alrm_as .= '</a>'.PHP_EOL;
+    $alrm_as .= '</li>'.PHP_EOL;
+}
+echo $alrm_as;
+
 
 include_once(G5_PLUGIN_PATH.'/jquery-ui/datepicker.php');
 
@@ -166,6 +180,10 @@ $(function(){
 	
 	if($('#alrm_ovt').length > 0){
         $('#alrm_ovt').prependTo('#notice_box > ul.notice_ul').show();
+    }
+	
+	if($('#alrm_as').length > 0){
+        $('#alrm_as').prependTo('#notice_box > ul.notice_ul').show();
     }
 
     if($('#alrm_dof').length > 0){
