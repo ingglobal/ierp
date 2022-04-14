@@ -262,7 +262,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style2.css">', 
         ?>
         <span class="file_del">
             <input type="checkbox" id="bf_file_del<?php echo $i ?>" name="bf_file_del[<?php echo $i;  ?>]" value="1"> <label for="bf_file_del<?php echo $i ?>"> 파일 삭제</label>
-            <a href="<?=$file[$i]['href']?>"><?php echo $file[$i]['source'].'('.$file[$i]['size'].')';  ?></a>
+            <a href="<?=G5_USER_ADMIN_URL?>/lib/download.php?file_fullpath=<?=urlencode(G5_DATA_PATH.'/file/'.$bo_table.'/'.$file[$i]['file'].'&file_name_orig='.$file[$i]['source'])?>" file_path="/data/file/<?=$bo_table?>"><?php echo $file[$i]['source'].'('.$file[$i]['size'].')';  ?></a>
         </span>
         <?php } ?>
         
