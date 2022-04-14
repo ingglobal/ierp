@@ -257,9 +257,12 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style2.css">', 
         <input type="text" name="bf_content[]" value="<?php echo ($w == 'u') ? $file[$i]['bf_content'] : ''; ?>" title="파일 설명을 입력해주세요." class="full_input frm_input" size="50" placeholder="파일 설명을 입력해주세요.">
         <?php } ?>
 
-        <?php if($w == 'u' && $file[$i]['file']) { ?>
+        <?php if($w == 'u' && $file[$i]['file']) { 
+        //   print_r2($file[$i]);  
+        ?>
         <span class="file_del">
-            <input type="checkbox" id="bf_file_del<?php echo $i ?>" name="bf_file_del[<?php echo $i;  ?>]" value="1"> <label for="bf_file_del<?php echo $i ?>"><?php echo $file[$i]['source'].'('.$file[$i]['size'].')';  ?> 파일 삭제</label>
+            <input type="checkbox" id="bf_file_del<?php echo $i ?>" name="bf_file_del[<?php echo $i;  ?>]" value="1"> <label for="bf_file_del<?php echo $i ?>"> 파일 삭제</label>
+            <a href="<?=$file[$i]['href']?>"><?php echo $file[$i]['source'].'('.$file[$i]['size'].')';  ?></a>
         </span>
         <?php } ?>
         
