@@ -1,60 +1,50 @@
 <?php
-$sub_menu = "960245";
+$sub_menu = "960248";
 include_once('./_common.php');
 
 auth_check($auth[$sub_menu],'w');
 
-$mcn = array();
-$elt = array();
 $etc = array();
-$prx = array();
+$prn = array();
 $exp_sql = " SELECT
 				SUM(prx_price) AS total
-				,(
-					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'machine'
-				) AS mcn_total
-				,(
-					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'electricity'
-				) AS elt_total
-				,(
-					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'etc'
-				) AS etc_total
 			FROM {$g5['project_exprice_table']}
 			GROUP BY prj_idx
-			HAVING prj_idx = '{$prj_idx}' AND prx_status = 'ok'
+			HAVING prj_idx = '{$prj_idx}'
 
 ";
-$exp = sql_fetch($exp_sql); //$exp['total'],$exp['mcn_total'],$exp['elt_total'],$exp['etc_total']
+$exp = sql_fetch($exp_sql); //$exp['total']
 // 변수 설정, 필드 구조 및 prefix 추출
-$sql = " SELECT prx.*, com.com_name FROM {$g5['project_exprice_table']} AS prx
-			LEFT JOIN {$g5['company_table']} AS com ON prx.com_idx = com.com_idx
-			WHERE prj_idx = '{$prj_idx}' AND prx_status = 'ok'
+$sql = " SELECT prn.*, 
+				com.com_name 
+			FROM {$g5['project_inprice_table']} AS prn
+			LEFT JOIN {$g5['company_table']} AS com ON prn.com_idx = com.com_idx
+			WHERE prj_idx = '{$prj_idx}' AND prn_status = 'ok'
 ";
 $res = sql_query($sql,1);
-
+$intotal = 0;
 for($i=0;$row=sql_fetch_array($res);$i++){
-	$row['prx_price'] = number_format($row['prx_price']);
-	array_push($prx,$row['prx_idx']);
-	if($row['prx_type'] == 'machine')
-		$mcn[$row['prx_idx']] = $row;
-	else if($row['prx_type'] == 'electricity')
-		$elt[$row['prx_idx']] = $row;
-	else
-		$etc[$row['prx_idx']] = $row;
+	$row['prn_prc'] = $row['prn_price'];
+	$row['prn_price'] = number_format($row['prn_price']);
+	array_push($prn,$row['prn_idx']);
+	if($row['prn_type'] == 'etc'){
+		$etc[$row['prn_idx']] = $row;
+		if($row['prn_done_date'] != '0000-00-00')
+			$intotal += $row['prn_prc'];
+	}
+	else{
+		;
+	}
 }
 
 $sqlf = "SELECT * FROM {$g5['file_table']}
-			WHERE fle_db_table = 'project_exprice'
-				AND fle_type IN ('machine','electricity','etc')
-				AND fle_db_id IN (".((count($prx))?implode(',',$prx):0).")
+			WHERE fle_db_table = 'project_inprice'
+				AND fle_type = 'etc'
+				AND fle_db_id IN (".((@count($prn))?implode(',',$prn):0).")
 			ORDER BY fle_reg_dt DESC ";
 $rs = sql_query($sqlf,1);
 // print_r3($sqlf);
 //파일배열
-$machine_fles = array();
-$machine_idxs = array();
-$electricity_fles = array();
-$electricity_idxs = array();
 $etc_fles = array();
 $etc_idxs = array();
 for($i=0;$row2=sql_fetch_array($rs);$i++){
@@ -66,11 +56,8 @@ for($i=0;$row2=sql_fetch_array($rs);$i++){
 	@array_push(${$row2['fle_type'].'_fidxs'}[$row2['fle_db_id']],$row2['fle_idx']);
 }
 /*
-print_r3($machine_fles);
-print_r3($exp);
-print_r3($mcn);
-print_r3($elt);
-print_r3($etc);
+print_r3($file_fles);
+print_r3($prn);
 */
 if ($w == 'u') {
     $u_display_none = ';display:none;';  // 수정에서 숨김
@@ -104,6 +91,10 @@ WHERE prj_idx = '".$prj_idx."'
 	AND prp_pay_date != '0000-00-00'
 	AND prp_status = 'ok'
 ";
+
+//기타수입관련
+$intotal_per = ($intotal)?round($intotal / $prs1['prp_price'] * 100,2):0;
+
 //미수금관련
 $sugeum = sql_fetch($ssql);
 $mis_price = $prs1['prp_price'] - $sugeum['sum_price'];
@@ -114,15 +105,12 @@ $mis_per = ($prs1['prp_price'])?round($mis_price / $prs1['prp_price'] * 100,2):0
 //계약금에 대한 총지출금액 비율
 $exp_per = ($prs1['prp_price'])?round($exp['total'] / $prs1['prp_price'] * 100,2):0;
 
-$dif_price = $prs1['prp_price'] - $exp['total'];
-$dif_per = ($prs1['prp_price'])?round($dif_price / $prs1['prp_price'] * 100,2):0;
-$mcn_per = ($exp['total'])?round($exp['mcn_total']/$exp['total']*100,2):0;
-$elt_per = ($exp['total'])?round($exp['elt_total']/$exp['total']*100,2):0;
-$etc_per = ($exp['total'])?round($exp['etc_total']/$exp['total']*100,2):0;
+$dif_price = ($prs1['prp_price'] + $intotal) - $exp['total'];
+$dif_per = ($prs1['prp_price'])?round($dif_price / ($prs1['prp_price'] + $intotal) * 100,2):0;
 
 
 $html_title = '';//($w=='')?'추가':'수정';
-$g5['title'] = '['.$prj_name.'] 지출관리 '.$html_title;
+$g5['title'] = '['.$prj_name.'] 기타수입관리 '.$html_title;
 //include_once('./_top_menu_data.php');
 include_once ('./_head.php');
 /*
@@ -135,17 +123,18 @@ $super_admin
 
 <style>
 .tbl_frm01 td .btn{height:35px;line-height:35px;}
-.th_exprice{position:relative;}
-.th_exprice i{position:absolute;bottom:15px;right:10px;font-size:1.2em;cursor:pointer;}
-.lst_exp{margin-top:5px;}
-.lst_exp strong{display:inline-block;width:40px;}
-.prx_price{text-align:right;width:90px;}
-.prx_name{width:130px;}
-.prx_content{width:150px;}
+.th_inprice{position:relative;}
+.th_inprice i{position:absolute;bottom:15px;right:10px;font-size:1.2em;cursor:pointer;}
+.lst_inp{margin-top:5px;}
+.lst_inp strong{display:inline-block;width:40px;}
+.prn_price{text-align:right;width:90px;}
+.prn_name{width:130px;}
+.prn_content{width:150px;}
 .com_name{background:#ddd;cursor:pointer;width:100px;}
-.exp_box input[type="text"]{padding:0 5px;}
-.prx_price{width:110px;}
-.prx_done_date{width:90px;}
+.inp_box input[type="text"]{padding:0 5px;}
+.prn_price{width:110px;}
+.prn_plan_date{width:90px;}
+.prn_done_date{width:90px;}
 
 .lst_up{background:#f1f1f1;padding:10px;}
 .lst_fle i{font-size:1.3em;margin-left:5px;}
@@ -165,8 +154,8 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span{}
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span span.MultiFile-label{font-size:14px;border:1px solid #ccc;background:#eee;padding:2px 5px;border-radius:3px;line-height:1.2em;}
 
-.sm_tbl{width:250px;}
-.sm_tbl th{width:130px;background:none;font-weight:400;}
+.sm_tbl{width:300px;}
+.sm_tbl th{width:190px;background:none;font-weight:400;}
 .sm_tbl th,.sm_tbl td{padding:5px;border-top:1px dotted #ddd;border-bottom:1px dotted #ddd;}
 .sm_tbl td{text-align:right;position:relative;}
 .sm_tbl .th_ord{font-weight:600;}
@@ -177,20 +166,14 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .sm_tbl .td_mis{color:red;}
 .sm_tbl .th_dif{color:darkblue;}
 .sm_tbl .td_dif{color:blue;}
-.sm_tbl .th_mcn{}
-.sm_tbl .td_mcn{}
-.sm_tbl .th_elt{}
-.sm_tbl .td_elt{}
 .sm_tbl .th_etc{}
 .sm_tbl .td_etc{}
 
 #td_info{position:relative;}
-#td_info #mng_box{position:fixed;top:130px;right:30px;border:2px dotted #ddd;padding:10px;background:#efefef;}
-#td_info #mng_box #mng_rate{text-align:right;padding:0 5px;}
-#td_info #mng_box #mng_rate_price{margin-left:20px;}
 
 .grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;background:#ccc;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
+.grp_box .grp_in_it{background:blue;}
 .grp_box .grp_in_mi{background:red;}
 </style>
 <form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -205,10 +188,9 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="g" value="<?php echo $g ?>">
 <input type="hidden" name="prj_idx" value="<?php echo $prj_idx ?>">
 <input type="hidden" name="<?=$pre?>_idx" value="<?php echo ${$pre."_idx"} ?>">
-<!--input type="hidden" name="<?=$pre?>_pay_no" value="<?php //echo ${$pre}['prp_pay_no'] ?>"-->
 
 <div class="local_desc01 local_desc" style="display:none;">
-    <p>견적추가 페이지입니다.</p>
+    <p>프로젝트별 기타수입내역을 관리하는 페이지 입니다.</p>
 </div>
 
 <div class="tbl_frm01 tbl_wrap">
@@ -222,7 +204,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 	</colgroup>
 	<tbody>
     <tr>
-		<th scope="row"><label for="prj_idx">지출정보</label></th>
+		<th scope="row"><label for="prj_idx">수입&지출정보</label></th>
 		<td colspan="3" id="td_info">
 			<table class="sm_tbl">
 				<tbody>
@@ -230,6 +212,13 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 					<tr>
 						<th class="th_ord">수주금액</th>
 						<td class="td_ord"><?=number_format($prs1['prp_price'])?>원</td>
+					</tr>
+					<tr>
+						<th class="th_intot">기타수입(<?=$intotal_per?>%)<br>(수주금액기준%)</th>
+						<td class="td_intot">
+							<div class="grp_box"><div class="grp_in grp_in_it" style="width:<?=$intotal_per?>%"></div></div>
+							<?=number_format($intotal)?>원
+						</td>
 					</tr>
 					<tr>
 						<th class="th_mis">미수금(<?=$mis_per?>%)<br>(수주금액기준%)</th>
@@ -248,184 +237,54 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 					</tr>
 					<?php if($super_admin){ ?>
 					<tr>
-						<th class="th_dif">잔액(<?=$dif_per?>%)<br>(수주금액기준%)</th>
+						<th class="th_dif">잔액(<?=$dif_per?>%)<br>(수주금액 + 기타수입 기준%)</th>
 						<td class="td_dif">
 							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
 							<?=number_format($dif_price)?>원
 						</td>
 					</tr>
 					<?php } ?>
-					<?php if($exp['mcn_total']){ ?>
-					<tr>
-						<th class="th_mcn">기계지출(<?=$mcn_per?>%)<br><span>(총지출기준%)</span></th>
-						<td class="td_mcn">
-							<div class="grp_box"><div class="grp_in" style="width:<?=$mcn_per?>%"></div></div>
-							<?=number_format($exp['mcn_total'])?>원
-						</td>
-					</tr>
-					<?php } ?>
-					<?php if($exp['elt_total']){ ?>
-					<tr>
-						<th class="th_elt">전기지출(<?=$elt_per?>%)<br><span>(총지출기준%)</span></th>
-						<td class="td_elt">
-							<div class="grp_box"><div class="grp_in" style="width:<?=$elt_per?>%"></div></div>
-							<?=number_format($exp['elt_total'])?>원
-						</td>
-					</tr>
-					<?php } ?>
-					<?php if($exp['etc_total']){ ?>
-					<tr>
-						<th class="th_etc">기타지출(<?=$etc_per?>%)<br><span>(총지출기준%)</span></th>
-						<td class="td_etc">
-							<div class="grp_box"><div class="grp_in" style="width:<?=$etc_per?>%"></div></div>
-							<?=number_format($exp['etc_total'])?>원
-						</td>
-					</tr>
-					<?php } ?>
 				</tbody>
 			</table>
 			<span style="color:#818181;">(등록일 : <?=substr($pj_field['prj_reg_dt'],0,10)?>)</span>
-			<?php if($super_admin){ ?>
-			<div id="mng_box">
-				<strong>관리비율: </strong>
-				<input type="text" id="mng_rate" value="<?=$prj_mng_rate?>" class="frm_input" style="width:35px;" onclick="javascript:only_number(this)"> &nbsp;%
-				<button type="button" id="rate_btn" class="btn btn_03">적용</button>
-				<span id="mng_rate_price"><?=number_format($prj_mng_price)?></span> 원
-			</div>
-			<?php } ?>
 		</td>
     </tr>
 	<tr>
-		<th scope="row" class="th_exprice" id="th_machine"><label for="machine_exprice">기계지출</label><i id="i_machine" typ="machine" class="fa fa-plus-square-o i_exp" aria-hidden="true"></i></th>
+		<th scope="row" class="th_inprice" id="th_etc"><label for="etc_inprice">기타수입</label><i id="i_etc" typ="etc" class="fa fa-plus-square-o i_inp" aria-hidden="true"></i></th>
 		<td colspan="3">
-			<?php echo help("기계관련 지출을 관리하는 영역입니다."); ?>
-			<div class="exp_box" id="exp_machine">
+			<?php echo help("해당 프로젝트관련 기타 수입을 관리하는 영역입니다."); ?>
+			<div class="inp_box" id="inp_etc">
 				<?php
-				if(count($mcn)){
-				$i=0;
-				foreach($mcn as $k=>$v){
-					$i++;
-				?>
-				<div class="lst_exp lst_<?=$v['prx_type']?> lst_<?=$v['prx_type']?>_<?=$i?>">
-					<div class="lst_up">
-						<span><input type="hidden" name="prx_idx" value="<?=$k?>"><strong class="">[<?=$i?>]</strong></span>
-						<span>
-							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
-							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
-						</span>
-						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
-						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
-						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
-						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
-						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
-						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
-						<?php if(@count(${$v['prx_type'].'_fles'}[$k])){ ?>
-						<span>(<?=@count(${$v['prx_type'].'_fles'}[$k])?>)</span>
-						<?php } ?>
-					</div>
-					<div class="lst_down">
-						<?php
-						if(@count(${$v['prx_type'].'_fles'}[$k])){
-							echo '<ul style="margin-top:10px;">'.PHP_EOL;
-							for($j=0;$j<count(${$v['prx_type'].'_fles'}[$k]);$j++) {
-								echo "<li>[".($j+1).']'.${$v['prx_type'].'_fles'}[$k][$j]['file']."</li>".PHP_EOL;
-							}
-							echo '</ul>'.PHP_EOL;
-						}
-						?>
-					</div>
-				</div>
-				<?php
-				}
-				}
-				?>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<th scope="row" class="th_exprice" id="th_electricity"><label for="electricity_exprice">전기지출</label><i id="i_electricity" typ="electricity" class="fa fa-plus-square-o i_exp" aria-hidden="true"></i></th>
-		<td colspan="3">
-			<?php echo help("전기관련 지출을 관리하는 영역입니다."); ?>
-			<div class="exp_box" id="exp_electricity">
-				<?php
-				if(count($elt)){
-				$i=0;
-				foreach($elt as $k=>$v){
-					$i++;
-				?>
-				<div class="lst_exp lst_<?=$v['prx_type']?> lst_<?=$v['prx_type']?>_<?=$i?>">
-					<div class="lst_up">
-						<span><input type="hidden" name="prx_idx" value="<?=$k?>"><strong class="">[<?=$i?>]</strong></span>
-						<span>
-							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
-							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
-						</span>
-						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
-						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
-						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
-						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
-						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
-						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
-						<?php if(@count(${$v['prx_type'].'_fles'}[$k])){ ?>
-						<span>(<?=@count(${$v['prx_type'].'_fles'}[$k])?>)</span>
-						<?php } ?>
-					</div>
-					<div class="lst_down">
-						<?php
-						if(@count(${$v['prx_type'].'_fles'}[$k])){
-							echo '<ul>'.PHP_EOL;
-							for($j=0;$j<count(${$v['prx_type'].'_fles'}[$k]);$j++) {
-								echo "<li>[".($j+1).']'.${$v['prx_type'].'_fles'}[$k][$j]['file']."</li>".PHP_EOL;
-							}
-							echo '</ul>'.PHP_EOL;
-						}
-						?>
-					</div>
-				</div>
-				<?php
-				}
-				}
-				?>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<th scope="row" class="th_exprice" id="th_etc"><label for="electricity_exprice">기타지출</label><i id="i_etc" typ="etc" class="fa fa-plus-square-o i_exp" aria-hidden="true"></i></th>
-		<td colspan="3">
-			<?php echo help("기타 지출을 관리하는 영역입니다."); ?>
-			<div class="exp_box" id="exp_etc">
-				<?php
-				if(count($etc)){
+				if(@count($etc)){
 				$i=0;
 				foreach($etc as $k=>$v){
 					$i++;
 				?>
-				<div class="lst_exp lst_<?=$v['prx_type']?> lst_<?=$v['prx_type']?>_<?=$i?>">
+				<div class="lst_inp lst_<?=$v['prn_type']?> lst_<?=$v['prn_type']?>_<?=$i?>">
 					<div class="lst_up">
-						<span><input type="hidden" name="prx_idx" value="<?=$k?>"><strong class="">[<?=$i?>]</strong></span>
+						<span><input type="hidden" name="prn_idx" value="<?=$k?>"><strong class="">[<?=$i?>]</strong></span>
 						<span>
 							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
 							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
 						</span>
-						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
-						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
-						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
-						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
-						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
-						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
-						<?php if(@count(${$v['prx_type'].'_fles'}[$k])){ ?>
-						<span>(<?=@count(${$v['prx_type'].'_fles'}[$k])?>)</span>
+						<span><input type="text" name="prn_name" placeholder="수입제목" value="<?=$v['prn_name']?>" class="frm_input prn_name"></span>
+						<span><input type="text" name="prn_price" placeholder="수입금액" value="<?=$v['prn_price']?>" class="frm_input prn_price" onclick="javascript:only_number_comma(this)"></span>
+						<span><input type="text" name="prn_plan_date" placeholder="수입예정일" value="<?=$v['prn_plan_date']?>" readonly class="frm_input prn_plan_date"></span>
+						<span><input type="text" name="prn_done_date" placeholder="수입완료일" value="<?=$v['prn_done_date']?>" readonly class="frm_input prn_done_date"></span>
+						<span><input type="text" name="prn_content" placeholder="메모" value="<?=$v['prn_content']?>" class="frm_input prn_content"></span>
+						<span><button type="button" class="btn btn_02 lst_mod" prn_idx="<?=$k?>" typ="<?=$v['prn_type']?>">수정</button></span>
+						<span><button type="button" class="btn btn_00 lst_del" prn_idx="<?=$k?>" typ="<?=$v['prn_type']?>">삭제</button></span>
+						<span><button type="button" class="btn btn_03 lst_fle" prn_idx="<?=$k?>" typ="<?=$v['prn_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
+						<?php if(@count(${$v['prn_type'].'_fles'}[$k])){ ?>
+						<span>(<?=@count(${$v['prn_type'].'_fles'}[$k])?>)</span>
 						<?php } ?>
 					</div>
 					<div class="lst_down">
 						<?php
-						if(@count(${$v['prx_type'].'_fles'}[$k])){
+						if(@count(${$v['prn_type'].'_fles'}[$k])){
 							echo '<ul>'.PHP_EOL;
-							for($j=0;$j<count(${$v['prx_type'].'_fles'}[$k]);$j++) {
-								echo "<li>[".($j+1).']'.${$v['prx_type'].'_fles'}[$k][$j]['file']."</li>".PHP_EOL;
+							for($j=0;$j<count(${$v['prn_type'].'_fles'}[$k]);$j++) {
+								echo "<li>[".($j+1).']'.${$v['prn_type'].'_fles'}[$k][$j]['file']."</li>".PHP_EOL;
 							}
 							echo '</ul>'.PHP_EOL;
 						}
@@ -445,7 +304,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 
 
 <div class="btn_fixed_top">
-    <a href="./project_expense_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
+    <a href="./project_income_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
 </div>
 </form>
 <script>
@@ -457,7 +316,7 @@ $(function(){ //###########################################################
 events_reg();
 
 //지출추가버튼 이벤트
-$('.i_exp').on('click',function(){
+$('.i_inp').on('click',function(){
 	var typ = $(this).attr('typ');
 	//이전에 새로 등록하려는 작업이 있거나, 파일등록작업하려는 상황이 있으면 이전 작업을 종료한 후에 하도록 유도함
 	if($('.reg_prev').length || $('.lst_down.focus').length){
@@ -467,23 +326,24 @@ $('.i_exp').on('click',function(){
 
 	//우선 모든 이벤트 비활성화
 	events_del();
-	var cnt = $('#exp_'+typ).find('.lst_exp').length+1;
-	var tag = `<div class="lst_exp lst_${typ} lst_${typ}_${cnt}">
+	var cnt = $('#inp_'+typ).find('.lst_inp').length+1;
+	var tag = `<div class="lst_inp lst_${typ} lst_${typ}_${cnt}">
 		<div class="lst_up">
-			<span><input type="hidden" name="prx_idx" value=""><strong class="reg_prev">[${cnt}]</strong></span>
+			<span><input type="hidden" name="prn_idx" value=""><strong class="reg_prev">[${cnt}]</strong></span>
 			<span>
 				<input type="hidden" name="com_idx" value="">
 				<input type="text" name="com_name" placeholder="업체명" value="" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
 			</span>
-			<span><input type="text" name="prx_name" placeholder="지출제목" value="" class="frm_input prx_name"></span>
-			<span><input type="text" name="prx_price" placeholder="지출금액" value="" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
-			<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="" readonly class="frm_input prx_done_date"></span>
-			<span><input type="text" name="prx_content" placeholder="메모" value="" class="frm_input prx_content"></span>
+			<span><input type="text" name="prn_name" placeholder="수입제목" value="" class="frm_input prn_name"></span>
+			<span><input type="text" name="prn_price" placeholder="수입금액" value="" class="frm_input prn_price" onclick="javascript:only_number_comma(this)"></span>
+			<span><input type="text" name="prn_plan_date" placeholder="수입예정일" value="" readonly class="frm_input prn_plan_date"></span>
+			<span><input type="text" name="prn_done_date" placeholder="수입완료일" value="" readonly class="frm_input prn_done_date"></span>
+			<span><input type="text" name="prn_content" placeholder="메모" value="" class="frm_input prn_content"></span>
 			<span><button type="button" class="btn btn_01 lst_reg" typ="${typ}">등록</button></span>
 			<span><button type="button" class="btn btn_00 lst_del" typ="${typ}">삭제</button></span>
 		</div>
 	</div>`;
-	$(tag).appendTo('#exp_'+typ);
+	$(tag).appendTo('#inp_'+typ);
 	//새로운 구성으로 다시 모든 이벤트 활성화
 	events_reg();
 });
@@ -494,25 +354,28 @@ function events_reg(){
 	//업체명 선택팝업
 	$('.com_name').on('click',function(e){
 		e.preventDefault();
-		cur_obj = $(this).closest('.lst_exp');
+		cur_obj = $(this).closest('.lst_inp');
 		var href = $(this).attr('link');
 		winProviderSelect = window.open(href, "winProviderSelect","left=600,top=150,width=550,height=600,scrollbars=1");
 		winProviderSelect.focus();
 	});
 	//지출완료일
-	$(".prx_done_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
-	$(".prx_done_date").datepicker('option','disabled',false);
+	// $(".prn_done_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+	// $(".prn_done_date").datepicker('option','disabled',false);
+	$("input[name$=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", closeText:'취소',showButtonPanel: true, yearRange: "c-99:c+99", onClose: function(){ if($(window.event.srcElement).hasClass('ui-datepicker-close')){ $(this).val(''); } } });
+	$("input[name$=_date]").datepicker('option','disabled',false);
 
 	//등록버튼
 	$('.lst_reg').on('click',function(){
-		cur_obj = $(this).closest('.lst_exp');
+		cur_obj = $(this).closest('.lst_inp');
 		var prj_idx = <?=$prj_idx?>;
 		var com_idx = cur_obj.find('input[name="com_idx"]').val();
 		var com_name = $.trim(cur_obj.find('input[name="com_name"]').val());
-		var prx_name = $.trim(cur_obj.find('input[name="prx_name"]').val());
-		var prx_content = $.trim(cur_obj.find('input[name="prx_content"]').val());
-		var prx_price = $.trim(cur_obj.find('input[name="prx_price"]').val());
-		var prx_done_date = $.trim(cur_obj.find('input[name="prx_done_date"]').val());
+		var prn_name = $.trim(cur_obj.find('input[name="prn_name"]').val());
+		var prn_content = $.trim(cur_obj.find('input[name="prn_content"]').val());
+		var prn_price = $.trim(cur_obj.find('input[name="prn_price"]').val());
+		var prn_plan_date = $.trim(cur_obj.find('input[name="prn_plan_date"]').val());
+		var prn_done_date = $.trim(cur_obj.find('input[name="prn_done_date"]').val());
 		var type = $(this).attr('typ');
 		if(!prj_idx){
 			alert('프로젝트 고유번호가 제대로 넘어오지 않았습니다.');
@@ -523,22 +386,22 @@ function events_reg(){
 			cur_obj.find('input[name="com_name"]').focus();
 			return false;
 		}
-		if(!prx_name){
-			alert('지출제목을 입력해 주세요.');
-			cur_obj.find('input[name="prx_name"]').focus();
+		if(!prn_name){
+			alert('수입제목을 입력해 주세요.');
+			cur_obj.find('input[name="prn_name"]').focus();
 			return false;
 		}
-		if(!prx_price){
-			alert('지출금액을 입력해 주세요.');
-			cur_obj.find('input[name="prx_price"]').focus();
+		if(!prn_price){
+			alert('수입금액을 입력해 주세요.');
+			cur_obj.find('input[name="prn_price"]').focus();
 			return false;
 		}
-		if(!prx_done_date){
-			alert('지출완료일을 입력해 주세요.');
-			cur_obj.find('input[name="prx_done_date"]').focus();
+		if(!prn_plan_date){
+			alert('수입예정일을 입력해 주세요.');
+			cur_obj.find('input[name="prn_plan_date"]').focus();
 			return false;
 		}
-		exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date);
+		inp_reg(prj_idx,type,com_idx,prn_name,prn_content,prn_price,prn_plan_date,prn_done_date);
 	});
 
 	//수정버튼
@@ -549,15 +412,16 @@ function events_reg(){
 			alert('이전 등록작업 또는 파일작업을 먼저 진행한 후에 실행해 주세요d.');
 			return false;
 		}
-		cur_obj = $(this).closest('.lst_exp');
-		var prx_idx = $(this).attr('prx_idx');
+		cur_obj = $(this).closest('.lst_inp');
+		var prn_idx = $(this).attr('prn_idx');
 		var prj_idx = <?=$prj_idx?>;
 		var com_idx = cur_obj.find('input[name="com_idx"]').val();
 		var com_name = $.trim(cur_obj.find('input[name="com_name"]').val());
-		var prx_name = $.trim(cur_obj.find('input[name="prx_name"]').val());
-		var prx_content = $.trim(cur_obj.find('input[name="prx_content"]').val());
-		var prx_price = $.trim(cur_obj.find('input[name="prx_price"]').val());
-		var prx_done_date = $.trim(cur_obj.find('input[name="prx_done_date"]').val());
+		var prn_name = $.trim(cur_obj.find('input[name="prn_name"]').val());
+		var prn_content = $.trim(cur_obj.find('input[name="prn_content"]').val());
+		var prn_price = $.trim(cur_obj.find('input[name="prn_price"]').val());
+		var prn_plan_date = $.trim(cur_obj.find('input[name="prn_plan_date"]').val());
+		var prn_done_date = $.trim(cur_obj.find('input[name="prn_done_date"]').val());
 		var type = $(this).attr('typ');
 		if(!prj_idx){
 			alert('프로젝트 고유번호가 제대로 넘어오지 않았습니다.');
@@ -568,29 +432,29 @@ function events_reg(){
 			cur_obj.find('input[name="com_name"]').focus();
 			return false;
 		}
-		if(!prx_name){
-			alert('지출내용을 입력해 주세요.');
-			cur_obj.find('input[name="prx_name"]').focus();
+		if(!prn_name){
+			alert('수입내용을 입력해 주세요.');
+			cur_obj.find('input[name="prn_name"]').focus();
 			return false;
 		}
-		if(!prx_price){
-			alert('지출금액을 입력해 주세요.');
-			cur_obj.find('input[name="prx_price"]').focus();
+		if(!prn_price){
+			alert('수입금액을 입력해 주세요.');
+			cur_obj.find('input[name="prn_price"]').focus();
 			return false;
 		}
-		if(!prx_done_date){
-			alert('지출완료일을 입력해 주세요.');
-			cur_obj.find('input[name="prx_done_date"]').focus();
+		if(!prn_plan_date){
+			alert('수입예정일을 입력해 주세요.');
+			cur_obj.find('input[name="prn_plan_date"]').focus();
 			return false;
 		}
-		exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date);
+		inp_upd(prn_idx,prj_idx,type,com_idx,prn_name,prn_content,prn_price,prn_plan_date,prn_done_date);
 	});
 
 
 	//삭제버튼
 	$('.lst_del').on('click',function(e){
 		e.preventDefault();
-		cur_obj = $(this).closest('.lst_exp');
+		cur_obj = $(this).closest('.lst_inp');
 		if(cur_obj.find('strong').hasClass('reg_prev')){
 			//이전에 새로 등록하려는 작업이 있거나, 파일등록작업하려는 상황이 있으면 이전 작업을 종료한 후에 하도록 유도함
 			if($('.reg_prev').length > 1 || $('.lst_down.focus').length){
@@ -602,17 +466,17 @@ function events_reg(){
 		else{
 			//이전에 새로 등록하려는 작업이 있거나, 파일등록작업하려는 상황이 있으면 이전 작업을 종료한 후에 하도록 유도함
 			if($('.reg_prev').length || $('.lst_down.focus').length){
-				if($(this).attr('prx_idx') != cur_obj.find('.btn_file').attr('prx_idx')){
+				if($(this).attr('prn_idx') != cur_obj.find('.btn_file').attr('prn_idx')){
 					alert('이전 등록작업 또는 파일작업을 먼저 진행한 후에 실행해 주세요.');
 					return false;
 				}
 			}
-			if(!confirm('지출정보와 관련파일 전부 삭제되어 복구가 불가능합니다.\n정말로 삭제하시겠습니까?')){
+			if(!confirm('수입정보와 관련파일 전부 삭제되어 복구가 불가능합니다.\n정말로 삭제하시겠습니까?')){
 				return false;
 			}
-			var prx_idx = $(this).attr('prx_idx');
+			var prn_idx = $(this).attr('prn_idx');
 			var	type = $(this).attr('typ');
-			exp_del(prx_idx,type);
+			inp_del(prn_idx,type);
 		}
 		events_del();
 		events_reg();
@@ -621,10 +485,10 @@ function events_reg(){
 	//파일열기/닫기 버튼
 	$('.lst_fle').on('click',function(){
 		if($('.reg_prev').length){
-			alert('이전 신규지출 등록작업을 먼저 진행한 후에 파일작업을 실행해 주세요.');
+			alert('이전 신규수입 등록작업을 먼저 진행한 후에 파일작업을 실행해 주세요.');
 			return false;
 		}
-		cur_obj = $(this).closest('.lst_exp');
+		cur_obj = $(this).closest('.lst_inp');
 		var cur_down = $(this).parent().parent().siblings('.lst_down');
 
 
@@ -645,7 +509,7 @@ function events_reg(){
 
 function events_del(){
 	$('.com_name').off('click');
-	$(".prx_done_date").datepicker('option','disabled',true);
+	$("input[name$=_date]").datepicker('option','disabled',true);
 	$('.lst_reg').off('click');
 	$('.lst_del').off('click');
 	$('.lst_fle').off('click');
@@ -660,27 +524,27 @@ function multifile_insert(btn){
 	btn.find('i').attr('class','fa fa-angle-up');
 	btn.parent().parent().siblings('.lst_down').addClass('focus');
 	var lst_down = btn.parent().parent().siblings('.lst_down');
-	var prx_idx = btn.attr('prx_idx');
+	var prn_idx = btn.attr('prn_idx');
 	var type = btn.attr('typ');
 	var lst_down = btn.parent().parent().siblings('.lst_down');
 	var btn_file = btn.parent().parent().siblings('.lst_down').find('.btn_file');
-	// console.log(prx_idx);return false;
+	// console.log(prn_idx);return false;
 	var form_obj = `<form name="multi_file" id="mfile" method="post" enctype="multipart/form-data">
-	<button type="button" class="btn_file" prx_idx="${prx_idx}" typ="${type}">파일등록/삭제</button>
-	<input type="file" name="prx_files[]" multiple class="multi_files" id="prx_files">
+	<button type="button" class="btn_file" prn_idx="${prn_idx}" typ="${type}">파일등록/삭제</button>
+	<input type="file" name="prn_files[]" multiple class="multi_files" id="prn_files">
 	</form>`;
 	$(form_obj).prependTo(lst_down);
-	$('#prx_files').MultiFile();
+	$('#prn_files').MultiFile();
 	$('.btn_file').on('click',function(){
 		btn_file_click($(this));
 	});
 }
 //파일등록 버튼 클릭시 호출하는 함수
 function btn_file_click(btn){
-	var prx_idx = btn.attr('prx_idx');
+	var prn_idx = btn.attr('prn_idx');
 	var typ = btn.attr('typ');
 	var fileObj = btn.siblings('.MultiFile-wrap');
-	file_update(prx_idx,typ,fileObj);
+	file_update(prn_idx,typ,fileObj);
 }
 //파일 닫기버튼을 누르면 multifile을 제거하는 함수
 function multifile_remove(){
@@ -689,27 +553,6 @@ function multifile_remove(){
 	$('#mfile').remove();
 }
 
-$('#rate_btn').on('click',function(){
-	var rate = Number($(this).siblings('#mng_rate').val());
-
-	var prj_mng_price = (prj_price)?Math.round((rate * prj_price)/100):0;
-	var prj_mng_price_str = thousand_comma(prj_mng_price);
-	$('#mng_rate_price').text(prj_mng_price_str);
-
-	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_mng_rate_update.php';
-	$.ajax({
-		type : "POST",
-		url : link,
-		dataType : "text",
-		data : {'prj_idx': prj_idx, 'rate': rate},
-		success : function(res){
-			;
-		},
-		error : function(xmlReq){
-			alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
-		}
-	});
-});
 
 //관리비 0~100까지의 숫자만 입력 가능한 함수
 function only_number(inp){ //inp = #mng_rate
@@ -723,7 +566,7 @@ function only_number(inp){ //inp = #mng_rate
 	});
 }
 
-//지출금액 숫자만 입력 출력은 천단위 콤마로표시
+//수입금액 숫자만 입력 출력은 천단위 콤마로표시
 function only_number_comma(inp){
 	$(inp).keyup(function(){
 		var price = thousand_comma($(this).val().replace(/[^0-9]/g,""));
@@ -732,18 +575,18 @@ function only_number_comma(inp){
 	});
 }
 
-//새로운 지출내역 등록
-function exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date){
-	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
+//새로운 수입내역 등록
+function inp_reg(prj_idx,type,com_idx,prn_name,prn_content,prn_price,prn_plan_date,prn_done_date){
+	var link = '<?=G5_USER_ADMIN_URL?>/project_income_form_update.php';
 
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'r', 'prx_done_date': prx_done_date},
+		data : {'prj_idx': prj_idx, 'prn_type': type, 'com_idx': com_idx, 'prn_name': prn_name, 'prn_content': prn_content, 'prn_price': prn_price, 'mode': 'r', 'prn_plan_date': prn_plan_date, 'prn_done_date': prn_done_date},
 		success : function(res){
 			if(res == 'reg'){
-				alert('지출내역을 성공적으로 등록했습니다.');
+				alert('기타수입내역을 성공적으로 등록했습니다.');
 				location.reload();
 			}
 		},
@@ -753,18 +596,18 @@ function exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_da
 	});
 }
 
-//새로운 지출내역 수정
-function exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date){
-	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
+//새로운 수입내역 수정
+function inp_upd(prn_idx,prj_idx,type,com_idx,prn_name,prn_content,prn_price,prn_plan_date,prn_done_date){
+	var link = '<?=G5_USER_ADMIN_URL?>/project_income_form_update.php';
 
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'prx_idx': prx_idx,'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'u', 'prx_done_date': prx_done_date},
+		data : {'prn_idx': prn_idx,'prj_idx': prj_idx, 'prn_type': type, 'com_idx': com_idx, 'prn_name': prn_name, 'prn_content': prn_content, 'prn_price': prn_price, 'mode': 'u', 'prn_plan_date': prn_plan_date, 'prn_done_date': prn_done_date},
 		success : function(res){
 			if(res == 'upd'){
-				alert('지출내역을 성공적으로 수정했습니다.');
+				alert('기타수입내역을 성공적으로 수정했습니다.');
 				location.reload();
 			}
 		},
@@ -774,18 +617,18 @@ function exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx
 	});
 }
 
-//새로운 지출내역 수정
-function exp_del(prx_idx,type){
-	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
+//새로운 수입내역 수정
+function inp_del(prn_idx,type){
+	var link = '<?=G5_USER_ADMIN_URL?>/project_income_form_update.php';
 
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'prx_idx': prx_idx, 'prx_type': type, 'mode': 'd'},
+		data : {'prn_idx': prn_idx, 'prn_type': type, 'mode': 'd'},
 		success : function(res){
 			if(res == 'del'){
-				alert('지출내역을 성공적으로 삭제하였습니다.');
+				alert('기타수입내역을 성공적으로 삭제하였습니다.');
 				location.reload();
 			}
 		},
@@ -795,8 +638,8 @@ function exp_del(prx_idx,type){
 	});
 }
 
-function file_update(prx_idx,typ,fObj){
-	var prx_idx = prx_idx;
+function file_update(prn_idx,typ,fObj){
+	var prn_idx = prn_idx;
 	var type = typ;
 	var fobj = fObj;
 	var btn_file = fobj.siblings('.btn_file');
@@ -822,7 +665,7 @@ function file_update(prx_idx,typ,fObj){
 	}
 
 	var formData = new FormData();
-	formData.append("prx_idx",prx_idx);
+	formData.append("prn_idx",prn_idx);
 	formData.append("type",type);
 	formData.append("dels",fle_idxs);
 
@@ -834,9 +677,9 @@ function file_update(prx_idx,typ,fObj){
 		formData.append(form.find('.multi_files').attr('name'),file);
 	});
 
-	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_file_update.php';
+	var link = '<?=G5_USER_ADMIN_URL?>/project_income_file_update.php';
 	// console.log(formData);return false;
-	// console.log(prx_idx);return false;
+	// console.log(prn_idx);return false;
 	$.ajax({
 		type : "POST",
 		url : link,

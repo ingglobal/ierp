@@ -33,7 +33,7 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 <section id="anc_cf_default">
 	<h2 class="h2_frm">기본설정</h2>
 	<?php echo $pg_anchor ?>
-	
+
 	<div class="tbl_frm01 tbl_wrap">
 		<table>
 		<caption>기본설정</caption>
@@ -261,6 +261,18 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
             </td>
         </tr>
 		<tr>
+            <th scope="row">지출예정일예고일수</th>
+            <td colspan="3">
+                <input type="text" name="set_expplan_alarmdays" value="<?php echo $g5['setting']['set_expplan_alarmdays']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">기타수입예정일예고일수</th>
+            <td colspan="3">
+                <input type="text" name="set_inpplan_alarmdays" value="<?php echo $g5['setting']['set_inpplan_alarmdays']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
             <th scope="row">세율</th>
             <td colspan="3">
                 <input type="text" name="set_tariff" value="<?php echo $g5['setting']['set_tariff']; ?>" class="frm_input" style="width:60px;text-align:right;padding:0 10px;">&nbsp;%
@@ -371,7 +383,7 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 </section>
 
 
-    
+
 <section id="anc_cf_message">
     <h2 class="h2_frm">메시지설정</h2>
     <?php echo $pg_anchor; ?>

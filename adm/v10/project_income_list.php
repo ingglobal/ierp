@@ -1,11 +1,11 @@
 <?php
-$sub_menu = "960245";
+$sub_menu = "960248";
 include_once('./_common.php');
 
 auth_check($auth[$sub_menu],"r");
 
 // 변수 설정, 필드 구조 및 prefix 추출
-$table_name = 'project_exprice';
+$table_name = 'project_inprice';
 $g5_table_name = $g5[$table_name.'_table'];
 $fields = sql_field_names($g5_table_name);
 $pre = substr($fields[0],0,strpos($fields[0],'_'));
@@ -13,7 +13,7 @@ $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파�
 //$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
 
 
-$g5['title'] = '지출관리';
+$g5['title'] = '기타수입관리';
 //include_once('./_top_menu_company.php');
 //include_once('./_top_menu_price.php');
 include_once('./_head.php');
@@ -21,7 +21,7 @@ echo $g5['container_sub_title'];
 
 $sql_common = " FROM {$g5['project_table']} AS prj
                     LEFT JOIN {$g5['company_table']} AS com ON com.com_idx = prj.com_idx
-";
+"; 
 
 $where = array();
 //$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
@@ -68,18 +68,36 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , com.com_idx AS com_idx
             , (SELECT prp_price FROM {$g5['project_price_table']} WHERE prj_idx = prj.prj_idx AND prp_type = 'order' AND prp_status = 'ok' ) AS prp_order_price
+            , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prj.prj_idx AND prn_status = 'ok' ) AS prn_sum_inprice
+            , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prj.prj_idx AND prn_status = 'ok' AND prn_done_date != '0000-00-00' ) AS prn_don_inprice
             , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' ) AS prx_sum_exprice
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'machine' ) AS prx_mcn_exprice
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'electricity' ) AS prx_elt_exprice
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'etc' ) AS prx_etc_exprice
+            , (
+                SELECT COUNT(*)
+                    FROM g5_1_project_inprice 
+                WHERE prj_idx = prj.prj_idx 
+                    AND prn_plan_date >= CURDATE()
+                    AND DATE_SUB(prn_plan_date, INTERVAL {$g5['setting']['set_inpplan_alarmdays']} DAY) <= CURDATE()
+                    AND prn_done_date = '0000-00-00'
+                    AND prn_type = 'etc' 
+                    AND prn_status = 'ok' 
+            ) AS prn_alarm_cnt
+            , (
+                SELECT COUNT(*)
+                    FROM g5_1_project_inprice 
+                WHERE prj_idx = prj.prj_idx 
+                    AND prn_plan_date < CURDATE()
+                    AND prn_done_date = '0000-00-00'
+                    AND prn_type = 'etc' 
+                    AND prn_status = 'ok' 
+            ) AS prn_expire_cnt
         {$sql_common}
 		{$sql_search}
         {$sql_order}
-		LIMIT {$from_record}, {$rows}
+		LIMIT {$from_record}, {$rows} 
 ";
 // echo $sql;
 $result = sql_query($sql,1);
-$count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") );
+$count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") ); 
 $total_count = $count['total'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 
@@ -92,9 +110,9 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 11;
-else $colspan = 8;
-//예정일알람일수 $g5['setting']['set_expplan_alarmdays']
+if($super_admin) $colspan = 9;
+else $colspan = 6;
+//예정일알람일수 $g5['setting']['set_inpplan_alarmdays']
 ?>
 <style>
 .malp{position:absolute;right:0;}
@@ -116,6 +134,9 @@ else $colspan = 8;
 .td_grp{position:relative;}
 .td_grp .prc{position:relative;z-index:3;}
 .td_grp .per{position:absolute;top:-4px;left:0px;font-size:0.7em;}
+.td_alarm{position:relative;}
+.td_alarm .sp_alarm{position:absolute;top:-5px;left:2px;font-size:0.7em;}
+.td_alarm .sp_expire{position:absolute;bottom:-5px;left:2px;font-size:0.7em;}
 .grp_box{display:block;position:absolute;bottom:2px;left:0px;width:100%;height:5px;background:#ccc;overflow:hidden;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
@@ -167,12 +188,11 @@ else $colspan = 8;
         <?php if($super_admin){ ?>
         <th scope="col">미수금<br>(수주금액기준%)</th>
         <th scope="col">수주금액</th>
+        <th scope="col">기타수입<br>총합계</th>
+        <th scope="col">기타수입<br>입금합계</th>
         <?php } ?>
-        <th scope="col">총지출액<?php if($super_admin){ ?><br>(수주금액기준%)<?php } ?></th>
-        <th scope="col">기계지출액<br>(총지출액기준%)</th>
-        <th scope="col">전기지출액<br>(총지출액기준%)</th>
-        <th scope="col">기타지출액<br>(총지출액기준%)</th>
-        <?php if($super_admin){ ?><th scope="col">잔액<br>(수주액-총지출액)<?php if($super_admin){ ?><br>(수주금액기준%)<?php } ?></th><?php } ?>
+        <th scope="col">총지출액<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
+        <?php if($super_admin){ ?><th scope="col">잔액<br>(총수입금-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th><?php } ?>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
 	</thead>
@@ -183,12 +203,12 @@ else $colspan = 8;
 
     $misu1_price = 0;
     $misu2_price = 0;
-
+    
     for ($i=0; $row=sql_fetch_array($result); $i++) {
         // print_r2($row);
         // 관리 버튼
         $s_mod = '<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1">수정</a>';
-
+        
         //수금완료 합계를 구한다
         $ssql = " SELECT SUM(prp_price) AS sum_price
                     FROM {$g5['project_price_table']}
@@ -200,14 +220,11 @@ else $colspan = 8;
         //echo $ssql;
         $sugeum = sql_fetch($ssql);
         $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
-        $row['prp_dif_exprice'] = $row['prp_order_price'] - $row['prx_sum_exprice'];
+        $row['prp_dif_exprice'] = ($row['prp_order_price']+$row['prn_don_inprice']) - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
         $mis_per = ($row['prp_order_price'])?round($row['prj_mi_price']/$row['prp_order_price']*100,1):0;
-        $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/$row['prp_order_price']*100,1):0;
-        $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/$row['prp_order_price']*100,1):0;
-        $mcn_per = ($row['prx_sum_exprice'])?round($row['prx_mcn_exprice']/$row['prx_sum_exprice']*100,1):0;
-        $elt_per = ($row['prx_sum_exprice'])?round($row['prx_elt_exprice']/$row['prx_sum_exprice']*100,1):0;
-        $etc_per = ($row['prx_sum_exprice'])?round($row['prx_etc_exprice']/$row['prx_sum_exprice']*100,1):0;
+        $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/($row['prp_order_price']+$row['prn_sum_inprice'])*100,1):0;
+        $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/($row['prp_order_price']+$row['prn_don_inprice'])*100,1):0;
         ?>
         <tr class="<?=$bg?>">
             <td class="td_chk" rowspan="<?=$p_cnt?>" style="display:<?=(!$member['mb_manager_yn'])?'none':'none'?>;">
@@ -225,26 +242,25 @@ else $colspan = 8;
                 <span class="per">(<?=$mis_per?>%)</span>
             </td>
             <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prn_sum_inprice'])?></td>
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;" class="td_alarm">
+                <?=number_format($row['prn_don_inprice'])?>
+                <?php 
+                if($row['prn_alarm_cnt']){
+                    $dt_plan_class = ' txt_blueblink';
+                    echo '<span class="sp_alarm'.$dt_plan_class.'">입금예정</span>';
+                }
+                if($row['prn_expire_cnt']){
+                    $dt_expire_class = ' txt_redblink';
+                    echo '<span class="sp_expire'.$dt_expire_class.'">미수금만기</span>';
+                }
+                ?>
+            </td>
             <?php } ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prx_sum_exprice'])?></span>
                 <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
                 <?php if($super_admin){ ?><span class="per">(<?=$exp_per?>%)</span><?php } ?>
-            </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prx_mcn_exprice'])?></span>
-                <div class="grp_box"><div class="grp_in" style="width:<?=$mcn_per?>%"></div></div>
-                <span class="per">(<?=$mcn_per?>%)</span>
-            </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prx_elt_exprice'])?></span>
-                <div class="grp_box"><div class="grp_in" style="width:<?=$elt_per?>%"></div></div>
-                <span class="per">(<?=$elt_per?>%)</span>
-            </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prx_etc_exprice'])?></span>
-                <div class="grp_box"><div class="grp_in" style="width:<?=$etc_per?>%"></div></div>
-                <span class="per">(<?=$etc_per?>%)</span>
             </td>
             <?php if($super_admin){ ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
@@ -266,16 +282,6 @@ else $colspan = 8;
 	</table>
 </div>
 
-<div class="btn_fixed_top">
-    <?php if(false){ //($member['mb_manager_yn']) { ?>
-        <a href="./project_pr_exprice_list_excel_down.php?<?=$qstr?>" id="btn_excel_down" class="btn btn_03">엑셀다운</a>
-    <?php } ?>
-    <?php if(false) { ?>
-        <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn" style="display:none;">
-        <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
-        <a href="./<?=$fname?>_form.php" id="btn_add" class="btn btn_01">추가하기</a>
-    <?php } ?>
-</div>
 </form>
 
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;ser_prj_type='.$ser_prj_type.'&amp;page='); ?>
@@ -289,14 +295,14 @@ $(function(e) {
             //console.log($(this).attr('od_id')+' mouseenter');
             //$(this).find('td').css('background','red');
             $('tr[tr_id='+$(this).attr('tr_id')+']').find('td').css('background','#e6e6e6 ');
-
+            
         },
         mouseleave: function () {
             //stuff to do on mouse leave
             //console.log($(this).attr('od_id')+' mouseleave');
             //$(this).find('td').css('background','unset');
             $('tr[tr_id='+$(this).attr('tr_id')+']').find('td').css('background','unset');
-        }
+        }    
     });
 
     // 장비보기 클릭
@@ -391,7 +397,7 @@ function form01_submit(f)
 		}
 		else {
 			$('input[name="w"]').val('d');
-		}
+		} 
 	}
     return true;
 }
