@@ -13,34 +13,27 @@ $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파�
 //$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
 
 
-$g5['title'] = '기타수입관리(과제)';
+$g5['title'] = '기타수입관리(각수입 개별)';
 include_once('./_top_menu_inprice.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
-$sql_common = " FROM {$g5['project_table']} AS prj
-                    LEFT JOIN {$g5['company_table']} AS com ON com.com_idx = prj.com_idx
-";
+$sql_common = " FROM {$g5['project_inprice_table']} AS prn
+                    LEFT JOIN {$g5['project_table']} AS prj ON prn.prj_idx = prj.prj_idx
+                    LEFT JOIN {$g5['company_table']} AS com ON prn.com_idx = com.com_idx
+"; 
 
 $where = array();
 //$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
-$where[] = " prj_status = 'ok' ";   // 디폴트 검색조건
-
-// 운영권한이 없으면 자기 업체만
-if (!$member['mb_manager_yn']) {
-    ;//$where[] = " prj.com_idx = '".$member['mb_4']."' ";
-}
+$where[] = " prn_status = 'ok' ";   // 디폴트 검색조건
 
 if ($stx) {
     switch ($sfl) {
-		case ( $sfl == 'prj.com_idx' || $sfl == 'prj_idx' ) :
+		case ( $sfl == 'prn.com_idx' || $sfl == 'prn.prj_idx' || $sfl == 'prn_idx') :
             $where[] = " ({$sfl} = '{$stx}') ";
             break;
 		case ($sfl == 'prj.prj_name') :
             $where[] = " ({$sfl} LIKE '%{$stx}%') ";
-            break;
-		case ($sfl == 'mb_id_saler' || $sfl == 'mb_name_saler' ) :
-            $where[] = " (mb_id_salers LIKE '%^{$stx}^%') ";
             break;
         default :
             $where[] = " ({$sfl} LIKE '%{$stx}%') ";
@@ -48,47 +41,50 @@ if ($stx) {
     }
 }
 
-
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
-
 if (!$sst) {
-    $sst = "prj_idx";
+    $sst = "prj.prj_idx";
     $sod = "DESC";
 }
-$sql_order = " ORDER BY {$sst} {$sod} ";
+if (!$sst2) {
+    $sst2 = ", prn_idx";
+    $sod2 = "";
+}
+$sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} ";
 
 $rows = 25;//$config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
-$sql = " SELECT SQL_CALC_FOUND_ROWS *
-            , com.com_idx AS com_idx
-            , (SELECT prp_price FROM {$g5['project_price_table']} WHERE prj_idx = prj.prj_idx AND prp_type = 'order' AND prp_status = 'ok' ) AS prp_order_price
-            , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prj.prj_idx AND prn_status = 'ok' ) AS prn_sum_inprice
-            , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prj.prj_idx AND prn_status = 'ok' AND prn_done_date != '0000-00-00' ) AS prn_don_inprice
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' ) AS prx_sum_exprice
+$sql = " SELECT SQL_CALC_FOUND_ROWS prn.*
+            , com_name
+            , prj_name
+            , (SELECT prp_price FROM {$g5['project_price_table']} WHERE prj_idx = prn.prj_idx AND prp_type = 'order' AND prp_status = 'ok' ) AS prp_order_price
+            , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prn.prj_idx AND prn_status = 'ok' ) AS prn_sum_inprice
+            , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prn.prj_idx AND prn_status = 'ok' AND prn_done_date != '0000-00-00' ) AS prn_don_inprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prn.prj_idx AND prx_status = 'ok' ) AS prx_sum_exprice
             , (
-                SELECT COUNT(*)
-                    FROM g5_1_project_inprice
-                WHERE prj_idx = prj.prj_idx
-                    AND prn_plan_date >= CURDATE()
-                    AND DATE_SUB(prn_plan_date, INTERVAL {$g5['setting']['set_inpplan_alarmdays']} DAY) <= CURDATE()
-                    AND prn_done_date = '0000-00-00'
-                    AND prn_type = 'etc'
-                    AND prn_status = 'ok'
-            ) AS prn_alarm_cnt
+                CASE WHEN prn_plan_date >= CURDATE() 
+                            AND DATE_SUB(prn_plan_date, INTERVAL {$g5['setting']['set_inpplan_alarmdays']} DAY) <= CURDATE()
+                            AND prn_done_date = '0000-00-00'
+                            AND prn_type = 'etc'
+                            AND prn_status = 'ok'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS prn_alarm_flag
             , (
-                SELECT COUNT(*)
-                    FROM g5_1_project_inprice
-                WHERE prj_idx = prj.prj_idx
-                    AND prn_plan_date < CURDATE()
-                    AND prn_done_date = '0000-00-00'
-                    AND prn_type = 'etc'
-                    AND prn_status = 'ok'
-            ) AS prn_expire_cnt
+                CASE WHEN prn_plan_date < CURDATE()
+                            AND prn_done_date = '0000-00-00'
+                            AND prn_type = 'etc'
+                            AND prn_status = 'ok'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS prn_expire_flag
         {$sql_common}
 		{$sql_search}
         {$sql_order}
@@ -109,9 +105,8 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 10;
-else $colspan = 7;
-//예정일알람일수 $g5['setting']['set_inpplan_alarmdays']
+if($super_admin) $colspan = 11;
+else $colspan = 8;
 ?>
 <style>
 .malp{position:absolute;right:0;}
@@ -134,13 +129,13 @@ else $colspan = 7;
 .td_grp .prc{position:relative;z-index:3;}
 .td_grp .per{position:absolute;top:-4px;left:0px;font-size:0.7em;}
 .td_alarm{position:relative;}
+.td_alarm .sp_done{position:absolute;top:-5px;left:2px;font-size:0.7em;}
 .td_alarm .sp_alarm{position:absolute;top:-5px;left:2px;font-size:0.7em;}
 .td_alarm .sp_expire{position:absolute;bottom:-5px;left:2px;font-size:0.7em;}
 .grp_box{display:block;position:absolute;bottom:2px;left:0px;width:100%;height:5px;background:#ccc;overflow:hidden;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
 </style>
-
 <div class="local_ov01 local_ov">
     <?php echo $listall ?>
     <span class="btn_ov01"><span class="ov_txt">총</span><span class="ov_num"> <?php echo number_format($total_count) ?></span></span>
@@ -151,7 +146,7 @@ else $colspan = 7;
 <select name="sfl" id="sfl">
 	<option value="com.com_name"<?php echo get_selected($_GET['sfl'], "com.com_name"); ?>>업체명</option>
 	<option value="prj.prj_name"<?php echo get_selected($_GET['sfl'], "prj.prj_name"); ?>>프로젝트명</option>
-	<option value="prj.prj_idx"<?php echo get_selected($_GET['sfl'], "prj.prj_idx"); ?>>프로젝트번호</option>
+	<option value="prn.prj_idx"<?php echo get_selected($_GET['sfl'], "prn.prj_idx"); ?>>프로젝트번호</option>
 </select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
@@ -177,15 +172,16 @@ else $colspan = 7;
 	<thead>
     <!-- 테이블 항목명 1번 라인 -->
 	<tr>
-		<th scope="col" style="display:<?=(!$member['mb_manager_yn'])?'none':'none'?>;">
+		<th scope="col" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
 			<label for="chkall" class="sound_only">항목 전체</label>
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
         <th scope="col">번호</th>
-        <th scope="col">의뢰기업</th>
+        <th scope="col">프로젝트<br>ID</th>
         <th scope="col">공사프로젝트</th>
+        <th scope="col">수입업체명</th>
+        <th scope="col">수입제목</th>
         <?php if($super_admin){ ?>
-        <th scope="col">미수금<br>(수주금액기준%)</th>
         <th scope="col">수주금액</th>
         <th scope="col">기타수입<br>총합계<br>(입금률%)</th>
         <th scope="col">기타수입<br>입금합계</th>
@@ -197,66 +193,51 @@ else $colspan = 7;
 	</thead>
 	<tbody>
     <?php
-    $fle_width = 100;
-    $fle_height = 80;
-
-    $misu1_price = 0;
-    $misu2_price = 0;
 
     for ($i=0; $row=sql_fetch_array($result); $i++) {
         // print_r2($row);
         // 관리 버튼
-        $s_mod = '<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1">수정</a>';
+        $s_mod = '<a href="./project_income_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1&amp;divid=divid">수정</a>';
 
-        //수금완료 합계를 구한다
-        $ssql = " SELECT SUM(prp_price) AS sum_price
-                    FROM {$g5['project_price_table']}
-                    WHERE prj_idx = '".$row['prj_idx']."'
-                        AND prp_type NOT IN ('submit','nego','order','')
-                        AND prp_pay_date != '0000-00-00'
-                        AND prp_status = 'ok'
-        ";
-        //echo $ssql;
-        $sugeum = sql_fetch($ssql);
-        $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
         $row['prp_dif_exprice'] = ($row['prp_order_price']+$row['prn_don_inprice']) - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
-        $mis_per = ($row['prp_order_price'])?round($row['prj_mi_price']/$row['prp_order_price']*100,1):0;
-		$inp_per = ($row['prn_sum_inprice'])?round($row['prn_don_inprice']/$row['prn_sum_inprice']*100,1):0;
+        $inp_per = ($row['prn_sum_inprice'])?round($row['prn_don_inprice']/$row['prn_sum_inprice']*100,1):0;
         $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/($row['prp_order_price']+$row['prn_sum_inprice'])*100,1):0;
         $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/($row['prp_order_price']+$row['prn_don_inprice'])*100,1):0;
         ?>
         <tr class="<?=$bg?>">
-            <td class="td_chk" rowspan="<?=$p_cnt?>" style="display:<?=(!$member['mb_manager_yn'])?'none':'none'?>;">
-                <input type="hidden" name="prj_idx[<?php echo $i ?>]" value="<?php echo $row['prj_idx'] ?>" id="prj_idx_<?php echo $i ?>">
-                <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['prj_name']); ?></label>
+            <td class="td_chk" rowspan="<?=$p_cnt?>" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
+                <input type="hidden" name="prn_idx[<?php echo $i ?>]" value="<?php echo $row['prn_idx'] ?>" id="prn_idx_<?php echo $i ?>">
+                <input type="hidden" name="prn_type[<?php echo $i ?>]" value="<?php echo $row['prn_type'] ?>" id="prn_type_<?php echo $i ?>">
+                <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['prn_name']); ?></label>
                 <input type="checkbox" name="chk[]" value="<?php echo $i ?>" id="chk_<?php echo $i ?>">
             </td>
-            <td rowspan="<?=$p_cnt?>"><?=$row['prj_idx']?></td><!-- 번호 -->
-            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
+            <td rowspan="<?=$p_cnt?>"><?=$row['prn_idx']?></td><!-- 번호 -->
+            <td rowspan="<?=$p_cnt?>" class="td_center"><?=$row['prj_idx']?></td><!-- 공사프로젝트ID -->
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
+            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
+            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prn_name']?></td><!-- 수입제목 -->
             <?php if($super_admin){ ?>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
-                <span class="prc"><?=number_format($row['prj_mi_price'])?></span>
-                <div class="grp_box"><div class="grp_in grp_in_mi" style="width:<?=$mis_per?>%"></div></div>
-                <span class="per">(<?=$mis_per?>%)</span>
-            </td>
             <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
-			<td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prn_sum_inprice'])?></span>
                 <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$inp_per?>%"></div></div><?php } ?>
                 <?php if($super_admin){ ?><span class="per">(<?=$inp_per?>%)</span><?php } ?>
             </td>
             <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;" class="td_alarm">
-                <?=number_format($row['prn_don_inprice'])?>
+                <?=number_format($row['prn_price'])?>
                 <?php
-                if($row['prn_alarm_cnt']){
+                if($row['prn_alarm_flag']){
                     $dt_plan_class = ' txt_blueblink';
                     echo '<span class="sp_alarm'.$dt_plan_class.'">입금예정</span>';
                 }
-                if($row['prn_expire_cnt']){
+                if($row['prn_expire_flag']){
                     $dt_expire_class = ' txt_redblink';
                     echo '<span class="sp_expire'.$dt_expire_class.'">미수금만기</span>';
+                }
+                if($row['prn_done_date'] != '0000-00-00'){
+                    $dt_done_class = ' txt_gray';
+                    echo '<span class="sp_done'.$dt_gray_class.'">입금완료</span>';
                 }
                 ?>
             </td>
@@ -285,8 +266,13 @@ else $colspan = 7;
 	</tbody>
 	</table>
 </div>
-
+<div class="btn_fixed_top">
+    <?php if($member['mb_manager_yn']) { ?>
+        <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
+    <?php } ?>
+</div>
 </form>
+
 
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;ser_prj_type='.$ser_prj_type.'&amp;page='); ?>
 
@@ -382,10 +368,6 @@ $(function(e) {
 
 function form01_submit(f)
 {
-	if(document.pressed == "테스트입력") {
-		window.open('<?=G5_URL?>/device/code/form.php');
-        return false;
-	}
 
     if (!is_checked("chk[]")) {
         alert(document.pressed+" 하실 항목을 하나 이상 선택하세요.");
@@ -395,6 +377,7 @@ function form01_submit(f)
 	if(document.pressed == "선택수정") {
 		$('input[name="w"]').val('u');
 	}
+
 	if(document.pressed == "선택삭제") {
 		if (!confirm("선택한 항목(들)을 정말 삭제 하시겠습니까?\n복구가 어려우니 신중하게 결정 하십시오.")) {
 			return false;
@@ -409,4 +392,3 @@ function form01_submit(f)
 
 <?php
 include_once ('./_tail.php');
-?>

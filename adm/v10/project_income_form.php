@@ -304,7 +304,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 
 
 <div class="btn_fixed_top">
-    <a href="./project_income_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
+    <a href="./project_income<?=$divid?>_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
 </div>
 </form>
 <script>

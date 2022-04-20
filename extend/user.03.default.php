@@ -11,7 +11,7 @@ else {
 		if(is_writable(G5_SESSION_PATH)) {
 			//-- 세션에 lang_code를 저장 --//
 	        set_session("ss_country", G5_DEFAULT_COUNTRY);
-			$g5['setting']['set_default_country'] = G5_DEFAULT_COUNTRY;	
+			$g5['setting']['set_default_country'] = G5_DEFAULT_COUNTRY;
 //	        echo "<meta http-equiv='content-type' content='text/html; charset=utf-8'><script type='text/javascript'> window.location.reload(); </script>";
 //	        exit;
 		}
@@ -26,7 +26,7 @@ else {
 if($_GET['chg_country']) {
 	//-- 세션에 lang_code를 저장 --//
 	set_session("ss_country", $_GET['chg_country']);
-	$g5['setting']['set_default_country'] = $_GET['chg_country'];	
+	$g5['setting']['set_default_country'] = $_GET['chg_country'];
 }
 
 // 번역 문장 포함
@@ -41,7 +41,7 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
 	$g5['setting'][$row['set_name']] = $row['set_value'];
 	// A=B 형태를 가지고 있으면 자동 할당
 	$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting'][$row['set_name']]));
-	
+
 	foreach ($set_values as $set_value) {
 		//변수가 (,),(=)로 구분되어 있을때
 		if( preg_match("/=/",$set_value) ) {
@@ -88,7 +88,7 @@ if ($bo_table) {
 	$result = sql_query(" SELECT mta_key,mta_value FROM {$g5['meta_table']} WHERE mta_db_table = 'board' AND mta_db_id='$bo_table' ");
 	for ($i=0; $row=sql_fetch_array($result); $i++)
 		$board[$row["mta_key"]] = $row["mta_value"];
-	
+
 	//게시물 메타 확장
 	if ($wr_id) {
 		$result = sql_query(" SELECT mta_key,mta_value FROM {$g5['meta_table']} WHERE mta_db_table = 'board/".$bo_table."' AND mta_db_id='$wr_id' ");
@@ -153,9 +153,104 @@ $g5['week_names2'] = array(
 	,"5"=>"토"
 	,"6"=>"일"
 );
+$g5['write_default_fields'] = array(
+	"wr_id" => "int(11) NOT NULL"
+	,"wr_num" => "int(11) NOT NULL DEFAULT 0"
+	,"wr_reply" => "varchar(10) NOT NULL"
+	,"wr_parent" => "int(11) NOT NULL DEFAULT 0"
+	,"wr_is_comment" => "tinyint(4) NOT NULL DEFAULT 0"
+	,"wr_comment" => "int(11) NOT NULL DEFAULT 0"
+	,"wr_comment_reply" => "varchar(5) NOT NULL"
+	,"ca_name" => "varchar(255) NOT NULL"
+	,"wr_option" => "set('html1','html2','secret','mail') NOT NULL"
+	,"wr_subject" => "varchar(255) NOT NULL"
+	,"wr_content" => "text NOT NULL"
+	,"wr_seo_title" => "varchar(255) NOT NULL DEFAULT ''"
+	,"wr_link1" => "text NOT NULL"
+	,"wr_link2" => "text NOT NULL"
+	,"wr_link1_hit" => "int(11) NOT NULL DEFAULT 0"
+	,"wr_link2_hit" => "int(11) NOT NULL DEFAULT 0"
+	,"wr_hit" => "int(11) NOT NULL DEFAULT 0"
+	,"wr_good" => "int(11) NOT NULL DEFAULT 0"
+	,"wr_nogood" => "int(11) NOT NULL DEFAULT 0"
+	,"mb_id" => "varchar(20) NOT NULL"
+	,"wr_password" => "varchar(255) NOT NULL"
+	,"wr_name" => "varchar(255) NOT NULL"
+	,"wr_email" => "varchar(255) NOT NULL"
+	,"wr_homepage" => "varchar(255) NOT NULL"
+	,"wr_datetime" => "datetime NOT NULL DEFAULT '0000-00-00 00:00:00'"
+	,"wr_file" => "tinyint(4) NOT NULL DEFAULT 0"
+	,"wr_last" => "varchar(19) NOT NULL"
+	,"wr_ip" => "varchar(255) NOT NULL"
+	,"wr_facebook_user" => "varchar(255) NOT NULL"
+	,"wr_twitter_user" => "varchar(255) NOT NULL"
+	,"wr_1" => "varchar(255) NOT NULL"
+	,"wr_2" => "varchar(255) NOT NULL"
+	,"wr_3" => "varchar(255) NOT NULL"
+	,"wr_4" => "varchar(255) NOT NULL"
+	,"wr_5" => "varchar(255) NOT NULL"
+	,"wr_6" => "varchar(255) NOT NULL"
+	,"wr_7" => "varchar(255) NOT NULL"
+	,"wr_8" => "varchar(255) NOT NULL"
+	,"wr_9" => "varchar(255) NOT NULL"
+	,"wr_10" => "varchar(255) NOT NULL"
+);
+
+if (isset($_REQUEST['sfl2']))  {
+    $sfl2 = trim($_REQUEST['sfl2']);
+    $sfl2 = preg_replace("/[\<\>\'\"\\\'\\\"\%\=\(\)\/\^\*\s]/", "", $sfl2);
+    if ($sfl2)
+        $qstr .= '&amp;sfl=' . urlencode($sfl2); // search field (검색 필드)
+} else {
+    $sfl2 = '';
+}
 
 
-// 로그인을 할 때마다 로그 파일 삭제해야 용량을 확보할 수 있음 
+if (isset($_REQUEST['stx2']))  { // search text (검색어)
+    $stx2 = get_search_string(trim($_REQUEST['stx2']));
+    if ($stx2 || $stx2 === '0')
+        $qstr .= '&amp;stx=' . urlencode(cut_str($stx2, 20, ''));
+} else {
+    $stx2 = '';
+}
+
+if (isset($_REQUEST['sst2']))  {
+    $sst2 = trim($_REQUEST['sst2']);
+    $sst2 = preg_replace("/[\<\>\'\"\\\'\\\"\%\=\(\)\/\^\*\s]/", "", $sst2);
+    if ($sst2)
+        $qstr .= '&amp;sst2=' . urlencode($sst2); // search sort (검색 정렬 필드)
+} else {
+    $sst2 = '';
+}
+
+if (isset($_REQUEST['sod2']))  { // search order (검색 오름, 내림차순)
+    $sod2 = preg_match("/^(asc|desc)$/i", $sod2) ? $sod2 : '';
+    if ($sod2)
+        $qstr .= '&amp;sod2=' . urlencode($sod2);
+} else {
+    $sod2 = '';
+}
+
+
+if (isset($_REQUEST['sst3']))  {
+    $sst3 = trim($_REQUEST['sst3']);
+    $sst3 = preg_replace("/[\<\>\'\"\\\'\\\"\%\=\(\)\/\^\*\s]/", "", $sst3);
+    if ($sst3)
+        $qstr .= '&amp;sst3=' . urlencode($sst3); // search sort (검색 정렬 필드)
+} else {
+    $sst3 = '';
+}
+
+if (isset($_REQUEST['sod3']))  { // search order (검색 오름, 내림차순)
+    $sod3 = preg_match("/^(asc|desc)$/i", $sod3) ? $sod3 : '';
+    if ($sod3)
+        $qstr .= '&amp;sod3=' . urlencode($sod3);
+} else {
+    $sod3 = '';
+}
+
+
+// 로그인을 할 때마다 로그 파일 삭제해야 용량을 확보할 수 있음
 if(basename($_SERVER["SCRIPT_FILENAME"]) == 'login_check.php') {
 	// 지난시간을 초로 계산해서 적어주시면 됩니다.
 	$del_time_interval = 3600 * 6;	// Default = 6 시간
@@ -174,8 +269,8 @@ if(basename($_SERVER["SCRIPT_FILENAME"]) == 'login_check.php') {
 	            unlink($session_file);
 	    }
     }
-	
-	
+
+
 	// 캐시 파일 삭제 adm/cache_file_delete.php, captch_file_deelte 참고했습니다.
 	if ($dir=@opendir(G5_DATA_PATH.'/cache')) {
 		// latest 파일 삭제
@@ -210,7 +305,7 @@ if(basename($_SERVER["SCRIPT_FILENAME"]) == 'login_check.php') {
 		            unlink($banner_file);
 		    }
 		}
-		
+
 	}
 
 	// 썸네일 파일 삭제 adm/thumbnail_file_delete.php 참고했습니다.
@@ -221,9 +316,9 @@ if(basename($_SERVER["SCRIPT_FILENAME"]) == 'login_check.php') {
 	        while(false !== ($entry = readdir($handle))) {
 	            if($entry == '.' || $entry == '..')
 	                continue;
-	
+
 	            $path = G5_DATA_PATH.'/'.$val.'/'.$entry;
-	
+
 	            if(is_dir($path))
 	                $directory[] = $path;
 	        }
@@ -242,7 +337,7 @@ if(basename($_SERVER["SCRIPT_FILENAME"]) == 'login_check.php') {
 		    }
 		}
 	}
-	
+
 }
 
 
@@ -283,14 +378,14 @@ if($board['gr_id']=='intra') {
 if(defined('G5_IS_ADMIN')){
 	add_event('adm_board_form_before', 'u_adm_board_form_before', 10);
 	add_event('tail_sub', 'u_tail_sub', 10);
-	
+
 	if(G5_IS_MOBILE){
 		@include_once(G5_USER_ADMIN_MOBILE_LIB_PATH.'/common.lib.php');
 		add_replace('head_css_url','get_mobile_admin_css',10,1);
 	}
 
 	add_replace('invalid_password', 'write_invalid_password', 10, 3);
-	
+
 	function u_adm_board_form_before(){
 		global $g5;
 		$column_query_arr = array(
@@ -313,7 +408,7 @@ if(defined('G5_IS_ADMIN')){
 			}
 		}
 	}
-	
+
 	function write_invalid_password($bool, $type, $wr){
 		global $bo_table;
 		if($bo_table == 'as' || $bo_table == 'meeting'){
@@ -325,7 +420,7 @@ if(defined('G5_IS_ADMIN')){
 						$bool = true;
 					}
 				}
-			}			
+			}
 		}
 
 		return $bool;
@@ -336,7 +431,7 @@ if(defined('G5_IS_ADMIN')){
 		if($g5['file_name'] == 'contentform') global $co,$readonly;
 		if($g5['file_name'] == 'itemform') global $it;
 
-		// 
+		//
         echo '<script>'.PHP_EOL;
 		echo 'var dir_name = "'.$g5['dir_name'].'";'.PHP_EOL;
 		echo 'var file_name = "'.$g5['file_name'].'";'.PHP_EOL;
@@ -351,7 +446,7 @@ if(defined('G5_IS_ADMIN')){
 		echo 'var g5_print_version = "'.$print_version.'";'.PHP_EOL;
 		echo 'var get_device_change_url = "'.get_device_change_url().'"'.PHP_EOL;
 		echo '</script>'.PHP_EOL;
-		
+
 		if(G5_IS_MOBILE){
 			//기존 admin.css 추가적인 스타일을 위해서 adm.css를 추가
 			if(is_file(G5_USER_ADMIN_MOBILE_CSS_PATH.'/adm.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_MOBILE_CSS_URL.'/adm.css">',0);
@@ -366,7 +461,7 @@ if(defined('G5_IS_ADMIN')){
 			}
 			// 사용자 정의 css, 파일명과 같은 css가 있으면 자동으로 추가됨
 			if(is_file(G5_USER_ADMIN_MOBILE_CSS_PATH.'/'.$g5['file_name'].'.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_MOBILE_CSS_URL.'/'.$g5['file_name'].'.css">',0);
-			
+
 			// js 추가
 			if(is_file(G5_USER_ADMIN_MOBILE_JS_PATH.'/function.js')) add_javascript('<script src="'.G5_USER_ADMIN_MOBILE_JS_URL.'/function.js"></script>',0);
 			if(is_file(G5_USER_ADMIN_MOBILE_JS_PATH.'/common.js')) add_javascript('<script src="'.G5_USER_ADMIN_MOBILE_JS_URL.'/common.js"></script>',0);
@@ -384,14 +479,14 @@ if(defined('G5_IS_ADMIN')){
 			}
 			// 사용자 정의 css, 파일명과 같은 css가 있으면 자동으로 추가됨
 			if(is_file(G5_USER_ADMIN_CSS_PATH.'/'.$g5['file_name'].'.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/'.$g5['file_name'].'.css">',0);
-			
+
 			// js 추가
 			if(is_file(G5_USER_ADMIN_JS_PATH.'/function.js')) add_javascript('<script src="'.G5_USER_ADMIN_JS_URL.'/function.js"></script>',0);
 			if(is_file(G5_USER_ADMIN_JS_PATH.'/common.js')) add_javascript('<script src="'.G5_USER_ADMIN_JS_URL.'/common.js"></script>',0);
 			// 사용자 정의 함수, 파일명과 같은 js가 있으면 자동으로 추가됨
 			if(is_file(G5_USER_ADMIN_JS_PATH.'/'.$g5['file_name'].'.js')) echo '<script src="'.G5_USER_ADMIN_JS_URL.'/'.$g5['file_name'].'.js"></script>'.PHP_EOL;
 		}
-		
+
 		// 후킹 추가
         @include_once($g5['hook_file_path'].'/u.'.$g5['file_name'].'.tail.php');
         send_kosmo_log();
@@ -408,29 +503,29 @@ if(defined('G5_IS_ADMIN')){
             });
             </script>';
         }
-        
+
 	}
-    
+
 	function get_mobile_admin_css(){
 		return G5_USER_ADMIN_MOBILE_CSS_URL.'/admin.css?ver='.G5_CSS_VER;
 	}
-	
+
 }
 // User mode default hooking
 else{
-	
+
     add_event('shop_head_end','u_shop_head_end',10);
 	function u_shop_head_end(){
 		global $g5,$config,$default,$tmp_cart_id,$od_id,$s_cart_id,$member;
         @include_once($g5['hook_file_path'].'/u.'.$g5['file_name'].'.shop_head.php');
 	}
-	
+
 	add_event('tail_sub', 'u_tail_sub', 10);
 	function u_tail_sub(){
 		global $g5,$member,$default,$config,$is_admin,$w;
 		if($g5['file_name'] == 'content') global $co,$co_id;
-        
-        // 
+
+        //
         echo '<script>'.PHP_EOL;
         echo 'var file_name = "'.$g5['file_name'].'";'.PHP_EOL;
         echo 'var dir_path = "'.$g5['dir_path'].'";'.PHP_EOL;
@@ -451,7 +546,7 @@ else{
 		//if(is_file(G5_USER_JS_PATH.'/slick181/slick-theme.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_JS_URL.'/slick181/slick-theme.css">',0);
 		//if(is_file(G5_USER_CSS_PATH.'/boot_reset.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_CSS_URL.'/boot_reset.css">',0);
 		if(is_file(G5_USER_CSS_PATH.'/default_reset.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_CSS_URL.'/default_reset.css">',0);
-        
+
         if(G5_IS_MOBILE) {
             if(is_file(G5_THEME_PATH.'/css/mobile2.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_THEME_URL.'/css/mobile2.css">',0);
             // 사용자 정의 css, 파일명과 같은 css가 있으면 자동으로 추가됨
@@ -463,21 +558,21 @@ else{
             if(is_file(G5_THEME_PATH.'/css/'.$g5['file_name'].'.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_THEME_URL.'/css/'.$g5['file_name'].'.css">',0);
         }
 		if(is_file(G5_USER_CSS_PATH.'/common.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_CSS_URL.'/common.css">',0);
-		
+
 //		if(is_file(G5_USER_JS_PATH.'/jquery_ui/jquery-ui.min.js')) add_javascript('<script src="'.G5_USER_JS_URL.'/jquery_ui/jquery-ui.min.js"></script>',0);
 		//if(is_file(G5_USER_JS_PATH.'/bootstrap/bootstrap.min.js')) add_javascript('<script src="'.G5_USER_JS_URL.'/bootstrap/bootstrap.min.js"></script>',0);
 		if(is_file(G5_USER_JS_PATH.'/common.js')) add_javascript('<script src="'.G5_USER_JS_URL.'/common.js"></script>',0);
 		if(is_file(G5_USER_JS_PATH.'/datepicker.js')) add_javascript('<script src="'.G5_USER_JS_URL.'/datepicker.js"></script>',0);
 		//if(is_file(G5_USER_JS_PATH.'/slick181/slick.js')) add_javascript('<script src="'.G5_USER_JS_URL.'/slick181/slick.js"></script>',0);
 		//if(is_file(G5_THEME_PATH.'/js/jquery.cookie.js')) add_javascript('<script src="'.G5_THEME_URL.'/js/jquery.cookie.js"></script>',0);
-        
+
         if(G5_IS_MOBILE) {
             if(is_file(G5_THEME_PATH.'/js/mobile.theme.common.js')) add_javascript('<script src="'.G5_THEME_JS_URL.'/mobile.theme.common.js"></script>',0);
         }
         else {
             if(is_file(G5_THEME_PATH.'/js/theme.common.js')) add_javascript('<script src="'.G5_THEME_JS_URL.'/theme.common.js"></script>',0);
         }
-		
+
 		// 후킹 추가
         @include_once($g5['hook_file_path'].'/u.'.$g5['file_name'].'.tail.php');
 

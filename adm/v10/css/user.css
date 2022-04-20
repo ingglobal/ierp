@@ -8,6 +8,7 @@
 #container.container-small #container_sub_title{padding-left:70px}
 #container_sub_title a:after{content:' | ';}
 #container_sub_title a:last-child:after{content:'';}
+#container_sub_title .btn_top_menu_active{font-weight:700;color:#4343b2;}
 
 /* 왼편네비 2차메뉴 들여쓰기 */
 .gnb_grp_style {padding-left:10px;}
