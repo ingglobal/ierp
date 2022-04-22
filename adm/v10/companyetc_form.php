@@ -131,7 +131,7 @@ if(G5_IS_MOBILE){
 		<td>
 			<select name="com_type" id="com_type" title="업종구분" required class="">
 				<option value="">업종구분을 선택하세요.</option>
-				<?php echo $g5['set_com_type_options']?>
+				<?php echo $g5['set_com_type2_options']?>
 			</select>
 			<script>$('select[name=com_type]').val("<?=$com['com_type']?>").attr('selected','selected');</script>
 		</td>
@@ -145,7 +145,7 @@ if(G5_IS_MOBILE){
 		<td>
 			<select name="com_class" id="com_class" title="업체구분" required class="">
 				<option value="">업체구분을 선택하세요.</option>
-				<?php echo $g5['set_com_class_options']?>
+				<?php echo $g5['set_com_class2_options']?>
 			</select>
 			<script>$('select[name=com_class]').val("<?=$com['com_class']?>").attr('selected','selected');</script>
 		</td>
