@@ -100,6 +100,20 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">업종(비과제)분류</th>
+			<td colspan="3">
+				<?php echo help('finance=금융,power=송전,water=수도,estate=부동산') ?>
+				<input type="text" name="set_com_type2" value="<?php echo $g5['setting']['set_com_type2'] ?>" id="set_com_type2" required class="required frm_input" style="width:90%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">업체(비과제)분류</th>
+			<td colspan="3">
+				<?php echo help('normal=일반,finance=은행,power=전력공사,water=상수도,estate=부동산,goverment=관공서') ?>
+				<input type="text" name="set_com_class2" value="<?php echo $g5['setting']['set_com_class2'] ?>" id="set_com_class2" required class="required frm_input" style="width:90%;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">업체상태값 설정</th>
 			<td colspan="3">
 				<?php echo help('ok=정상,pending=대기,trash=휴지통,delete=삭제,hide=숨김,prohibit=영업금지업체') ?>

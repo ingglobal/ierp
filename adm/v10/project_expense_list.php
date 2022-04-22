@@ -14,8 +14,7 @@ $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파�
 
 
 $g5['title'] = '지출관리';
-//include_once('./_top_menu_company.php');
-//include_once('./_top_menu_price.php');
+include_once('./_top_menu_exprice.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
@@ -68,10 +67,68 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , com.com_idx AS com_idx
             , (SELECT prp_price FROM {$g5['project_price_table']} WHERE prj_idx = prj.prj_idx AND prp_type = 'order' AND prp_status = 'ok' ) AS prp_order_price
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' ) AS prx_sum_exprice
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'machine' ) AS prx_mcn_exprice
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'electricity' ) AS prx_elt_exprice
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'etc' ) AS prx_etc_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_done_date != '0000-00-00' ) AS prx_sum_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'machine' AND prx_done_date != '0000-00-00' ) AS prx_mcn_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'electricity' AND prx_done_date != '0000-00-00' ) AS prx_elt_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'etc' AND prx_done_date != '0000-00-00' ) AS prx_etc_exprice
+            , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prj.prj_idx AND prn_status = 'ok' AND prn_type = 'etc' AND prn_done_date != '0000-00-00' ) AS prn_tot_inprice
+            , (
+                SELECT COUNT(*)
+                    FROM {$g5['project_exprice_table']}
+                WHERE prj_idx = prj.prj_idx
+                    AND prx_plan_date >= CURDATE()
+                    AND DATE_SUB(prx_plan_date, INTERVAL {$g5['setting']['set_expplan_alarmdays']} DAY) <= CURDATE()
+                    AND prx_done_date = '0000-00-00'
+                    AND prx_type = 'machine'
+                    AND prx_status = 'ok'
+            ) AS prx_alarm_machine_cnt
+            , (
+                SELECT COUNT(*)
+                    FROM {$g5['project_exprice_table']}
+                WHERE prj_idx = prj.prj_idx
+                    AND prx_plan_date >= CURDATE()
+                    AND DATE_SUB(prx_plan_date, INTERVAL {$g5['setting']['set_expplan_alarmdays']} DAY) <= CURDATE()
+                    AND prx_done_date = '0000-00-00'
+                    AND prx_type = 'electricity'
+                    AND prx_status = 'ok'
+            ) AS prx_alarm_electricity_cnt
+            , (
+                SELECT COUNT(*)
+                    FROM {$g5['project_exprice_table']}
+                WHERE prj_idx = prj.prj_idx
+                    AND prx_plan_date >= CURDATE()
+                    AND DATE_SUB(prx_plan_date, INTERVAL {$g5['setting']['set_expplan_alarmdays']} DAY) <= CURDATE()
+                    AND prx_done_date = '0000-00-00'
+                    AND prx_type = 'etc'
+                    AND prx_status = 'ok'
+            ) AS prx_alarm_etc_cnt
+            , (
+                SELECT COUNT(*)
+                    FROM {$g5['project_exprice_table']}
+                WHERE prj_idx = prj.prj_idx
+                    AND prx_plan_date < CURDATE()
+                    AND prx_done_date = '0000-00-00'
+                    AND prx_type = 'machine'
+                    AND prx_status = 'ok'
+            ) AS prx_expire_machine_cnt
+            , (
+                SELECT COUNT(*)
+                    FROM {$g5['project_exprice_table']}
+                WHERE prj_idx = prj.prj_idx
+                    AND prx_plan_date < CURDATE()
+                    AND prx_done_date = '0000-00-00'
+                    AND prx_type = 'electricity'
+                    AND prx_status = 'ok'
+            ) AS prx_expire_electricity_cnt
+            , (
+                SELECT COUNT(*)
+                    FROM {$g5['project_exprice_table']}
+                WHERE prj_idx = prj.prj_idx
+                    AND prx_plan_date < CURDATE()
+                    AND prx_done_date = '0000-00-00'
+                    AND prx_type = 'etc'
+                    AND prx_status = 'ok'
+            ) AS prx_expire_etc_cnt
         {$sql_common}
 		{$sql_search}
         {$sql_order}
@@ -92,7 +149,7 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 11;
+if($super_admin) $colspan = 13;
 else $colspan = 8;
 //예정일알람일수 $g5['setting']['set_expplan_alarmdays']
 ?>
@@ -112,10 +169,13 @@ else $colspan = 8;
 .file_box:after{display:block;visibility:hidden;clear:both;content:'';}
 .file_in{float:left;width:50%;position:relative;}
 .file_in:first-child::after{content:'/';position:absolute;top:50%;right:-3px;transform:translateY(-50%);}
-.tbl_head01 .table td{}
+.tbl_head01 .table td{padding:8px 5px;}
 .td_grp{position:relative;}
 .td_grp .prc{position:relative;z-index:3;}
-.td_grp .per{position:absolute;top:-4px;left:0px;font-size:0.7em;}
+.td_grp .per{position:absolute;top:-4px;right:0px;font-size:0.7em;}
+.td_alarm{position:relative;}
+.td_alarm .sp_alarm{position:absolute;top:-5px;left:2px;font-size:0.7em;}
+.td_alarm .sp_expire{position:absolute;bottom:5px;left:2px;font-size:0.7em;}
 .grp_box{display:block;position:absolute;bottom:2px;left:0px;width:100%;height:5px;background:#ccc;overflow:hidden;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
@@ -167,12 +227,14 @@ else $colspan = 8;
         <?php if($super_admin){ ?>
         <th scope="col">미수금<br>(수주금액기준%)</th>
         <th scope="col">수주금액</th>
+        <th scope="col">기타수입금액</th>
+        <th scope="col">총수입금액</th>
         <?php } ?>
-        <th scope="col">총지출액<?php if($super_admin){ ?><br>(수주금액기준%)<?php } ?></th>
+        <th scope="col">총지출액<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
         <th scope="col">기계지출액<br>(총지출액기준%)</th>
         <th scope="col">전기지출액<br>(총지출액기준%)</th>
         <th scope="col">기타지출액<br>(총지출액기준%)</th>
-        <?php if($super_admin){ ?><th scope="col">잔액<br>(수주액-총지출액)<?php if($super_admin){ ?><br>(수주금액기준%)<?php } ?></th><?php } ?>
+        <?php if($super_admin){ ?><th scope="col">잔액<br>(총수입-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th><?php } ?>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
 	</thead>
@@ -199,12 +261,13 @@ else $colspan = 8;
         ";
         //echo $ssql;
         $sugeum = sql_fetch($ssql);
+        $row['tot_income'] = $row['prp_order_price'] + $row['prn_tot_inprice'];
         $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
-        $row['prp_dif_exprice'] = $row['prp_order_price'] - $row['prx_sum_exprice'];
+        $row['prp_dif_exprice'] = $row['tot_income'] - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
         $mis_per = ($row['prp_order_price'])?round($row['prj_mi_price']/$row['prp_order_price']*100,1):0;
-        $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/$row['prp_order_price']*100,1):0;
-        $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/$row['prp_order_price']*100,1):0;
+        $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/$row['tot_income']*100,1):0;
+        $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/$row['tot_income']*100,1):0;
         $mcn_per = ($row['prx_sum_exprice'])?round($row['prx_mcn_exprice']/$row['prx_sum_exprice']*100,1):0;
         $elt_per = ($row['prx_sum_exprice'])?round($row['prx_elt_exprice']/$row['prx_sum_exprice']*100,1):0;
         $etc_per = ($row['prx_sum_exprice'])?round($row['prx_etc_exprice']/$row['prx_sum_exprice']*100,1):0;
@@ -225,26 +288,58 @@ else $colspan = 8;
                 <span class="per">(<?=$mis_per?>%)</span>
             </td>
             <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prn_tot_inprice'])?></td>
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['tot_income'])?></td>
             <?php } ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prx_sum_exprice'])?></span>
                 <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
                 <?php if($super_admin){ ?><span class="per">(<?=$exp_per?>%)</span><?php } ?>
             </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+            <td rowspan="<?=$p_cnt?>" class="td_grp td_alarm" style="text-align:right;width:100px;">
                 <span class="prc"><?=number_format($row['prx_mcn_exprice'])?></span>
                 <div class="grp_box"><div class="grp_in" style="width:<?=$mcn_per?>%"></div></div>
                 <span class="per">(<?=$mcn_per?>%)</span>
+                <?php
+                if($row['prx_alarm_machine_cnt']){
+                    $dt_plan_class = ' txt_blueblink';
+                    echo '<span class="sp_alarm'.$dt_plan_class.'">예정</span>';
+                }
+                if($row['prx_expire_machine_cnt']){
+                    $dt_expire_class = ' txt_redblink';
+                    echo '<span class="sp_expire'.$dt_expire_class.'">만기</span>';
+                }
+                ?>
             </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+            <td rowspan="<?=$p_cnt?>" class="td_grp td_alarm" style="text-align:right;width:100px;">
                 <span class="prc"><?=number_format($row['prx_elt_exprice'])?></span>
                 <div class="grp_box"><div class="grp_in" style="width:<?=$elt_per?>%"></div></div>
                 <span class="per">(<?=$elt_per?>%)</span>
+                <?php
+                if($row['prx_alarm_electricity_cnt']){
+                    $dt_plan_class = ' txt_blueblink';
+                    echo '<span class="sp_alarm'.$dt_plan_class.'">예정</span>';
+                }
+                if($row['prx_expire_electricity_cnt']){
+                    $dt_expire_class = ' txt_redblink';
+                    echo '<span class="sp_expire'.$dt_expire_class.'">만기</span>';
+                }
+                ?>
             </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+            <td rowspan="<?=$p_cnt?>" class="td_grp td_alarm" style="text-align:right;width:100px;">
                 <span class="prc"><?=number_format($row['prx_etc_exprice'])?></span>
                 <div class="grp_box"><div class="grp_in" style="width:<?=$etc_per?>%"></div></div>
                 <span class="per">(<?=$etc_per?>%)</span>
+                <?php
+                if($row['prx_alarm_etc_cnt']){
+                    $dt_plan_class = ' txt_blueblink';
+                    echo '<span class="sp_alarm'.$dt_plan_class.'">예정</span>';
+                }
+                if($row['prx_expire_etc_cnt']){
+                    $dt_expire_class = ' txt_redblink';
+                    echo '<span class="sp_expire'.$dt_expire_class.'">만기</span>';
+                }
+                ?>
             </td>
             <?php if($super_admin){ ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">

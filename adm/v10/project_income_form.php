@@ -7,16 +7,17 @@ auth_check($auth[$sub_menu],'w');
 $etc = array();
 $prn = array();
 $exp_sql = " SELECT
-				SUM(prx_price) AS total
+				(
+					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_done_date != '0000-00-00'
+				) AS total
 			FROM {$g5['project_exprice_table']}
-			GROUP BY prj_idx
-			HAVING prj_idx = '{$prj_idx}'
+			WHERE prj_idx = '{$prj_idx}' AND prx_status = 'ok'
 
 ";
 $exp = sql_fetch($exp_sql); //$exp['total']
 // 변수 설정, 필드 구조 및 prefix 추출
-$sql = " SELECT prn.*, 
-				com.com_name 
+$sql = " SELECT prn.*,
+				com.com_name
 			FROM {$g5['project_inprice_table']} AS prn
 			LEFT JOIN {$g5['company_table']} AS com ON prn.com_idx = com.com_idx
 			WHERE prj_idx = '{$prj_idx}' AND prn_status = 'ok'
@@ -171,7 +172,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 
 #td_info{position:relative;}
 
-.grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;background:#ccc;}
+.grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;overflow:hidden;background:#ccc;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_it{background:blue;}
 .grp_box .grp_in_mi{background:red;}
@@ -617,7 +618,7 @@ function inp_upd(prn_idx,prj_idx,type,com_idx,prn_name,prn_content,prn_price,prn
 	});
 }
 
-//새로운 수입내역 수정
+//새로운 수입내역 삭제
 function inp_del(prn_idx,type){
 	var link = '<?=G5_USER_ADMIN_URL?>/project_income_form_update.php';
 

@@ -8,6 +8,7 @@ if($mode == 'r' || $mode == 'u'){
 	$prx_name = trim($_POST['prx_name']);
 	$prx_content = trim($_POST['prx_content']);
 	$prx_price = trim($_POST['prx_price']);
+	$prx_plan_date = trim($_POST['prx_plan_date']);
 	$prx_done_date = trim($_POST['prx_done_date']);
 	$prx_price = preg_replace("/,/","",$prx_price);
 	
@@ -17,7 +18,7 @@ if($mode == 'r' || $mode == 'u'){
 		,prx_price = '{$prx_price}'
 		,prx_name = '{$prx_name}'
 		,prx_content = '{$prx_content}'
-		,prx_plan_date = '{$prx_done_date}'
+		,prx_plan_date = '{$prx_plan_date}'
 		,prx_done_date = '{$prx_done_date}'
 		,mb_id = '{$member['mb_id']}'
 		,prx_status = 'ok'

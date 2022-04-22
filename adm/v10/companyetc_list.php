@@ -4,16 +4,16 @@ include_once('./_common.php');
 
 auth_check($auth[$sub_menu],"r");
 
-$g5['title'] = '업체관리(과제)';
+$g5['title'] = '비과제업체관리';
 include_once('./_top_menu_company.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
 
-$sql_common = " FROM {$g5['company_table']} AS com
-                LEFT JOIN {$g5['company_member_table']} AS cmm ON cmm.com_idx = com.com_idx AND cmm_status = 'ok'
+$sql_common = " FROM {$g5['companyetc_table']} AS com 
+                LEFT JOIN {$g5['companyetc_member_table']} AS cmm ON cmm.com_idx = com.com_idx AND cmm_status = 'ok'
                 LEFT JOIN {$g5['member_table']} AS mb ON mb.mb_id = cmm.mb_id
-";
+"; 
 
 //-- 업종 검색
 $sql_com_type = ($ser_com_type) ? " AND com_type IN ('".$ser_com_type."') " : "";
@@ -21,40 +21,6 @@ $sql_com_type = ($ser_com_type) ? " AND com_type IN ('".$ser_com_type."') " : ""
 $where = array();
 $where[] = " com_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
 
-// // 운영권한이 없으면 자기것만
-// if (!$member['mb_manager_yn']) {
-//     // company_saler 교차 테이블에서 내 것만 추출
-//     $where[] = " com.com_idx IN ( SELECT com.com_idx
-//         FROM {$g5['company_table']} AS com
-//             LEFT JOIN {$g5['company_saler_table']} AS cms ON cms.com_idx = com.com_idx
-//         WHERE mb_id_saler = '".$member['mb_id']."'
-//         GROUP BY com.com_idx ) ";
-//     // 관련직원(영업자) 추가쿼리
-//     $sql_mb_firms = " AND mb_id = '".$member['mb_id']."' ";
-// }
-
-// // 법인접근 권한이 없으면 자기 법인만 조회 가능
-// if(!$member['mb_firm_yn']) {
-//     // company_saler 교차 테이블에서 우리 법인 것만 추출
-//     $where[] = " com.com_idx IN ( SELECT cms.com_idx
-//         FROM {$g5['company_saler_table']} AS cms
-//             LEFT JOIN {$g5['member_table']} AS mb ON mb.mb_id = cms.mb_id_saler
-//         WHERE mb_4 = '".$member['mb_4']."'
-//         GROUP BY cms.com_idx ) ";
-//     // 관련직원(영업자) 추가쿼리
-//     $sql_mb_firms = " AND mb_4 = '".$member['mb_4']."' ";
-// }
-// // 선택적 법인접근이면 해당 법인만
-// else if($member['mb_firm_idxs']) {
-//     // company_saler 교차 테이블에서 선택된 법인 것만 추출
-//     $where[] = " com.com_idx IN ( SELECT cms.com_idx
-//         FROM {$g5['company_saler_table']} AS cms
-//             LEFT JOIN {$g5['member_table']} AS mb ON mb.mb_id = cms.mb_id_saler
-//         WHERE mb_4 IN (".$member['mb_firm_idxs'].")
-//         GROUP BY cms.com_idx ) ";
-//     // 관련직원(영업자) 추가쿼리
-//     $sql_mb_firms = " AND mb_4 IN (".$member['mb_firm_idxs'].") ";
-// }
 
 if ($stx) {
     switch ($sfl) {
@@ -106,17 +72,17 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS DISTINCT com.com_idx, com_name, com_names, c
 		{$sql_search} {$sql_com_type} {$sql_trm_idx_department}
         GROUP BY com_idx
         {$sql_order}
-		LIMIT {$from_record}, {$rows}
+		LIMIT {$from_record}, {$rows} 
 ";
 //echo $sql;
 $result = sql_query($sql,1);
-$count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") );
+$count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") ); 
 $total_count = $count['total'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 
 
 // 등록 대기수
-$sql = " SELECT count(*) AS cnt FROM {$g5['company_table']} AS com {$sql_join} WHERE com_status = 'pending' ";
+$sql = " SELECT count(*) AS cnt FROM {$g5['companyetc_table']} AS com {$sql_join} WHERE com_status = 'pending' ";
 $row = sql_fetch($sql);
 $pending_count = $row['cnt'];
 
@@ -167,7 +133,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
     <p>업체측 담당자를 관리하시려면 업체담당자 항목의 <i class="fa fa-edit"></i> 편집아이콘을 클릭하세요. 담당자는 여러명일 수 있고 이직을 하는 경우 다른 업체에 소속될 수도 있습니다. </p>
 </div>
 
-<form name="form01" id="form01" action="./company_list_update.php" onsubmit="return form01_submit(this);" method="post">
+<form name="form01" id="form01" action="./companyetc_list_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
@@ -207,7 +173,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
 	<tbody>
     <?php
     for ($i=0; $row=sql_fetch_array($result); $i++) {
-
+        
 		// 메타 분리
         if($row['com_namagers_info']) {
             $pieces = explode(',', $row['com_namagers_info']);
@@ -222,7 +188,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
             unset($pieces);unset($sub_item);
         }
 //		print_r2($row);
-
+        
         // 담당자(들)
         if( is_array($row['com_managers']) ) {
             for ($j=0; $j<sizeof($row['com_managers']); $j++) {
@@ -237,7 +203,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
         $sql1 = "   SELECT mb_id, mb_name, mb_3
                     FROM {$g5['company_saler_table']} AS cms
                         LEFT JOIN {$g5['member_table']} AS mb ON mb.mb_id = cms.mb_id_saler
-                    WHERE com_idx='".$row['com_idx']."'
+                    WHERE com_idx='".$row['com_idx']."' 
                         AND cms_status IN ('ok')
                         {$sql_mb_firms}
         ";
@@ -246,27 +212,27 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
             //print_r2($row1);
             $row['mb_name_salers'] .= $row1['mb_name'].' '.$g5['set_mb_ranks_value'][$row1['mb_3']].'<br>';
         }
-
+        
 		// 수정 및 발송 버튼
 //		if($is_delete) {
-			$s_mod = '<a href="./company_form.php?'.$qstr.'&amp;w=u&amp;com_idx='.$row['com_idx'].'&amp;ser_com_type='.$ser_com_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'">수정</a>';
-			$s_pop = '<a href="javascript:company_popup(\'./company_order_list.popup.php?com_idx='.$row['com_idx'].'\',\''.$row['com_idx'].'\')">보기</a>';
+			$s_mod = '<a href="./companyetc_form.php?'.$qstr.'&amp;w=u&amp;com_idx='.$row['com_idx'].'&amp;ser_com_type='.$ser_com_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'">수정</a>';
+			// $s_pop = '<a href="javascript:company_popup(\'./company_order_list.popup.php?com_idx='.$row['com_idx'].'\',\''.$row['com_idx'].'\')">보기</a>';
 //		}
 		//$s_del = '<a href="./company_form_update.php?'.$qstr.'&amp;w=d&amp;com_idx='.$row['com_idx'].'&amp;ser_com_type='.$ser_com_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'" onclick="return delete_confirm();" style="color:darkorange;">삭제</a>';
-
+        
         // 메모 갯수
 		$sql3 = " 	SELECT count(wr_id) AS cnt_total
 						, SUM( if( TIMESTAMPDIFF( HOUR, wr_datetime ,now() ) < '".(int)$g5['setting']['set_new_icon_hour']."', 1, 0 ) ) AS cnt_new
 					FROM g5_write_company1
-                    WHERE wr_is_comment = 0
+                    WHERE wr_is_comment = 0 
                         AND wr_2 = '".$row['com_idx']."'
 		";
         $row['board'] = sql_fetch($sql3,1);
         //print_r3($row['board']);
         $row['board']['cnt_total_text'] = ($row['board']['cnt_total']) ? $row['board']['cnt_total']:'코멘트';
         $row['board']['cnt_new_text'] = ($row['board']['cnt_new']) ? '<span class="comment_new">('.$row['board']['cnt_new'].')</span>':'';
-
-
+        
+ 
 		// 삭제인 경우 그레이 표현
 		if($row['com_status'] == 'trash')
 			$row['com_status_trash_class']	= " tr_trash";
@@ -340,7 +306,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn" style="display:none;">
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
     <?php } ?>
-    <a href="./company_form.php" id="bo_add" class="btn_01 btn">업체추가</a>
+    <a href="./companyetc_form.php" id="bo_add" class="btn_01 btn">업체추가</a>
 </div>
 
 </form>
@@ -356,19 +322,19 @@ $(function(e) {
             //console.log($(this).attr('od_id')+' mouseenter');
             //$(this).find('td').css('background','red');
             $('tr[tr_id='+$(this).attr('tr_id')+']').find('td').css('background','#e6e6e6 ');
-
+            
         },
         mouseleave: function () {
             //stuff to do on mouse leave
             //console.log($(this).attr('od_id')+' mouseleave');
             //$(this).find('td').css('background','unset');
             $('tr[tr_id='+$(this).attr('tr_id')+']').find('td').css('background','unset');
-        }
+        }    
     });
 
     // 담당자 클릭
     $(".btn_manager").click(function(e) {
-        var href = "./company_member_list.php?com_idx="+$(this).attr('com_idx');
+        var href = "./companyetc_member_list.php?com_idx="+$(this).attr('com_idx');
         winCompanyMember = window.open(href, "winCompanyMember", "left=100,top=100,width=520,height=700,scrollbars=1");
         winCompanyMember.focus();
         return false;
@@ -382,7 +348,7 @@ $(function(e) {
         win_company_board = window.open(this_href,'win_company_board','left=100,top=100,width=770,height=650');
         win_company_board.focus();
 	});
-
+	
 });
 
 function form01_submit(f)
@@ -395,14 +361,14 @@ function form01_submit(f)
 	if(document.pressed == "선택수정") {
 		$('input[name="w"]').val('u');
 	}
-
+	
 	if(document.pressed == "선택삭제") {
 		if (!confirm("선택한 항목(들)을 정말 삭제 하시겠습니까?\n복구가 어려우니 신중하게 결정 하십시오.")) {
 			return false;
 		}
 		else {
 			$('input[name="w"]').val('d');
-		}
+		} 
 	}
     return true;
 }

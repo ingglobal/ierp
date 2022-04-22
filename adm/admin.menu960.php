@@ -12,7 +12,7 @@ $menu["menu960"] = array (
 	array('960240', '수입관리(과제별)', ''.G5_USER_ADMIN_URL.'/project_group_price_list.php', 'project_group_price_list'),
 	array('960248', '기타수입관리(과제별)', ''.G5_USER_ADMIN_URL.'/project_income_list.php', 'project_income_list'),
 	array('960245', '지출관리(과제별)', ''.G5_USER_ADMIN_URL.'/project_expense_list.php', 'project_expense_list'),
-	array('960255', '기타지출관리', ''.G5_USER_ADMIN_URL.'/project_etcexpense_list.php', 'project_etcexpense_list'),
+	array('960255', '기타지출관리', ''.G5_USER_ADMIN_URL.'/etc_expense_list.php', 'etc_expense_list'),
 	array('960215', '프로젝트관리', ''.G5_USER_ADMIN_URL.'/project_list.php', 'project_list'),
 	array('960230', '프로젝트일정', ''.G5_USER_ADMIN_URL.'/project_gantt.php', 'project_gantt'),
 	array('960260', '회의록', ''.G5_BBS_URL.'/board.php?bo_table=meeting', 'meeting_list'),

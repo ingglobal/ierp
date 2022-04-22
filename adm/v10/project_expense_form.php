@@ -9,22 +9,33 @@ $elt = array();
 $etc = array();
 $prx = array();
 $exp_sql = " SELECT
-				SUM(prx_price) AS total
+				(
+					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_done_date != '0000-00-00'
+				) AS total
 				,(
-					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'machine'
+					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'machine' AND prx_done_date != '0000-00-00'
 				) AS mcn_total
 				,(
-					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'electricity'
+					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'electricity' AND prx_done_date != '0000-00-00'
 				) AS elt_total
 				,(
-					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'etc'
+					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'etc' AND prx_done_date != '0000-00-00'
 				) AS etc_total
 			FROM {$g5['project_exprice_table']}
-			GROUP BY prj_idx
-			HAVING prj_idx = '{$prj_idx}' AND prx_status = 'ok'
+			WHERE prj_idx = '{$prj_idx}' AND prx_status = 'ok'
 
 ";
+// print_r3($exp_sql);
 $exp = sql_fetch($exp_sql); //$exp['total'],$exp['mcn_total'],$exp['elt_total'],$exp['etc_total']
+
+$inp_sql = " SELECT SUM(prn_price) AS prn_tot_price
+				FROM {$g5['project_inprice_table']}
+			WHERE prj_idx = '{$prj_idx}' 
+				AND prn_type = 'etc'
+				AND prn_done_date != '0000-00-00'
+				AND prn_status = 'ok'
+";
+$inp = sql_fetch($inp_sql);
 // 변수 설정, 필드 구조 및 prefix 추출
 $sql = " SELECT prx.*, com.com_name FROM {$g5['project_exprice_table']} AS prx
 			LEFT JOIN {$g5['company_table']} AS com ON prx.com_idx = com.com_idx
@@ -112,10 +123,10 @@ $mis_per = ($prs1['prp_price'])?round($mis_price / $prs1['prp_price'] * 100,2):0
 
 
 //계약금에 대한 총지출금액 비율
-$exp_per = ($prs1['prp_price'])?round($exp['total'] / $prs1['prp_price'] * 100,2):0;
+$exp_per = ($prs1['prp_price'])?round($exp['total'] / ($prs1['prp_price'] + $inp['prn_tot_price']) * 100,2):0;
 
-$dif_price = $prs1['prp_price'] - $exp['total'];
-$dif_per = ($prs1['prp_price'])?round($dif_price / $prs1['prp_price'] * 100,2):0;
+$dif_price = ($prs1['prp_price'] + $inp['prn_tot_price']) - $exp['total'];
+$dif_per = ($prs1['prp_price'])?round($dif_price / ($prs1['prp_price'] + $inp['prn_tot_price']) * 100,2):0;
 $mcn_per = ($exp['total'])?round($exp['mcn_total']/$exp['total']*100,2):0;
 $elt_per = ($exp['total'])?round($exp['elt_total']/$exp['total']*100,2):0;
 $etc_per = ($exp['total'])?round($exp['etc_total']/$exp['total']*100,2):0;
@@ -145,6 +156,7 @@ $super_admin
 .com_name{background:#ddd;cursor:pointer;width:100px;}
 .exp_box input[type="text"]{padding:0 5px;}
 .prx_price{width:110px;}
+.prx_plan_date{width:90px;}
 .prx_done_date{width:90px;}
 
 .lst_up{background:#f1f1f1;padding:10px;}
@@ -165,12 +177,16 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span{}
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span span.MultiFile-label{font-size:14px;border:1px solid #ccc;background:#eee;padding:2px 5px;border-radius:3px;line-height:1.2em;}
 
-.sm_tbl{width:250px;}
-.sm_tbl th{width:130px;background:none;font-weight:400;}
+.sm_tbl{width:340px;}
+.sm_tbl th{width:190px;background:none;font-weight:400;}
 .sm_tbl th,.sm_tbl td{padding:5px;border-top:1px dotted #ddd;border-bottom:1px dotted #ddd;}
 .sm_tbl td{text-align:right;position:relative;}
 .sm_tbl .th_ord{font-weight:600;}
 .sm_tbl .td_ord{font-weight:600;color:orange;}
+.sm_tbl .th_inp{font-weight:600;}
+.sm_tbl .td_inp{font-weight:600;color:green;}
+.sm_tbl .th_top{font-weight:600;}
+.sm_tbl .td_top{font-weight:600;color:brown;font-size:1.2em;}
 .sm_tbl .th_tot{color:darkred;}
 .sm_tbl .td_tot{color:red;}
 .sm_tbl .th_mis{color:red;}
@@ -189,7 +205,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 #td_info #mng_box #mng_rate{text-align:right;padding:0 5px;}
 #td_info #mng_box #mng_rate_price{margin-left:20px;}
 
-.grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;background:#ccc;}
+.grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;overflow:hidden;background:#ccc;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
 </style>
@@ -232,6 +248,14 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<td class="td_ord"><?=number_format($prs1['prp_price'])?>원</td>
 					</tr>
 					<tr>
+						<th class="th_inp">기타수입금액</th>
+						<td class="td_inp"><?=number_format($inp['prn_tot_price'])?>원</td>
+					</tr>
+					<tr>
+						<th class="th_top">총수입금액</th>
+						<td class="td_top"><?=number_format($prs1['prp_price'] + $inp['prn_tot_price'])?>원</td>
+					</tr>
+					<tr>
 						<th class="th_mis">미수금(<?=$mis_per?>%)<br>(수주금액기준%)</th>
 						<td class="td_mis">
 							<div class="grp_box"><div class="grp_in grp_in_mi" style="width:<?=$mis_per?>%"></div></div>
@@ -240,7 +264,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 					</tr>
 					<?php } ?>
 					<tr>
-						<th class="th_tot">총지출금액<?php if($super_admin){ ?>(<?=$exp_per?>%)<br>(수주금액기준%)<?php } ?></th>
+						<th class="th_tot">총지출금액<?php if($super_admin){ ?>(<?=$exp_per?>%)<br>(수주금액 + 기타수입 기준%)<?php } ?></th>
 						<td class="td_tot">
 							<?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
 							<?=number_format($exp['total'])?>원
@@ -248,7 +272,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 					</tr>
 					<?php if($super_admin){ ?>
 					<tr>
-						<th class="th_dif">잔액(<?=$dif_per?>%)<br>(수주금액기준%)</th>
+						<th class="th_dif">잔액(<?=$dif_per?>%)<br>(수주금액 + 기타수입 기준%)</th>
 						<td class="td_dif">
 							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
 							<?=number_format($dif_price)?>원
@@ -315,6 +339,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						</span>
 						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
+						<span><input type="text" name="prx_plan_date" placeholder="지출예정일" value="<?=$v['prx_plan_date']?>" readonly class="frm_input prx_plan_date"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
 						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
@@ -363,6 +388,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						</span>
 						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
+						<span><input type="text" name="prx_plan_date" placeholder="지출예정일" value="<?=$v['prx_plan_date']?>" readonly class="frm_input prx_plan_date"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
 						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
@@ -411,6 +437,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						</span>
 						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
 						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
+						<span><input type="text" name="prx_plan_date" placeholder="지출예정일" value="<?=$v['prx_plan_date']?>" readonly class="frm_input prx_plan_date"></span>
 						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
 						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
 						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
@@ -445,7 +472,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 
 
 <div class="btn_fixed_top">
-    <a href="./project_expense_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
+    <a href="./project_expense<?=$divid?>_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
 </div>
 </form>
 <script>
@@ -477,6 +504,7 @@ $('.i_exp').on('click',function(){
 			</span>
 			<span><input type="text" name="prx_name" placeholder="지출제목" value="" class="frm_input prx_name"></span>
 			<span><input type="text" name="prx_price" placeholder="지출금액" value="" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
+			<span><input type="text" name="prx_plan_date" placeholder="지출예정일" value="" readonly class="frm_input prx_plan_date"></span>
 			<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="" readonly class="frm_input prx_done_date"></span>
 			<span><input type="text" name="prx_content" placeholder="메모" value="" class="frm_input prx_content"></span>
 			<span><button type="button" class="btn btn_01 lst_reg" typ="${typ}">등록</button></span>
@@ -500,8 +528,8 @@ function events_reg(){
 		winProviderSelect.focus();
 	});
 	//지출완료일
-	$(".prx_done_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
-	$(".prx_done_date").datepicker('option','disabled',false);
+	$("input[name$=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", closeText:'취소', showButtonPanel: true, yearRange: "c-99:c+99", onClose: function(){ if($(window.event.srcElement).hasClass('ui-datepicker-close')){ $(this).val(''); } } });
+	$("input[name$=_date]").datepicker('option','disabled',false);
 
 	//등록버튼
 	$('.lst_reg').on('click',function(){
@@ -512,6 +540,7 @@ function events_reg(){
 		var prx_name = $.trim(cur_obj.find('input[name="prx_name"]').val());
 		var prx_content = $.trim(cur_obj.find('input[name="prx_content"]').val());
 		var prx_price = $.trim(cur_obj.find('input[name="prx_price"]').val());
+		var prx_plan_date = $.trim(cur_obj.find('input[name="prx_plan_date"]').val());
 		var prx_done_date = $.trim(cur_obj.find('input[name="prx_done_date"]').val());
 		var type = $(this).attr('typ');
 		if(!prj_idx){
@@ -533,12 +562,12 @@ function events_reg(){
 			cur_obj.find('input[name="prx_price"]').focus();
 			return false;
 		}
-		if(!prx_done_date){
-			alert('지출완료일을 입력해 주세요.');
-			cur_obj.find('input[name="prx_done_date"]').focus();
+		if(!prx_plan_date){
+			alert('지출예정일을 입력해 주세요.');
+			cur_obj.find('input[name="prx_plan_date"]').focus();
 			return false;
 		}
-		exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date);
+		exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_plan_date,prx_done_date);
 	});
 
 	//수정버튼
@@ -557,6 +586,7 @@ function events_reg(){
 		var prx_name = $.trim(cur_obj.find('input[name="prx_name"]').val());
 		var prx_content = $.trim(cur_obj.find('input[name="prx_content"]').val());
 		var prx_price = $.trim(cur_obj.find('input[name="prx_price"]').val());
+		var prx_plan_date = $.trim(cur_obj.find('input[name="prx_plan_date"]').val());
 		var prx_done_date = $.trim(cur_obj.find('input[name="prx_done_date"]').val());
 		var type = $(this).attr('typ');
 		if(!prj_idx){
@@ -578,12 +608,12 @@ function events_reg(){
 			cur_obj.find('input[name="prx_price"]').focus();
 			return false;
 		}
-		if(!prx_done_date){
-			alert('지출완료일을 입력해 주세요.');
-			cur_obj.find('input[name="prx_done_date"]').focus();
+		if(!prx_plan_date){
+			alert('지출예정일을 입력해 주세요.');
+			cur_obj.find('input[name="prx_plan_date"]').focus();
 			return false;
 		}
-		exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date);
+		exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_plan_date,prx_done_date);
 	});
 
 
@@ -645,7 +675,7 @@ function events_reg(){
 
 function events_del(){
 	$('.com_name').off('click');
-	$(".prx_done_date").datepicker('option','disabled',true);
+	$("input[name$=_date]").datepicker('option','disabled',true);
 	$('.lst_reg').off('click');
 	$('.lst_del').off('click');
 	$('.lst_fle').off('click');
@@ -733,14 +763,14 @@ function only_number_comma(inp){
 }
 
 //새로운 지출내역 등록
-function exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date){
+function exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_plan_date,prx_done_date){
 	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
 
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'r', 'prx_done_date': prx_done_date},
+		data : {'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'r', 'prx_plan_date': prx_plan_date, 'prx_done_date': prx_done_date},
 		success : function(res){
 			if(res == 'reg'){
 				alert('지출내역을 성공적으로 등록했습니다.');
@@ -754,14 +784,14 @@ function exp_reg(prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_da
 }
 
 //새로운 지출내역 수정
-function exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_done_date){
+function exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx_plan_date,prx_done_date){
 	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
 
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'prx_idx': prx_idx,'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'u', 'prx_done_date': prx_done_date},
+		data : {'prx_idx': prx_idx,'prj_idx': prj_idx, 'prx_type': type, 'com_idx': com_idx, 'prx_name': prx_name, 'prx_content': prx_content, 'prx_price': prx_price, 'mode': 'u', 'prx_plan_date': prx_plan_date, 'prx_done_date': prx_done_date},
 		success : function(res){
 			if(res == 'upd'){
 				alert('지출내역을 성공적으로 수정했습니다.');
@@ -774,7 +804,7 @@ function exp_upd(prx_idx,prj_idx,type,com_idx,prx_name,prx_content,prx_price,prx
 	});
 }
 
-//새로운 지출내역 수정
+//새로운 지출내역 삭제
 function exp_del(prx_idx,type){
 	var link = '<?=G5_USER_ADMIN_URL?>/project_expense_form_update.php';
 

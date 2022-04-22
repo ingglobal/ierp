@@ -21,7 +21,7 @@ echo $g5['container_sub_title'];
 $sql_common = " FROM {$g5['project_inprice_table']} AS prn
                     LEFT JOIN {$g5['project_table']} AS prj ON prn.prj_idx = prj.prj_idx
                     LEFT JOIN {$g5['company_table']} AS com ON prn.com_idx = com.com_idx
-"; 
+";
 
 $where = array();
 //$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
@@ -67,7 +67,7 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS prn.*
             , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prn.prj_idx AND prn_status = 'ok' AND prn_done_date != '0000-00-00' ) AS prn_don_inprice
             , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prn.prj_idx AND prx_status = 'ok' ) AS prx_sum_exprice
             , (
-                CASE WHEN prn_plan_date >= CURDATE() 
+                CASE WHEN prn_plan_date >= CURDATE()
                             AND DATE_SUB(prn_plan_date, INTERVAL {$g5['setting']['set_inpplan_alarmdays']} DAY) <= CURDATE()
                             AND prn_done_date = '0000-00-00'
                             AND prn_type = 'etc'
@@ -85,6 +85,7 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS prn.*
                     ELSE 0
                 END
             ) AS prn_expire_flag
+            , ( SELECT MAX(prn_idx) FROM {$g5['project_inprice_table']} WHERE prj_idx = prn.prj_idx ) AS prn_max_idx
         {$sql_common}
 		{$sql_search}
         {$sql_order}
@@ -135,6 +136,7 @@ else $colspan = 8;
 .grp_box{display:block;position:absolute;bottom:2px;left:0px;width:100%;height:5px;background:#ccc;overflow:hidden;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
+.tr_last{border-bottom:2px solid #000000;}
 </style>
 <div class="local_ov01 local_ov">
     <?php echo $listall ?>
@@ -160,6 +162,8 @@ else $colspan = 8;
 <form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
+<input type="hidden" name="sst2" value="<?php echo $sst2 ?>">
+<input type="hidden" name="sod2" value="<?php echo $sod2 ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
@@ -204,8 +208,10 @@ else $colspan = 8;
         $inp_per = ($row['prn_sum_inprice'])?round($row['prn_don_inprice']/$row['prn_sum_inprice']*100,1):0;
         $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/($row['prp_order_price']+$row['prn_sum_inprice'])*100,1):0;
         $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/($row['prp_order_price']+$row['prn_don_inprice'])*100,1):0;
+
+        $prj_last = ($row['prn_idx'] == $row['prn_max_idx']) ? ' tr_last' : '';
         ?>
-        <tr class="<?=$bg?>">
+        <tr class="<?=$bg.$prj_last?>">
             <td class="td_chk" rowspan="<?=$p_cnt?>" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
                 <input type="hidden" name="prn_idx[<?php echo $i ?>]" value="<?php echo $row['prn_idx'] ?>" id="prn_idx_<?php echo $i ?>">
                 <input type="hidden" name="prn_type[<?php echo $i ?>]" value="<?php echo $row['prn_type'] ?>" id="prn_type_<?php echo $i ?>">
@@ -295,75 +301,6 @@ $(function(e) {
         }
     });
 
-    // 장비보기 클릭
-	$(document).on('click','.btn_view, .btn_image',function(e){
-        e.preventDefault();
-        var href = $(this).attr('href');
-        winMMSView = window.open(href, "winMMSView", "left=100,top=100,width=520,height=600,scrollbars=1");
-        winMMSView.focus();
-        return false;
-    });
-
-    // 부속품 클릭
-	$(document).on('click','.btn_parts',function(e){
-        e.preventDefault();
-        var href = $(this).attr('href');
-        winParts = window.open(href, "winParts", "left=100,top=100,width=520,height=600,scrollbars=1");
-        winParts.focus();
-        return false;
-    });
-
-    // 기종 클릭
-	$(document).on('click','.btn_item',function(e){
-        e.preventDefault();
-        var href = $(this).attr('href');
-        winItem = window.open(href, "winItem", "left=100,top=100,width=520,height=600,scrollbars=1");
-        winItem.focus();
-        return false;
-    });
-
-    // 정비 클릭
-	$(document).on('click','.btn_maintain',function(e){
-        e.preventDefault();
-        var href = $(this).attr('href');
-        winMaintain = window.open(href, "winMaintain", "left=100,top=100,width=520,height=600,scrollbars=1");
-        winMaintain.focus();
-        return false;
-    });
-
-    // 점검기준 클릭
-	$(document).on('click','.btn_checks',function(e){
-        e.preventDefault();
-        var href = $(this).attr('href');
-        winChecks = window.open(href, "winChecks", "left=100,top=100,width=520,height=600,scrollbars=1");
-        winChecks.focus();
-        return false;
-    });
-
-    // 담당자 클릭
-    $(".btn_manager").click(function(e) {
-        var href = "./prj_member_list.php?prj_idx="+$(this).attr('prj_idx');
-        winCompanyMember = window.open(href, "winCompanyMember", "left=100,top=100,width=520,height=600,scrollbars=1");
-        winCompanyMember.focus();
-        return false;
-    });
-
-	// 코멘트 클릭 - 모달
-	$(document).on('click','.btn_company_comment',function(e){
-        e.preventDefault();
-        var this_href = $(this).attr('href');
-        //alert(this_href);
-        win_company_board = window.open(this_href,'win_company_board','left=100,top=100,width=770,height=650');
-        win_company_board.focus();
-	});
-
-    //말풍선 클립보드 복사
-    $('.malp.jisi > i,.malp.misu > i').on('click',function(){
-        var ctext = $(this).siblings('.pungsun_input');
-        ctext.select();
-        document.execCommand('Copy');
-        alert('클립보드 복사완료');
-    });
 });
 
 function form01_submit(f)
