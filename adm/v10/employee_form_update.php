@@ -185,6 +185,9 @@ if(!$leave_flag){
             ('{$mb_id}', '960250', 'r,w'),
             ('{$mb_id}', '960210', 'r,w'),
             ('{$mb_id}', '960240', 'r,w'),
+            ('{$mb_id}', '960248', 'r,w'),
+            ('{$mb_id}', '960245', 'r,w'),
+            ('{$mb_id}', '960255', 'r,w'),
             ('{$mb_id}', '960215', 'r,w'),
             ('{$mb_id}', '960230', 'r,w'),
             ('{$mb_id}', '960260', 'r,w'),
@@ -197,6 +200,7 @@ if(!$leave_flag){
             ('{$mb_id}', '960620', 'r,w'),
             ('{$mb_id}', '960700', 'r,w,d'),
             ('{$mb_id}', '960800', 'r,w,d') ";
+        // echo $auth_ins_sql;exit;
         sql_query($auth_ins_sql,1);
     }
     else if($_POST['mb_6'] == 2) {
@@ -306,11 +310,6 @@ if(!$leave_flag){
         }
     }
 
-    if($mb_manager_yn){
-        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
-            ('{$mb_id}', '960245', 'r,w,d') ";
-        sql_query($auth_ins_sql,1);
-    }
 }
 
 // 검색어 확장
