@@ -215,7 +215,7 @@ if(G5_IS_MOBILE){
 		<th scope="row">대표이메일</th>
 		<td colspan="3">
 			<?php echo help("세금계산서, 계약서, 약정서 등 모든 거래 시 소통할 수 있는 이메일 정보를 필수로 등록하세요."); ?>
-			<input type="text" name="com_email" value="<?php echo $com['com_email'] ?>" id="com_email" class="frm_input required" required style="width:30%;" <?=$saler_readonly?>>
+			<input type="text" name="com_email" value="<?php echo $com['com_email'] ?>" id="com_email" class="frm_input" style="width:30%;" <?=$saler_readonly?>>
 			<?=$saler_mark?>
 		</td>
 	</tr>
@@ -229,11 +229,11 @@ if(G5_IS_MOBILE){
 	<tr>
 		<th scope="row"><label for="com_president">대표자<strong class="sound_only">필수</strong></label></th>
 		<td>
-			<input type="text" name="com_president" value="<?php echo $com['com_president'] ?>" id="com_president" required class="required frm_input" size="20" minlength="2" maxlength="30">
+			<input type="text" name="com_president" value="<?php echo $com['com_president'] ?>" id="com_president" class="frm_input" size="20" minlength="2" maxlength="30">
 		</td>
 		<th scope="row"><label for="com_tel">업체전화<strong class="sound_only">필수</strong></label></th>
 		<td>
-			<input type="text" name="com_tel" value="<?php echo $com['com_tel'] ?>" id="com_tel" required class="required frm_input" size="20" minlength="2" maxlength="30" <?=$saler_readonly?>>
+			<input type="text" name="com_tel" value="<?php echo $com['com_tel'] ?>" id="com_tel" class="frm_input" size="20" minlength="2" maxlength="30" <?=$saler_readonly?>>
 			<?=$saler_mark?>
 		</td>
 	</tr>
@@ -438,9 +438,24 @@ function form01_submit(f) {
         //alert('Good!');
     }
     else {
+        ;
+        /*
         alert("올바른 이메일 주소가 아닙니다.");
         f.com_email.focus();
-        return false; 
+        return false;
+        */ 
+    }
+
+    if(!f.com_type.value){
+        alert('업종구분을 선택해 주세요.');
+        f.com_type.focus();
+        return false;
+    }
+
+    if(!f.com_class.value){
+        alert('업체구분을 선택해 주세요.');
+        f.com_class.focus();
+        return false;
     }
 
     return true;

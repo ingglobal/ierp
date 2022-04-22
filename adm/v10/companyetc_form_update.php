@@ -9,6 +9,7 @@ if ($w == 'u')
 auth_check($auth[$sub_menu], 'w');
 //check_admin_token();
 
+// print_r2($_POST);exit;
 
 // 검색어 확장
 $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea;

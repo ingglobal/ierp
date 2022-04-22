@@ -281,6 +281,12 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
             </td>
         </tr>
 		<tr>
+            <th scope="row">기타지출예정일예고일수</th>
+            <td colspan="3">
+                <input type="text" name="set_etpplan_alarmdays" value="<?php echo $g5['setting']['set_etpplan_alarmdays']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
             <th scope="row">기타수입예정일예고일수</th>
             <td colspan="3">
                 <input type="text" name="set_inpplan_alarmdays" value="<?php echo $g5['setting']['set_inpplan_alarmdays']; ?>" class="frm_input" style="width:60%;">
