@@ -37,6 +37,36 @@ if ($stx) {
     }
 }
 
+$date_flag = 0;
+if($from_date && !$to_date){
+    $where[] = " prx_done_date >= '{$from_date}' ";
+    $date_flag = 1;
+    $tot_codition = '';
+}
+else if($from_date && $to_date){
+    if($from_date == $to_date){
+        $where[] = " prx_done_date = '{$from_date}' ";
+        $tot_condition = " AND prx_done_date = '{$from_date}' ";
+    }
+    else{
+        $where[] = " prx_done_date >= '{$from_date}' ";
+        $where[] = " prx_done_date <= '{$to_date}' ";
+        $tot_condition = " AND prx_done_date >= '{$from_date}' AND prx_done_date <= '{$to_date}' ";
+    }
+    $date_flag = 1;
+}
+else if(!$from_date && $to_date){
+    alert('날짜검색시 최소한 검색시작날짜는 입력해 주세요.');
+}
+
+if($date_flag){
+    $prx_price_sql = " SELECT SUM(prx_price) AS tot_price FROM {$g5['etc_exprice_table']} WHERE prx_status = 'ok' {$tot_condition} ";
+    // echo $prx_price_sql;
+    $prx_price_arr = sql_fetch($prx_price_sql);
+    $total_price = $prx_price_arr['tot_price'];
+}
+
+
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
@@ -91,8 +121,7 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 13;
-else $colspan = 7;
+$colspan = 8;
 ?>
 <style>
 .malp{position:absolute;right:0;}
@@ -122,10 +151,15 @@ else $colspan = 7;
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
 .tr_last{border-bottom:2px solid #000000;}
+.tot_strong{position:relative;top:5px;font-size:1.2em;color:orange;margin-left:20px;}
+.tot_strong span{color:gray;margin-right:10px;margin-left:5px;}
 </style>
 <div class="local_ov01 local_ov">
     <?php echo $listall ?>
     <span class="btn_ov01"><span class="ov_txt">총</span><span class="ov_num"> <?php echo number_format($total_count) ?></span></span>
+    <?php if($date_flag){ ?>
+    <strong class="tot_strong"><span>검색합계금액 : </span><?=number_format($total_price)?><span>원</span></strong>
+    <?php } ?>
 </div>
 
 <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
@@ -137,6 +171,8 @@ else $colspan = 7;
 </select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
+<input type="text" name="from_date" placeholder="검색시작일(지출완료)" value="<?php echo $from_date ?>" id="from_date" readonly class="frm_input readonly" style="width:130px;">
+<input type="text" name="to_date" placeholder="검색종료일(지출완료)" value="<?php echo $to_date ?>" id="to_date" readonly class="frm_input readonly" style="width:130px;">
 <input type="submit" class="btn_submit" value="검색">
 </form>
 
@@ -149,6 +185,8 @@ else $colspan = 7;
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
+<input type="hidden" name="from_date" value="<?php echo $from_date ?>">
+<input type="hidden" name="to_date" value="<?php echo $to_date ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
 <input type="hidden" name="w" value="">
@@ -163,10 +201,12 @@ else $colspan = 7;
 			<label for="chkall" class="sound_only">항목 전체</label>
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
-        <th scope="col">번호</th>
-        <th scope="col">지출업체명</th>
+        <th scope="col" style="width:110px;">번호</th>
+        <th scope="col" style="width:300px;">지출업체명</th>
         <th scope="col">지출제목</th>
-        <th scope="col">해당지출금액</th>
+        <th scope="col">지출금액</th>
+        <th scope="col" style="width:95px;">지출예정일</th>
+        <th scope="col" style="width:95px;">지출완료일</th>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
 	</thead>
@@ -176,21 +216,21 @@ else $colspan = 7;
     for ($i=0; $row=sql_fetch_array($result); $i++) {
         // print_r2($row);
         // 관리 버튼
-        $s_mod = '<a href="./etc_expense_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1">수정</a>';
+        $s_mod = '<a href="./etc_expense_form.php?'.$qstr.'&amp;w=u&amp;prx_idx='.$row['prx_idx'].'&amp;from_date='.$from_date.'&amp;to_date='.$to_date.'&amp;group=1">수정</a>';
         $bg = 'bg'.($i%2);
 
         ?>
         <tr class="<?=$bg?>">
-            <td class="td_chk" rowspan="<?=$p_cnt?>" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
+            <td class="td_chk" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
                 <input type="hidden" name="prx_idx[<?php echo $i ?>]" value="<?php echo $row['prx_idx'] ?>" id="prx_idx_<?php echo $i ?>">
                 <input type="hidden" name="prx_type[<?php echo $i ?>]" value="<?php echo $row['prx_type'] ?>" id="prx_type_<?php echo $i ?>">
                 <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['prx_name']); ?></label>
                 <input type="checkbox" name="chk[]" value="<?php echo $i ?>" id="chk_<?php echo $i ?>">
             </td>
-            <td rowspan="<?=$p_cnt?>"><?=$row['prx_idx']?></td><!-- 번호 -->
-            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
-            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prx_name']?></td><!-- 지출제목 -->
-            <td rowspan="<?=$p_cnt?>" class="td_grp td_alarm" style="text-align:right;width:100px;">
+            <td><?=$row['prx_idx']?></td><!-- 번호 -->
+            <td class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
+            <td class="td_left"><?=$row['prx_name']?></td><!-- 지출제목 -->
+            <td class="td_grp td_alarm" style="text-align:right;width:100px;">
                 <span class="prc"><?=number_format($row['prx_price'])?></span>
                 <?php
                 if($row['prx_alarm_flag']){
@@ -207,13 +247,8 @@ else $colspan = 7;
                 }
                 ?>
             </td>
-            <?php if($super_admin){ ?>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prp_dif_exprice'])?></span>
-                <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div><?php } ?>
-                <?php if($super_admin){ ?><span class="per">(<?=$dif_per?>%)</span><?php } ?>
-            </td>
-            <?php } ?>
+            <td class="td_left"><?=$row['prx_plan_date']?></td><!-- 지출예정일 -->
+            <td class="td_left"><?=(($row['prx_done_date'] == '0000-00-00')?'':$row['prx_done_date'])?></td><!-- 지출완료일 -->
             <td class="td_mngsmall">
                 <?=$s_mod?>
             </td>
@@ -229,15 +264,20 @@ else $colspan = 7;
 <div class="btn_fixed_top">
     <?php if($member['mb_manager_yn']) { ?>
         <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
+        <a href="./<?=$fname?>_form.php" id="btn_add" class="btn btn_01">등록하기</a>
     <?php } ?>
 </div>
 </form>
 
 
-<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;ser_prj_type='.$ser_prj_type.'&amp;page='); ?>
+<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;from_date='.$from_date.'&amp;to_date='.$to_date.'&amp;page='); ?>
 
 <script>
 $(function(e) {
+    $("#from_date").datepicker({ changeMonth: true, changeYear: true, closeText:'취소', dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", onSelect: function(selectedDate){$("#to_date").datepicker('option','minDate',selectedDate);}, onClose: function(){if($(window.event.srcElement).hasClass('ui-datepicker-close')){$(this).val('');}} });
+
+    $("#to_date").datepicker({ changeMonth: true, changeYear: true, closeText:'취소', dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", onSelect:function(selectedDate){$("#form_date").datepicker('option','maxDate',selectedDate);}, onClose: function(){if($(window.event.srcElement).hasClass('ui-datepicker-close')){$(this).val('');}}});
+    
     // 마우스 hover 설정
     $(".tbl_head01 tbody tr").on({
         mouseenter: function () {
