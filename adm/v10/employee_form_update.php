@@ -60,6 +60,13 @@ if($_POST['mb_leave_date'] || $_POST['mb_intercept_date']){
     $_POST['mb_7'] = '';
 }
 
+$adm_sql = "";
+if($is_admin){
+    $adm_sql .= " , mb_1 = '{$_POST['mb_1']}'
+                  , mb_2 = '{$_POST['mb_2']}'
+                  , mb_8='{$_POST['mb_8']}' ";
+}
+
 
 $sql_common = "  mb_name = '{$_POST['mb_name']}',
                  mb_nick = '{$mb_nick}',
@@ -83,12 +90,12 @@ $sql_common = "  mb_name = '{$_POST['mb_name']}',
                  mb_5 = '{$_POST['mb_5']}',
                  mb_6 = '{$_POST['mb_6']}',
                  mb_7 = '{$_POST['mb_7']}'
+                 {$adm_sql}
 ";
 
 if($leave_flag){
     $sql_common .= " ,mb_level = '2' ";
 }
-
 
 if ($w == '')
 {
@@ -307,6 +314,27 @@ if(!$leave_flag){
                 ('{$mb_id}', '960700', 'r'),
                 ('{$mb_id}', '960800', 'r,w') ";
             sql_query($auth_ins_sql,1);
+        }
+    }
+
+
+    if($is_admin && $_POST['mb_6'] >= 2 && count($g5['set_mb_inoutprice_arr'])){
+        $inout_arr = ($_POST['mb_8']) ? explode(',',$_POST['mb_8']) : array();
+        foreach($g5['set_mb_inoutprice_arr'] as $menu_code){
+            if(in_array($menu_code,$inout_arr)){
+                $mn_chk = sql_fetch(" SELECT au_menu FROM {$g5['auth_table']} WHERE mb_id = '{$mb_id}' AND au_menu = '{$menu_code}' ");
+                if(!$mn_chk['au_menu']){
+                    $mn_insert = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES ('{$mb_id}', '{$menu_code}', 'r,w') ";
+                    sql_query($mn_insert);
+                }
+            }
+            else{
+                $mn_chk = sql_fetch(" SELECT au_menu FROM {$g5['auth_table']} WHERE mb_id = '{$mb_id}' AND au_menu = '{$menu_code}' ");
+                if($mn_chk['au_menu']){
+                    $mn_delete = " DELETE FROM {$g5['auth_table']} WHERE mb_id = '{$mb_id}' AND au_menu = '{$menu_code}' ";
+                    sql_query($mn_delete);
+                }
+            }
         }
     }
 

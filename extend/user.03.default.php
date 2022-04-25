@@ -51,8 +51,20 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
 			$g5[$row['set_name'].'_reverse'][$value] = $key;
 			$g5[$row['set_name'].'_arr'][] = $key;
 			$g5[$row['set_name'].'_radios'] .= '<label for="'.$row['set_name'].'_'.$key.'" class="'.$row['set_name'].'"><input type="radio" id="'.$row['set_name'].'_'.$key.'" name="'.$row['set_name'].'" value="'.$key.'">'.$value.'('.$key.')</label>';
+			$g5[$row['set_name'].'_checkboxs'] .= '<label for="'.$row['set_name'].'_'.$key.'"><input type="checkbox" id="'.$row['set_name'].'_'.$key.'" class="'.$row['set_name'].'_chk" name="'.$row['set_name'].'['.$key.']" key="'.$key.'" value="1">'.$value.'('.$key.')</label>';
 			$g5[$row['set_name'].'_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
 			$g5[$row['set_name'].'_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
+			/*
+			$g5[$row['set_name']][$key] = $value.' ('.$key.')';
+			$g5[$row['set_name'].'_value'][$key] = $value;
+			$g5[$row['set_name'].'_reverse'][$value] = $key;
+			$g5[$row['set_name'].'_arr'][] = $key;
+			$g5[$row['set_name'].'_radios'] .= '<label for="'.$row['set_name'].'_'.$key.'" class="'.$row['set_name'].'" style="'.(($k)?'margin-left:10px;':'').'"><input type="radio" id="'.$row['set_name'].'_'.$key.'" name="'.$row['set_name'].'" value="'.$key.'">'.$value.'('.$key.')</label>';
+			$g5[$row['set_name'].'_radios0'] .= '<label for="'.$row['set_name'].'_'.$key.'" class="'.$row['set_name'].'" style="'.(($k)?'margin-left:10px;':'').'"><input type="radio" id="'.$row['set_name'].'_'.$key.'" name="'.$row['set_name'].'" value="'.$key.'">'.$value.'</label>';
+			$g5[$row['set_name'].'_checkboxs'] .= '<label for="set_status_'.$key.'" class="set_status"><input type="hidden" name="set_status_'.$key.'" value=""><input type="checkbox" id="set_status_'.$key.'">'.$value.'('.$key.')</label>';
+			$g5[$row['set_name'].'_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
+			$g5[$row['set_name'].'_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
+			*/
 		}
 		//변수가 (,)로만 구분되어 있을때
 		else {

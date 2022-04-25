@@ -158,7 +158,7 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
         <td><input type="text" name="mb_nick" value="<?php echo $mb['mb_nick'] ?>" id="reg_mb_nick" required class="required frm_input" size="15"  maxlength="20" <?php if(auth_check($auth[$sub_menu],'d',1)) echo 'readonly';?>></td>
     </tr>
 	<tr>
-		<th scope="row"><label for="mb_3">직급(직함)<strong class="sound_only">필수</strong></label></th>
+		<th scope="row"><label for="mb_3">직급(직함)<?php if($is_admin){ ?>(mb_3)<?php } ?><strong class="sound_only">필수</strong></label></th>
 		<td>
             <?php
             if(auth_check($auth[$sub_menu],'d',1)&&$member['mb_1']<=4)
@@ -213,7 +213,7 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
     <tr>
         <th scope="row">IP</th>
         <td><?php echo $mb['mb_ip'] ?></td>
-        <th scope="row">푸시키</th>
+        <th scope="row">푸시키<?php if($is_admin){ ?>(mb_5)<?php } ?></th>
         <td><input type="text" name="mb_5" value="<?php echo $mb['mb_5'] ?>" class="frm_input" size="15" style="width:300px;"></td>
     </tr>
     <?php if ($config['cf_use_email_certify']) { ?>
@@ -256,7 +256,10 @@ this.form.mb_intercept_date.value=this.form.mb_intercept_date.defaultValue; }">
         </td>
     </tr-->
     <tr>
-		<th scope="row"><label for="mb_3">정보(등급)<strong class="sound_only">필수</strong></label></th>
+		<th scope="row">
+            <label for="mb_6">정보(등급)<strong class="sound_only">필수</strong></label>
+            <?php if($is_admin){ ?>(mb_6)<?php } ?>
+        </th>
 		<td colspan="<?=(($member['mb_level'] >= 8 || $member['mb_6'] == 1) ? '' : '3')?>">
             <?php
             if(auth_check($auth[$sub_menu],'d',1)&&$member['mb_1']<=4)
@@ -270,7 +273,10 @@ this.form.mb_intercept_date.value=this.form.mb_intercept_date.defaultValue; }">
 			<script>$('select[name=mb_6]').val('<?=$mb['mb_6']?>').attr('selected','selected');</script>
 		</td>
         <?php if($member['mb_level'] >= 8 || $member['mb_6'] == 1){ ?>
-        <th scope="row"><label for="mb_7">인건비/시간당<?php echo $sound_only ?></label></th>
+        <th scope="row">
+            <label for="mb_7">인건비/시간당<?php echo $sound_only ?></label>
+            <?php if($is_admin){ ?>(mb_7)<?php } ?>
+        </th>
         <td>
             <input type="text" name="mb_7" id="mb_7" value="<?php echo $mb['mb_7'] ?>" class="frm_input" size="15" maxlength="20" style="text-align:right;padding-right:5px;">&nbsp;원&nbsp; / &nbsp;시간당
         </td>
@@ -368,7 +374,59 @@ this.form.mb_intercept_date.value=this.form.mb_intercept_date.defaultValue; }">
         }   //end if
     }   //end if
     ?>
-
+    <?php if($is_admin){ ?>
+    <tr>
+        <th scope="row"><label for="mb_2">조직부서</label><?php if($is_admin){ ?>(mb_2)<?php } ?></th>
+        <td>
+            <select name="mb_2" id="mb_2" style="width:245px;">
+				<option value="">조직선택</option>
+				<?=$department_form_options?>
+			</select>
+			<script>$("select[id=mb_2]").val("<?=$mb['mb_2']?>");</script>
+        </td>
+        <th scope="row"><label for="mb_1">직책</label><?php if($is_admin){ ?>(mb_1)<?php } ?></th>
+        <td>
+            <select name="mb_1" id="mb_1" style="width:245px;">
+				<option value="">직책선택</option>
+				<?php echo $g5['set_mb_positions_value_options'] ?>
+			</select>
+			<script>$("select[id=mb_1]").val("<?=$mb['mb_1']?>");</script>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row"><label for="mb_8">수입/지출관리</label><?php if($is_admin){ ?>(mb_8)<?php } ?></th>
+        <td colspan="3">
+            <?php
+            $inout_arr = ($mb['mb_8']) ? explode(',',$mb['mb_8']) : array();
+            $inouts = json_encode($inout_arr);
+            ?>
+            <input type="hidden" name="mb_8" id="mb_8" value="<?=$mb['mb_8']?>">
+            <?php echo $g5['set_mb_inoutprice_checkboxs'] ?>
+            <script>
+                var inout_obj = <?=$inouts?>; 
+                if(inout_obj.length){
+                    $.each(inout_obj, function(idx,val){
+                        $('.set_mb_inoutprice_chk[key="'+val+'"').attr('checked',true);
+                    });
+                }
+                $('.set_mb_inoutprice_chk').on('change',function(e){
+                    var str = '';
+                    $('.set_mb_inoutprice_chk').each(function(){
+                        if($(this).attr('checked')){
+                            if(str == ''){
+                                str += $(this).attr('key');
+                            }
+                            else{
+                                str += ','+$(this).attr('key');
+                            }
+                        }
+                    });
+                    $('#mb_8').val(str);
+                });
+            </script>
+        </td>
+    </tr>
+    <?php } ?>
     </tbody>
     </table>
 </div>
