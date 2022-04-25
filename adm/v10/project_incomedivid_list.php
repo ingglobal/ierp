@@ -106,7 +106,7 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 11;
+if($super_admin) $colspan = 12;
 else $colspan = 8;
 ?>
 <style>
