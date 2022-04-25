@@ -85,6 +85,13 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 				<input type="text" name="set_mb_grade" value="<?php echo $g5['setting']['set_mb_grade'] ?>" id="set_mb_grade" required class="required frm_input" style="width:60%;">
 			</td>
 		</tr>
+        <tr>
+			<th scope="row">수입지출관리권한 mb_8</th>
+			<td colspan="3">
+				<?php echo help('960248=기타수입관리(과제별),960245=지출관리(과제별),960255=기타지출관리') ?>
+				<input type="text" name="set_mb_inoutprice" value="<?php echo $g5['setting']['set_mb_inoutprice'] ?>" id="set_mb_inoutprice" required class="required frm_input" style="width:60%;">
+			</td>
+		</tr>
 		<tr>
 			<th scope="row">업종분류</th>
 			<td colspan="3">
