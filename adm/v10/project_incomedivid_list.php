@@ -106,8 +106,8 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 12;
-else $colspan = 8;
+if($super_admin) $colspan = 14;
+else $colspan = 10;
 ?>
 <style>
 .malp{position:absolute;right:0;}
@@ -189,6 +189,8 @@ else $colspan = 8;
         <th scope="col">수주금액</th>
         <th scope="col">기타수입<br>총합계<br>(입금률%)</th>
         <th scope="col">기타수입<br>입금합계</th>
+        <th scope="col">수입예정일</th>
+        <th scope="col">수입완료일</th>
         <?php } ?>
         <th scope="col">총지출액<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
         <?php if($super_admin){ ?><th scope="col">잔액<br>(총수입금-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th><?php } ?>
@@ -218,19 +220,19 @@ else $colspan = 8;
                 <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['prn_name']); ?></label>
                 <input type="checkbox" name="chk[]" value="<?php echo $i ?>" id="chk_<?php echo $i ?>">
             </td>
-            <td rowspan="<?=$p_cnt?>"><?=$row['prn_idx']?></td><!-- 번호 -->
-            <td rowspan="<?=$p_cnt?>" class="td_center"><?=$row['prj_idx']?></td><!-- 공사프로젝트ID -->
-            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
-            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
-            <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prn_name']?></td><!-- 수입제목 -->
+            <td><?=$row['prn_idx']?></td><!-- 번호 -->
+            <td class="td_center"><?=$row['prj_idx']?></td><!-- 공사프로젝트ID -->
+            <td class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
+            <td class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
+            <td class="td_left"><?=$row['prn_name']?></td><!-- 수입제목 -->
             <?php if($super_admin){ ?>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
+            <td style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
+            <td class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prn_sum_inprice'])?></span>
                 <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$inp_per?>%"></div></div><?php } ?>
                 <?php if($super_admin){ ?><span class="per">(<?=$inp_per?>%)</span><?php } ?>
             </td>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;" class="td_alarm">
+            <td style="text-align:right;width:110px;" class="td_alarm">
                 <?=number_format($row['prn_price'])?>
                 <?php
                 if($row['prn_alarm_flag']){
@@ -248,7 +250,9 @@ else $colspan = 8;
                 ?>
             </td>
             <?php } ?>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
+			<td class="td_center"><?=$row['prn_plan_date']?></td>
+			<td class="td_center"><?=(($row['prn_done_date'] != '0000-00-00')?$row['prn_done_date']:'-')?></td>
+            <td class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prx_sum_exprice'])?></span>
                 <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
                 <?php if($super_admin){ ?><span class="per">(<?=$exp_per?>%)</span><?php } ?>

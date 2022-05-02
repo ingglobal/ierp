@@ -21,7 +21,7 @@ echo $g5['container_sub_title'];
 $sql_common = " FROM {$g5['project_exprice_table']} AS prx
                     LEFT JOIN {$g5['project_table']} AS prj ON prx.prj_idx = prj.prj_idx
                     LEFT JOIN {$g5['company_table']} AS com ON prx.com_idx = com.com_idx
-"; 
+";
 
 $where = array();
 //$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
@@ -104,8 +104,8 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 13;
-else $colspan = 7;
+if($super_admin) $colspan = 15;
+else $colspan = 9;
 ?>
 <style>
 .malp{position:absolute;right:0;}
@@ -190,6 +190,8 @@ else $colspan = 7;
         <?php } ?>
         <th scope="col">총지출액<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
         <th scope="col">해당지출금액<br>(총지출금기준%)</th>
+        <th scope="col">지출예정일</th>
+        <th scope="col">지출완료일</th>
         <?php if($super_admin){ ?><th scope="col">잔액<br>(총수입금-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th><?php } ?>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
@@ -258,6 +260,8 @@ else $colspan = 7;
                 }
                 ?>
             </td>
+			<td class="td_center"><?=$row['prx_plan_date']?></td>
+			<td class="td_center"><?=(($row['prx_done_date'] != '0000-00-00')?$row['prx_done_date']:'-')?></td>
             <?php if($super_admin){ ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
                 <span class="prc"><?=number_format($row['prp_dif_exprice'])?></span>
