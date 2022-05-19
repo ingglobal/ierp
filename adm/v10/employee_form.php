@@ -427,6 +427,16 @@ this.form.mb_intercept_date.value=this.form.mb_intercept_date.defaultValue; }">
         </td>
     </tr>
     <?php } ?>
+    <tr>
+        <th scope="row"><label for="mb_oil_type">자가유종</label><?php if($is_admin){ ?>(mb_oil_type)<?php } ?></th>
+        <td colspan="3">
+            <select name="mb_oil_type" id="mb_oil_type" style="width:245px;">
+				<option value="">유종선택</option>
+				<?php echo $g5['set_mb_oiltype_value_options'] ?>
+			</select>
+			<script>$("select[id=mb_oil_type]").val("<?=$mb['mb_oil_type']?>");</script>
+        </td>
+    </tr>
     </tbody>
     </table>
 </div>

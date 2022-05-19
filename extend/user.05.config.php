@@ -19,8 +19,10 @@ $g5['project_inprice_table']    = PROJ_TABLE_PREFIX.'project_inprice';
 $g5['project_schedule_table']   = PROJ_TABLE_PREFIX.'project_schedule';
 $g5['project_overtime_table']   = PROJ_TABLE_PREFIX.'project_overtime';
 $g5['contract_table']           = PROJ_TABLE_PREFIX.'contract';
+$g5['personal_caruse_table']    = PROJ_TABLE_PREFIX.'personal_caruse';
+$g5['personal_expenses_table']  = PROJ_TABLE_PREFIX.'personal_expenses';
 
-$g5['data_table']           = PROJ_TABLE_PREFIX.'data';
+$g5['data_table']           	= PROJ_TABLE_PREFIX.'data';
 
 
 ?>
