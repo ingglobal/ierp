@@ -86,6 +86,13 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			</td>
 		</tr>
         <tr>
+			<th scope="row">자차사용이유타입 pcu_why</th>
+			<td colspan="3">
+				<?php echo help('nocar=회사차량부재,home=집에서출발') ?>
+				<input type="text" name="set_pcu_why" value="<?php echo $g5['setting']['set_pcu_why'] ?>" id="set_mb_grade" required class="required frm_input" style="width:60%;">
+			</td>
+		</tr>
+        <tr>
 			<th scope="row">유류타입 mb_oil_type(meta)</th>
 			<td colspan="3">
 				<?php echo help('gasoline=휘발유,diesel=경유,electricity=전기,lpg=LPG') ?>

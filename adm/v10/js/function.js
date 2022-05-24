@@ -236,3 +236,15 @@ function getFormattedDate(date) {
 	return year + '-' + month + '-' + day;
 }
 }
+
+if(typeof(check_all2)!='function') {
+function check_all2(f)
+{
+    var chk = document.getElementsByName("chk[]");
+    
+    for (i=0; i<chk.length; i++){
+        if(chk[i].classList[0] == 'disable') continue;
+        chk[i].checked = f.chkall.checked;
+    }
+}
+}
