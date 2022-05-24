@@ -32,8 +32,7 @@ if($mb['mb_oil_type'] != $pcu_oil_type || !$mb['mb_oil_type']){
 
 $sql = " INSERT INTO {$g5['personal_caruse_table']} SET
           mb_id = '{$member['mb_id']}'
-          , pcu_date = '{$pcu_date}'  
-          , pcu_why = '{$pcu_why}'  
+          , pcu_date = '{$pcu_date}' 
           , pcu_reason = '{$pcu_reason}'  
           , pcu_start_km = '{$pcu_start_km}'  
           , pcu_arrival_km = '{$pcu_arrival_km}'  

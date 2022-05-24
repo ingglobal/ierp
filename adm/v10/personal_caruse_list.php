@@ -63,7 +63,7 @@ if (!$sst2) {
 
 $sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} ";
 
-$rows = 25;//$config['cf_page_rows'];
+$rows = 100;//25;//$config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
@@ -91,8 +91,8 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 14;
-else $colspan = 12;
+if($super_admin) $colspan = 13;
+else $colspan = 11;
 $total_price = 0;
 ?>
 <style>
@@ -236,11 +236,6 @@ $('.bli').on('click',function(){
 <label for="pcu_date" class="fp_label">
     <input type="text" name="pcu_date" placeholder="사용일" id="pcu_date" readonly class="frm_input readonly" value="">
 </label>
-<label for="pcu_why" class="fp_label">
-    <select name="pcu_why" id="pcu_why">
-        <?=$g5['set_pcu_why_options']?>
-    </select>
-</label>
 <label for="pcu_reason" class="fp_label">
     <input type="text" name="pcu_reason" placeholder="사용목적" id="pcu_reason" class="frm_input" value="" style="width:200px;">
 </label>
@@ -305,7 +300,6 @@ $('.bli').on('click',function(){
         <th scope="col">번호</th>
         <th scope="col">이름</th>
         <th scope="col">사용일</th>
-        <th scope="col">자차사용<br>이유</th>
         <th scope="col">목적</th>
         <th scope="col">출발당시<br>(km)</th>
         <th scope="col">도착당시<br>(km)</th>
@@ -334,14 +328,6 @@ $('.bli').on('click',function(){
         <td class="td_mb_name"><?=$row['mb_name']?></td>
         <td class="td_pcu_date">
             <input type="text" name="pcu_date[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_date'] ?>" readonly class="frm_input readonly pcu_date" style="width:90px;">
-        </td>
-        <td class="td_pcu_why">
-            <select name="pcu_why[<?=$row['pcu_idx']?>]" id="pcu_why_<?=$i?>">
-                <?=$g5['set_pcu_why_options']?>
-            </select>
-            <script>
-            $('#pcu_why_<?=$i?>').val('<?=$row['pcu_why']?>');
-            </script>
         </td>
         <td class="td_pcu_reason">
             <input type="text" name="pcu_reason[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_reason'] ?>" class="frm_input" id="pcu_reason_<?=$i?>" style="width:300px;">
