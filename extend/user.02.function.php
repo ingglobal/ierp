@@ -1735,23 +1735,26 @@ function send_kosmo_log(){
 }
 
 //특정날짜를 기준으로 그 이전 1년치의 (년-월) 데이터를 배열 형태로 반환하는 함수
-if(!function_exists('months_oneyear_range')){
-function months_oneyear_range($cur_date){
-    $ym = substr($cur_date,0,7);
+if(!function_exists('months_range')){
+function months_range($cur_date,$mcnt,$sort='desc'){
+	$ym = substr($cur_date,0,7);
     $ym_arr = explode('-',$ym);
     $y = $ym_arr[0];
     $m = $ym_arr[1];
     $int_m = (int) $m;
     $cnt_y = $y;
-    $cnt_m = 12;
+    $cnt_m = $int_m;
     $ym_array = array();
-    for($c=0;$c<$cnt_m;$c++){
-        $cm = (($int_m - $c <= 0) ? $cnt_m + ($int_m - $c) : $int_m - $c);
-        if($int_m - $c == 0) $cnt_y = $y - 1;
-        $cm0 = sprintf("%02d",$cm);
-        array_push($ym_array,$cnt_y.'-'.$cm0);
+    $ym_array_reverse = array();
+    for($c=0;$c<$mcnt;$c++){
+        array_push($ym_array,$cnt_y.'-'.sprintf("%02d",$cnt_m));
+        $cnt_y = ($cnt_m == 1) ? $cnt_y - 1 : $cnt_y;
+        $cnt_m = ($cnt_m == 1) ? 12 : $cnt_m - 1;
     }
-    return $ym_array;
+    if($sort == 'desc' || $sort == 'DESC')
+        return $ym_array;
+    else
+        return array_reverse($ym_array);
 }
 }
 ?>

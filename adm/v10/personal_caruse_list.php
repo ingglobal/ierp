@@ -28,7 +28,7 @@ if($super_admin){
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
-$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 8 AND mb_leave_date = '' AND mb_intercept_date = '' ORDER BY mb_name ";
+$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 8 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일') ORDER BY mb_name ";
 // echo $mb_sql;
 $mb_result = sql_query($mb_sql,1);
 
@@ -135,7 +135,7 @@ position:relative;top:0px;}
 input[type="checkbox"].disable{opacity:0.3;}
 .td_pcu_date{width:90px;}
 .td_pcu_why{width:170px;}
-.td_pcu_reason{width:300px;}
+.td_pcu_reason{width:400px;}
 .td_pcu_start_km{width:100px;}
 .td_pcu_arrival_km{width:100px;}
 .td_pcu_diff_km{width:80px;text-align:right !important;}
@@ -168,9 +168,9 @@ input[type="checkbox"].disable{opacity:0.3;}
 <?php if($super_admin){ ?>
 <div class="sch_name_box">
     <ul class="sch_name">
-        <?php 
+        <?php
         $skip_arr = array('테스일','일정관리');
-        for($v=0;$mrow=sql_fetch_array($mb_result);$v++){ 
+        for($v=0;$mrow=sql_fetch_array($mb_result);$v++){
             if(in_array($mrow['mb_name'],$skip_arr)) continue;
         ?>
             <li class="bli<?=(($mb_name2 == $mrow['mb_name'])?' focus':'')?>" mb_name2="<?=$mrow['mb_name']?>"><?=$mrow['mb_name']?></li>
@@ -179,7 +179,8 @@ input[type="checkbox"].disable{opacity:0.3;}
 </div>
 <?php } ?>
 <?php
-$m_arr = months_oneyear_range(G5_TIME_YMD); //예) 2022-05-22
+$mcnt = 12;
+$m_arr = months_range(G5_TIME_YMD,$mcnt); //예) 2022-05-22, 12, 'asc'
 ?>
 <div class="sch_month_box">
     <ul class="sch_month">
@@ -192,7 +193,7 @@ $m_arr = months_oneyear_range(G5_TIME_YMD); //예) 2022-05-22
 </form>
 <script>
 $('.mli').on('click',function(){
-    if($(this).hasClass('focus')){ 
+    if($(this).hasClass('focus')){
         $(this).removeClass('focus');
         $('#fsearch').find('input[name="year_month"]').remove();
     } else {
@@ -207,7 +208,7 @@ $('.mli').on('click',function(){
     }
 });
 $('.bli').on('click',function(){
-    if($(this).hasClass('focus')){ 
+    if($(this).hasClass('focus')){
         $(this).removeClass('focus');
         $('#fsearch').find('input[name="mb_name2"]').remove();
     } else {
@@ -314,8 +315,8 @@ $('.bli').on('click',function(){
     </tr>
     </thead>
     <tbody>
-    <?php for ($i=0; $row=sql_fetch_array($result); $i++) { 
-        if($i == 0) $total_price = $row['pcu_sum']; 
+    <?php for ($i=0; $row=sql_fetch_array($result); $i++) {
+        if($i == 0) $total_price = $row['pcu_sum'];
     ?>
     <tr>
         <td class="td_chk">
@@ -330,7 +331,7 @@ $('.bli').on('click',function(){
             <input type="text" name="pcu_date[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_date'] ?>" readonly class="frm_input readonly pcu_date" style="width:90px;">
         </td>
         <td class="td_pcu_reason">
-            <input type="text" name="pcu_reason[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_reason'] ?>" class="frm_input" id="pcu_reason_<?=$i?>" style="width:300px;">
+            <input type="text" name="pcu_reason[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_reason'] ?>" class="frm_input" id="pcu_reason_<?=$i?>" style="width:width:100%;">
         </td>
         <td class="td_pcu_start_km">
             <label for="pcu_start_km_<?=$i?>" class="lb_km">
@@ -350,7 +351,7 @@ $('.bli').on('click',function(){
                 <?=$g5['set_mb_oiltype_options']?>
             </select>
             <script>
-            $('#pcu_oil_type_<?=$i?>').val('<?=$row['pcu_oil_type']?>'); 
+            $('#pcu_oil_type_<?=$i?>').val('<?=$row['pcu_oil_type']?>');
             </script>
         </td>
         <?php if($super_admin){ ?>
@@ -375,7 +376,7 @@ $('.bli').on('click',function(){
                 <?=$g5['set_personal_carusestatus_options']?>
             </select>
             <script>
-            $('#pcu_status_<?=$i?>').val('<?=$row['pcu_status']?>'); 
+            $('#pcu_status_<?=$i?>').val('<?=$row['pcu_status']?>');
             </script>
             <?php } else { ?>
             <input type="hidden" name="pcu_status[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_status']; ?>">
@@ -383,10 +384,10 @@ $('.bli').on('click',function(){
             <?php } ?>
         </td>
     </tr>
-    <?php 
+    <?php
     }
     if($i == 0)
-        echo '<tr><td colspan="'.$colspan.'" class="empty_table">자료가 없습니다.</td></tr>'; 
+        echo '<tr><td colspan="'.$colspan.'" class="empty_table">자료가 없습니다.</td></tr>';
     ?>
     </tbody>
     </table>
@@ -487,7 +488,7 @@ $('#mng_save').on('click',function(){
 	var cf_perprice_diesel = Number($('#cf_perprice_diesel').val());
 	var cf_perkm_gasoline = Number($('#cf_perkm_gasoline').val());
 	var cf_perkm_diesel = Number($('#cf_perkm_diesel').val());
-	
+
     var link = '<?=G5_USER_ADMIN_URL?>/personal_caruse_mng_update.php';
 	$.ajax({
 		type : "POST",
@@ -536,7 +537,7 @@ $('#mng_setting').on('click',function(){
     var perkm_diesel = $('#cf_perkm_diesel').val();
     var f = document.getElementById("form01");
     var chk = document.getElementsByName("chk[]");
-    
+
     for (i=0; i<chk.length; i++){ //#pcu_oil_type_
         if(chk[i].checked){
             if($('#pcu_start_km_'+i).val() == ''){
@@ -568,10 +569,10 @@ $('#mng_setting').on('click',function(){
             var perkm_comma = thousand_comma(eval('perkm_'+oil_type));
             var price = (diff_km / perkm) * perprice;//(이동거리 / 리터당이동거리) x 리터당유류비
             var price_comma = thousand_comma(price);
-            
-            $('#pcu_per_price_'+i).val(perprice_comma).attr('num',perprice);           
-            $('#pcu_per_km_'+i).val(perkm_comma).attr('num',perkm);           
-            $('#pcu_price_'+i).val(price_comma).attr('num',price);           
+
+            $('#pcu_per_price_'+i).val(perprice_comma).attr('num',perprice);
+            $('#pcu_per_km_'+i).val(perkm_comma).attr('num',perkm);
+            $('#pcu_price_'+i).val(price_comma).attr('num',price);
         }
     }
 });
@@ -582,7 +583,7 @@ $(".pcu_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy
 
 <?php if(!$super_ceo_admin){ ?>
 function form_personal_submit(f){
-    
+
     if(!f.pcu_date.value){
         alert('사용일을 입력해 주세요.');
         f.pcu_date.focus();
