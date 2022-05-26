@@ -25,7 +25,7 @@ $menu["menu960"] = array (
 	array('960610', '차량예약', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=car_rsv&calendar=1', 'car_rsv'),
 	array('960620', '차량관리', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=car_mng', 'car_mng'),
 	array('960630', '개인차량사용내역', ''.G5_USER_ADMIN_URL.'/personal_caruse_list.php', 'personal_caruse_list'),
-	array('960640', '개인경비내역', ''.G5_USER_ADMIN_URL.'/personal_expenses_list.php', 'personal_expenses_list'),
+	array('960640', '개인지출내역', ''.G5_USER_ADMIN_URL.'/personal_expenses_list.php', 'personal_expenses_list'),
 	//array('960740', '매뉴얼', G5_BBS_URL.'/board.php?bo_table=manual', 'manual_list'),
 	array('960700', '공지사항', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=notice1', 'notice1'),
 	array('960800', '자료실', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=erpdata', 'bbs_board')
@@ -57,7 +57,7 @@ $menu["menu960"] = array (
 	array('960610', '차량예약', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=car_rsv&calendar=1', 'car_rsv'),
 	array('960620', '차량관리', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=car_mng', 'car_mng'),
 	array('960630', '개인차량사용내역', ''.G5_USER_ADMIN_URL.'/personal_caruse_list.php', 'personal_caruse_list'),
-	array('960640', '개인경비내역', ''.G5_USER_ADMIN_URL.'/personal_expenses_list.php', 'personal_expenses_list'),
+	array('960640', '개인지출내역', ''.G5_USER_ADMIN_URL.'/personal_expenses_list.php', 'personal_expenses_list'),
 	//array('960740', '매뉴얼', G5_BBS_URL.'/board.php?bo_table=manual', 'manual_list'),
 	array('960700', '공지사항', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=notice1', 'notice1'),
 	array('960800', '자료실', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=erpdata', 'bbs_board')

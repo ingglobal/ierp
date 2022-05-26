@@ -28,7 +28,7 @@ if($super_admin){
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
-$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 8 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일') ORDER BY mb_name ";
+$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 8 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일','최호기','허준영') ORDER BY mb_name ";
 // echo $mb_sql;
 $mb_result = sql_query($mb_sql,1);
 
@@ -147,9 +147,9 @@ input[type="checkbox"].disable{opacity:0.3;}
 #mng_box{position:fixed;top:0px;right:300px;z-index:1000;background:#342216;color:#fff;box-shadow:3px 3px 10px #897771;border-bottom-left-radius: 10px;border-bottom-right-radius: 10px;overflow:hidden;}
 #mng_box .mng_tbl{display:table;border-collapse:collapse;border-spacing:0;}
 #mng_box .mng_tbl th{text-align:center;background:#221113;}
-#mng_box .mng_tbl th,#mng_box .mng_tbl td{border:1px solid #78666a;padding:5px 10px;}
+#mng_box .mng_tbl th,#mng_box .mng_tbl td{border:1px solid #78666a;padding:5px 10px;color:#fff;}
 #mng_box .mng_tbl td button{display:block;padding:6px 10px;background:#424783;color:#fff;}
-#mng_box .mng_tbl td #mng_setting{margin-top:10px;background:#1f5237;}
+#mng_box .mng_tbl td #mng_setting{margin-top:10px;background:#1f5237;color:#fff;}
 #mng_box .mng_tbl td .mng_input{height:30px;line-height:30px;padding:0 5px;background:#564438;color:#fff;}
 #mng_box .mng_tbl td span{position:relative;top:3px;margin-left:3px;}
 </style>
@@ -328,25 +328,25 @@ $('.bli').on('click',function(){
         <td class="td_pcu_idx"><?=$row['pcu_idx']?></td>
         <td class="td_mb_name"><?=$row['mb_name']?></td>
         <td class="td_pcu_date">
-            <input type="text" name="pcu_date[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_date'] ?>" readonly class="frm_input readonly pcu_date" style="width:90px;">
+            <input type="text" name="pcu_date[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_date'] ?>" readonly class="frm_input readonly pcu_date" style="width:100px;">
         </td>
         <td class="td_pcu_reason">
             <input type="text" name="pcu_reason[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_reason'] ?>" class="frm_input" id="pcu_reason_<?=$i?>" style="width:width:100%;">
         </td>
         <td class="td_pcu_start_km">
             <label for="pcu_start_km_<?=$i?>" class="lb_km">
-            <input type="text" name="pcu_start_km[<?=$row['pcu_idx']?>]" class="frm_input pcu_start_km" id="pcu_start_km_<?=$i?>" value="<?php echo number_format($row['pcu_start_km']); ?>" num="<?=$row['pcu_start_km']?>" class="frm_input" style="width:100px;text-align:right;padding-right:25px;">
+            <input type="text" name="pcu_start_km[<?=$row['pcu_idx']?>]" class="frm_input pcu_start_km" id="pcu_start_km_<?=$i?>" value="<?php echo number_format($row['pcu_start_km']); ?>" num="<?=$row['pcu_start_km']?>" class="frm_input" style="width:100px;text-align:right;padding-right:30px;">
             <span>km</span>
             </label>
         </td>
         <td class="td_pcu_arrival_km">
             <label for="pcu_arrival_km_<?=$i?>" class="lb_km">
-            <input type="text" name="pcu_arrival_km[<?=$row['pcu_idx']?>]" class="frm_input pcu_arrival_km" id="pcu_arrival_km_<?=$i?>" value="<?php echo number_format($row['pcu_arrival_km']); ?>" num="<?=$row['pcu_arrival_km']?>" class="frm_input" style="width:100px;text-align:right;padding-right:25px;">
+            <input type="text" name="pcu_arrival_km[<?=$row['pcu_idx']?>]" class="frm_input pcu_arrival_km" id="pcu_arrival_km_<?=$i?>" value="<?php echo number_format($row['pcu_arrival_km']); ?>" num="<?=$row['pcu_arrival_km']?>" class="frm_input" style="width:100px;text-align:right;padding-right:30px;">
             <span>km</span>
             </label>
         </td>
         <td class="td_pcu_diff_km"><?=number_format($row['pcu_diff_km'])?> km</td>
-        <td class="td_pcu_oil_type">
+        <td class="td_pcu_oil_type" style="width:160px;">
             <select name="pcu_oil_type[<?=$row['pcu_idx']?>]" id="pcu_oil_type_<?=$i?>">
                 <?=$g5['set_mb_oiltype_options']?>
             </select>

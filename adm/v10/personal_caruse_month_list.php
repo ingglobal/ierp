@@ -14,7 +14,7 @@ $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파�
 // $qstr .= ($mb_name) ? '&mb_name='.$mb_name : ''; // 추가로 확장해서 넘겨야 할 변수들
 
 
-$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 8 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일') ORDER BY mb_name ";
+$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 8 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일','최호기','허준영') ORDER BY mb_name ";
 // echo $mb_sql;
 $mb_result = sql_query($mb_sql,1);
 $mb_arr = array();
@@ -35,7 +35,7 @@ for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
 // print_r3($mb_arr);
 
 
-$g5['title'] = '개인차량사용내역';
+$g5['title'] = '개인차량사용월별통계';
 if($super_admin){
     include_once('./_top_menu_personalcaruse.php');
 }
@@ -82,18 +82,18 @@ $sql = " SELECT (ROW_NUMBER() OVER(ORDER BY pcu_date)) AS num
             , pcu.mb_id
             , mb_name
             , SUM(pcu_arrival_km - pcu_start_km) AS pcu_total_km
-            , CONCAT(YEAR(pcu_date),'-',LPAD(MONTH(pcu_date),'2','0')) AS pcu_month 
+            , CONCAT(YEAR(pcu_date),'-',LPAD(MONTH(pcu_date),'2','0')) AS pcu_month
             , CONCAT(YEAR(pcu_date),'년',LPAD(MONTH(pcu_date),'2','0'),'월') AS pcu_month2
             , CONCAT(YEAR(pcu_date),'-',LPAD(MONTH(pcu_date),'2','0'),'%') AS pcu_month_sch
             , SUM(pcu_price) AS pcu_sum
-            , ( SELECT COUNT(*) 
-                FROM g5_1_personal_caruse 
-                WHERE pcu_status = 'ok' 
+            , ( SELECT COUNT(*)
+                FROM g5_1_personal_caruse
+                WHERE pcu_status = 'ok'
                     AND pcu_date LIKE pcu_month_sch
             ) AS pcu_cnt
-            , ( SELECT SUM(pcu_price) 
-                FROM g5_1_personal_caruse 
-                WHERE pcu_status = 'ok' 
+            , ( SELECT SUM(pcu_price)
+                FROM g5_1_personal_caruse
+                WHERE pcu_status = 'ok'
                     AND pcu_date LIKE pcu_month_sch
             ) AS pcu_sum2
         {$sql_common}
@@ -127,8 +127,8 @@ $row(
     [pcu_month_sch] => 2022-05%
     [pcu_sum] => 62720
     [pcu_cnt] => 3
-    [pcu_sum2] => 67220   
-    [pcu_total_km] => 23432   
+    [pcu_sum2] => 67220
+    [pcu_total_km] => 23432
 )
 */
 
@@ -202,7 +202,7 @@ $total_price = 0;
         <td class="td_caruse_sum" style="text-align:right;font-weight:700;"><?=(($mv)?number_format($mv).'<span style="margint-left:3px;">원</span>':'')?></td>
         <?php } ?>
     </tr>
-    <?php 
+    <?php
     $no = 0;
     foreach($mb_arr as $k => $v){
         $no++;

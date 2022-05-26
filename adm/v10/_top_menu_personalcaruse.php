@@ -1,4 +1,4 @@
-<?php
+me<?php
 if (!defined('_GNUBOARD_')) exit;
 // 카테고리 관리 상단 공통 탭 링크들입니다.
 
