@@ -61,7 +61,11 @@ if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
-        , (SUM(pcu_price) OVER()) AS pcu_sum
+        , (ROW_NUMBER() OVER(PARTITION BY mb_name, pep_date ORDER BY pep_idx)) AS snum
+        , (DENSE_RANK() OVER(ORDER BY mb_name, pep_date)) AS rnk
+        , (COUNT(*) OVER(PARTITION BY mb_name, pep_date)) AS scnt
+        , (SUM(pep_price) OVER(PARTITION BY mb_name, pep_date)) AS pep_small_sum
+        , (SUM(pep_price) OVER()) AS pep_sum
         {$sql_common}
         {$sql_search}
         {$sql_order}
@@ -83,7 +87,8 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-$colspan = 7;
+
+$colspan = 13;
 $total_price = 0;
 ?>
 <style>
@@ -114,35 +119,48 @@ input[type="text"]{padding:0 5px;}
 #tot_box strong{color:#555;float:left;font-weight:500;}
 #tot_box #tot_price{float:left;margin-left:10px;font-weight:700;color:darkblue;font-size:1.2em;}
 
-#pcu_date{width:90px;}
-.pcu_date{width:90px;}
-#pcu_start_km{width:100px;text-align:right;padding-right:25px !important;}
-#pcu_arrival_km{width:100px;text-align:right;padding-right:25px !important;}
+#pep_date{width:90px;}
+.pep_date{width:90px;}
 .btn_register{height:35px;line-height:35px;padding:0 10px;background:#b51c50;color:#fff;border:0;
 position:relative;top:0px;}
-.lb_km{position:relative;}
-.lb_km span{position:absolute;top:2px;right:5px;}
+.lb_w{position:relative;}
+.lb_w span{position:absolute;top:2px;right:5px;}
 #form01 select{height:35px;line-height:35px;}
 input[type="checkbox"].disable{opacity:0.3;}
-.td_pcu_date{width:90px;}
-.td_pcu_why{width:170px;}
-.td_pcu_reason{width:400px;}
-.td_pcu_start_km{width:100px;}
-.td_pcu_arrival_km{width:100px;}
-.td_pcu_diff_km{width:80px;text-align:right !important;}
-.td_pcu_oil_type{width:130px;}
-.td_pcu_per_price{width:100px;}
-.td_pcu_per_km{width:30px;}
-.td_pcu_price{width:100px;text-align:right !important;}
 
-#mng_box{position:fixed;top:0px;right:300px;z-index:1000;background:#342216;color:#fff;box-shadow:3px 3px 10px #897771;border-bottom-left-radius: 10px;border-bottom-right-radius: 10px;overflow:hidden;}
-#mng_box .mng_tbl{display:table;border-collapse:collapse;border-spacing:0;}
-#mng_box .mng_tbl th{text-align:center;background:#221113;}
-#mng_box .mng_tbl th,#mng_box .mng_tbl td{border:1px solid #78666a;padding:5px 10px;}
-#mng_box .mng_tbl td button{display:block;padding:6px 10px;background:#424783;color:#fff;}
-#mng_box .mng_tbl td #mng_setting{margin-top:10px;background:#1f5237;}
-#mng_box .mng_tbl td .mng_input{height:30px;line-height:30px;padding:0 5px;background:#564438;color:#fff;}
-#mng_box .mng_tbl td span{position:relative;top:3px;margin-left:3px;}
+.tr_last{border-bottom:2px solid #000;}
+
+.td_pep_date{width:90px;}
+.td_pep_subject{width:170px;}
+.td_pep_content{width:400px;}
+.td_pep_price{width:100px;text-align:right !important;}
+
+.a_view{color:orange;font-size:1.2em;}
+.a_down{color:#000;font-size:1.2em;}
+
+#pep_modal{position:fixed;top:0;left:0;width:100%;height:100%;z-index:2000;display:none;}
+#pep_modal #pep_modal_tbl{border:0px solid red;display:table;width:100%;height:100%;}
+#pep_modal #pep_modal_tbl #pep_modal_td{position:relative;border:0px solid blue;display:table-cell;vertical-align:middle;text-align:center;}
+#pep_modal #pep_modal_tbl #pep_modal_td #pep_modal_bg{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:0;}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile{background:#fff;display:inline-block;width:500px;position:relative;z-index: 10;text-align:left;border-radius:10px;}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile .pep_modal_close{cursor:pointer;font-size:3em;color:#fff;position:absolute;top:-40px;right:-40px;}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile #pep_modal_in{}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile #pep_modal_in #pep_modal_hd{padding:10px;border-top-left-radius:10px;border-top-right-radius:10px;background:#5d51be;color:#fff;}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile #pep_modal_in #pep_modal_cont{padding:10px;border-bottom:1px solid #ccc;}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile #pep_modal_in #pep_modal_ft{padding:10px;border-top:1px solid #efefef;text-align:right;}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile #pep_modal_view{display:none;padding:10px;border-top:1px solid #ddd;background:#f1f1f1;border-bottom-left-radius:10px;border-bottom-right-radius:10px;}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile #pep_modal_view .a_download{}
+#pep_modal #pep_modal_tbl #pep_modal_td #fpepfile #pep_modal_view .pep_img_del{}
+
+
+#pep_modal2{position:fixed;top:0;left:0;width:100%;height:100%;z-index:2000;display:none;}
+#pep_modal2 #pep_modal_tbl2{border:0px solid red;display:table;width:100%;height:100%;}
+#pep_modal2 #pep_modal_tbl2 #pep_modal_td2{position:relative;border:0px solid blue;display:table-cell;vertical-align:middle;text-align:center;}
+#pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #pep_modal_bg2{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:0;}
+#pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box{background:#fff;display:inline-block;width:500px;position:relative;z-index: 10;text-align:left;border-radius:10px;}
+#pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box .pep_modal_close2{cursor:pointer;font-size:3em;color:#fff;position:absolute;top:-40px;right:-40px;}
+#pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box{width:600px;text-align:center;background:#000;}
+#pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box #pep_modal_image{max-width:600px;}
 </style>
 <div class="local_ov01 local_ov">
     <?php echo $listall ?>
@@ -160,9 +178,7 @@ input[type="checkbox"].disable{opacity:0.3;}
 <div class="sch_name_box">
     <ul class="sch_name">
         <?php
-        $skip_arr = array('테스일','일정관리');
         for($v=0;$mrow=sql_fetch_array($mb_result);$v++){
-            if(in_array($mrow['mb_name'],$skip_arr)) continue;
         ?>
             <li class="bli<?=(($mb_name2 == $mrow['mb_name'])?' focus':'')?>" mb_name2="<?=$mrow['mb_name']?>"><?=$mrow['mb_name']?></li>
         <?php } ?>
@@ -215,7 +231,7 @@ $('.bli').on('click',function(){
 });
 </script>
 <div class="local_desc01 local_desc" style="display:no ne;position:relative;">
-    <p><?php if(!$super_admin){ echo '<span style="color:blue;">'.$member['mb_name'].'</span>님의 '; } ?>개인차량사용내역을 관리하는 페이지입니다.</p>
+    <p><?php if(!$super_admin){ echo '<span style="color:blue;">'.$member['mb_name'].'</span>님의 '; } ?>개인지출내역을 관리하는 페이지입니다.</p>
     <div id="tot_box">
         <strong>검색 총금액 : </strong>
         <div id="tot_price"></div>
@@ -223,38 +239,28 @@ $('.bli').on('click',function(){
 </div>
 <div id="fper_box">
 <?php if(!$super_ceo_admin){ ?>
-<form name="form_personal" id="form_personal" action="./personal_caruse_update.php" onsubmit="return form_personal_submit(this);" method="post">
+<form name="form_personal" id="form_personal" action="./personal_expenses_update.php" onsubmit="return form_personal_submit(this);" method="post">
 <input type="hidden" name="mb_id" value="<?=$member['mb_id']?>">
-<label for="pcu_date" class="fp_label">
-    <input type="text" name="pcu_date" placeholder="사용일" id="pcu_date" readonly class="frm_input readonly" value="">
+<label for="pep_date" class="fp_label">
+    <input type="text" name="pep_date" placeholder="사용일" id="pep_date" readonly class="frm_input readonly" value="">
 </label>
-<label for="pcu_reason" class="fp_label">
-    <input type="text" name="pcu_reason" placeholder="사용목적" id="pcu_reason" class="frm_input" value="" style="width:200px;">
+<label for="pep_subject" class="fp_label">
+    <input type="text" name="pep_subject" placeholder="목적지" id="pep_subject" class="frm_input" value="" style="width:200px;">
 </label>
-<label for="pcu_start_km" class="fp_label lb_km">
-    <input type="text" name="pcu_start_km" placeholder="출발당시" id="pcu_start_km" class="frm_input" value="" num="">
-    <span>km</span>
+<label for="pep_content" class="fp_label">
+    <input type="text" name="pep_content" placeholder="사용내용" id="pep_content" class="frm_input" value="" style="width:400px;">
 </label>
-<label for="pcu_arrival_km" class="fp_label lb_km">
-    <input type="text" name="pcu_arrival_km" placeholder="도착당시" id="pcu_arrival_km" class="frm_input" value="" num="">
-    <span>km</span>
-</label>
-<label for="pcu_oil_type" class="fp_label">
-    <select name="pcu_oil_type" id="pcu_oil_type">
-        <option value="">없음</option>
-        <?=$g5['set_mb_oiltype_options']?>
-    </select>
+<label for="pep_price" class="fp_label lb_w">
+    <input type="text" name="pep_price" placeholder="사용금액" id="pep_price" class="frm_input" value="" style="width:100px;text-align:right;padding-right:20px;">
+    <span>원</span>
 </label>
 <input type="submit" class="btn_register" value="등록">
-<script>
-    $('#pcu_oil_type').val('<?=$member['mb_oil_type']?>');
-</script>
 </form>
 <?php } ?>
 <?php if($super_admin){ ?>
 <div id="status_change">
-    <select name="pcu_status_change" id="pcu_status_change">
-        <?=$g5['set_personal_carusestatus_options']?>
+    <select name="pep_status_change" id="pep_status_change">
+        <?=$g5['set_personal_expensesstatus_options']?>
     </select>
     <button type="button" onclick="slet_input(document.getElementById('form01'));" class="btn_status_change">상태일괄변경</button>
 </div>
@@ -290,89 +296,90 @@ $('.bli').on('click',function(){
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all2(this.form)">
 		</th>
         <th scope="col">번호</th>
+        <th scope="col">소번호</th>
         <th scope="col">이름</th>
         <th scope="col">사용일</th>
-        <th scope="col">목적</th>
-        <th scope="col">출발당시<br>(km)</th>
-        <th scope="col">도착당시<br>(km)</th>
-        <th scope="col">이동거리<br>(km)</th>
-        <th scope="col">유종</th>
-        <?php if($super_admin){ ?>
-        <th scope="col">리터당<br>주유비</th>
-        <th scope="col">리터당<br>이동거리</th>
-        <?php } ?>
+        <th scope="col">목적지</th>
+        <th scope="col">사용내용</th>
         <th scope="col">금액</th>
+        <th scope="col">소계금액</th>
         <th scope="col">상태</th>
+        <th scope="col">보기</th>
+        <th scope="col">다운로드</th>
+        <th scope="col">관리</th>
     </tr>
     </thead>
     <tbody>
     <?php for ($i=0; $row=sql_fetch_array($result); $i++) {
-        if($i == 0) $total_price = $row['pcu_sum'];
+        $fle = sql_fetch("SELECT * FROM {$g5['file_table']} 
+                WHERE fle_db_table = 'personal_expenses' AND fle_db_id = '".$row['pep_idx']."' ");
+        $mng_btn = '<button type="button" exist="0" a_download_url="" class="btn btn_02 btn_receipt" pep_idx="'.$row['pep_idx'].'">영수증</button>';
+        $a_view = '';
+        $a_down = '';
+        if($fle){
+            if(is_file(G5_PATH.$fle['fle_path'].'/'.$fle['fle_name'])){
+                $a_file_url = G5_URL.$fle['fle_path'].'/'.$fle['fle_name'];
+                $a_download_url = G5_USER_ADMIN_URL.'/lib/download.php?file_fullpath='.urlencode(G5_PATH.$fle['fle_path'].'/'.$fle['fle_name']).'&file_name_orig='.$fle['fle_name_orig'];
+                $mng_btn = '<button type="button" exist="1" ex="0" a_download_url="'.$a_download_url.'" class="btn btn_02 btn_receipt" fle_name_orig="'.cut_str($fle['fle_name_orig'],40,'...').'" pep_idx="'.$row['pep_idx'].'">영수증</button>';
+                $a_view = '<a class="a_view" view="'.$a_file_url.'" wd="'.$fle['fle_width'].'" ht="'.$fle['fle_height'].'" type="'.$fle['fle_mime_type'].'" href="javascript:"><i class="fa fa-search" aria-hidden="true"></i></a>';
+                $a_down = '<a class="a_down" href="'.$a_download_url.'"><i class="fa fa-download" aria-hidden="true"></i></a>';
+            }
+        }
+        // print_r2($fle);
+
+        if($i == 0) $total_price = $row['pep_sum'];
+        $list_num = $total_count - ($page - 1) * $rows;
+        $row['num'] = $list_num - $i;
+
+        $tr_bg = ($row['rnk'] % 2 == 0)?'':'';
     ?>
-    <tr>
+    <tr class="<?=(($row['snum'] == $row['scnt'])?'tr_last':'')?>">
         <td class="td_chk">
-            <input type="hidden" name="pcu_idx[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_idx'] ?>" id="pcu_idx_<?=$row['pcu_idx']?>">
-            <input type="hidden" name="mb_id[<?=$row['pcu_idx']?>]" value="<?php echo $row['mb_id'] ?>" id="mb_id_<?=$row['pcu_idx']?>">
-            <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['pcu_reason']); ?></label>
-            <input type="checkbox" name="chk[]"<?=((!$super_admin && $row['pcu_status'] == 'ok')?" onclick='return false;'":"")?> class="<?=((!$super_admin && $row['pcu_status'] == 'ok')?'disable':'')?>" value="<?=$row['pcu_idx']?>" id="chk_<?php echo $i ?>">
+            <input type="hidden" name="pep_idx[<?=$row['pep_idx']?>]" value="<?php echo $row['pep_idx'] ?>" id="pep_idx_<?=$row['pep_idx']?>">
+            <input type="hidden" name="mb_id[<?=$row['pep_idx']?>]" value="<?php echo $row['mb_id'] ?>" id="mb_id_<?=$row['pep_idx']?>">
+            <input type="hidden" name="snum[<?=$row['pep_idx']?>]" value="<?php echo $row['snum'] ?>" id="snum_<?=$row['pep_idx']?>">
+            <input type="hidden" name="scnt[<?=$row['pep_idx']?>]" value="<?php echo $row['scnt'] ?>" id="scnt_<?=$row['pep_idx']?>">
+            <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['pep_subject']); ?></label>
+            <input type="checkbox" name="chk[]"<?=((!$super_admin && $row['pep_status'] == 'ok')?" onclick='return false;'":"")?> class="<?=((!$super_admin && $row['pep_status'] == 'ok')?'disable':'')?>" value="<?=$row['pep_idx']?>" id="chk_<?php echo $i ?>">
         </td>
-        <td class="td_pcu_idx"><?=$row['pcu_idx']?></td>
-        <td class="td_mb_name"><?=$row['mb_name']?></td>
-        <td class="td_pcu_date">
-            <input type="text" name="pcu_date[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_date'] ?>" readonly class="frm_input readonly pcu_date" style="width:90px;">
+        <td class="td_pep_idx"><?=$row['num']?></td>
+        <td class="td_pep_idx"><?=$row['snum']?></td>
+        <td class="td_mb_name" style="background:#ddd;"><?=$row['mb_name']?></td>
+        <td class="td_pep_date">
+            <input type="text" name="pep_date[<?=$row['pep_idx']?>]" value="<?php echo $row['pep_date'] ?>" readonly class="frm_input readonly pep_date" style="width:100px;">
         </td>
-        <td class="td_pcu_reason">
-            <input type="text" name="pcu_reason[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_reason'] ?>" class="frm_input" id="pcu_reason_<?=$i?>" style="width:width:100%;">
+        <td class="td_pep_subject">
+            <input type="text" name="pep_subject[<?=$row['pep_idx']?>]" value="<?php echo $row['pep_subject'] ?>" class="frm_input" id="pep_subject_<?=$i?>" style="width:width:200px;">
         </td>
-        <td class="td_pcu_start_km">
-            <label for="pcu_start_km_<?=$i?>" class="lb_km">
-            <input type="text" name="pcu_start_km[<?=$row['pcu_idx']?>]" class="frm_input pcu_start_km" id="pcu_start_km_<?=$i?>" value="<?php echo number_format($row['pcu_start_km']); ?>" num="<?=$row['pcu_start_km']?>" class="frm_input" style="width:100px;text-align:right;padding-right:25px;">
-            <span>km</span>
-            </label>
+        <td class="td_pep_content">
+            <input type="text" name="pep_content[<?=$row['pep_idx']?>]" value="<?php echo $row['pep_content'] ?>" class="frm_input" id="pep_content_<?=$i?>" style="width:width:100%;">
         </td>
-        <td class="td_pcu_arrival_km">
-            <label for="pcu_arrival_km_<?=$i?>" class="lb_km">
-            <input type="text" name="pcu_arrival_km[<?=$row['pcu_idx']?>]" class="frm_input pcu_arrival_km" id="pcu_arrival_km_<?=$i?>" value="<?php echo number_format($row['pcu_arrival_km']); ?>" num="<?=$row['pcu_arrival_km']?>" class="frm_input" style="width:100px;text-align:right;padding-right:25px;">
-            <span>km</span>
-            </label>
+        <td class="td_pep_price">
+            <input type="text" name="pep_price[<?=$row['pep_idx']?>]" class="frm_input pep_price" value="<?php echo number_format($row['pep_price']); ?>" num="<?=$row['pep_price']?>" id="pep_price_<?=$i?>" style="width:100px;text-align:right;">
         </td>
-        <td class="td_pcu_diff_km"><?=number_format($row['pcu_diff_km'])?> km</td>
-        <td class="td_pcu_oil_type">
-            <select name="pcu_oil_type[<?=$row['pcu_idx']?>]" id="pcu_oil_type_<?=$i?>">
-                <?=$g5['set_mb_oiltype_options']?>
-            </select>
-            <script>
-            $('#pcu_oil_type_<?=$i?>').val('<?=$row['pcu_oil_type']?>');
-            </script>
-        </td>
-        <?php if($super_admin){ ?>
-        <td class="td_pcu_per_price">
-            <input type="text" name="pcu_per_price[<?=$row['pcu_idx']?>]" class="frm_input pcu_per_price" value="<?php echo number_format($row['pcu_per_price']); ?>" num="<?=$row['pcu_per_price']?>" id="pcu_per_price_<?=$i?>" class="frm_input" style="width:100px;text-align:right;">
-        </td>
-        <td class="td_pcu_per_km">
-            <input type="text" name="pcu_per_km[<?=$row['pcu_idx']?>]" class="frm_input pcu_per_km" value="<?php echo number_format($row['pcu_per_km']); ?>" num="<?=$row['pcu_per_km']?>" id="pcu_per_km_<?=$i?>" class="frm_input" style="width:30px;text-align:right">
-        </td>
-        <?php } ?>
-        <td class="td_pcu_price">
+        <td class="td_pep_price" style="text-align:right;background:#ddd;">
+            <?=number_format($row['pep_small_sum'])?>원</td>
+        <td class="td_pep_status">
             <?php if($super_admin){ ?>
-            <input type="text" name="pcu_price[<?=$row['pcu_idx']?>]" class="frm_input pcu_price" value="<?php echo number_format($row['pcu_price']); ?>" num="<?=$row['pcu_price']?>" id="pcu_price_<?=$i?>" style="width:100px;text-align:right;">
-            <?php } else { ?>
-            <input type="hidden" name="pcu_price[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_price']; ?>">
-            <?=number_format($row['pcu_price'])?>
-            <?php } ?>
-        </td>
-        <td class="td_pcu_status">
-            <?php if($super_admin){ ?>
-            <select name="pcu_status[<?=$row['pcu_idx']?>]" id="pcu_status_<?=$i?>">
+            <select name="pep_status[<?=$row['pep_idx']?>]" id="pep_status_<?=$i?>">
                 <?=$g5['set_personal_carusestatus_options']?>
             </select>
             <script>
-            $('#pcu_status_<?=$i?>').val('<?=$row['pcu_status']?>');
+            $('#pep_status_<?=$i?>').val('<?=$row['pep_status']?>');
             </script>
             <?php } else { ?>
-            <input type="hidden" name="pcu_status[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_status']; ?>">
-            <?=$g5['set_personal_carusestatus_value'][$row['pcu_status']]?>
+            <input type="hidden" name="pep_status[<?=$row['pep_idx']?>]" value="<?php echo $row['pep_status']; ?>">
+            <?=$g5['set_personal_expensesstatus_value'][$row['pep_status']]?>
             <?php } ?>
+        </td>
+        <td class="td_a_view">
+            <?=$a_view?>
+        </td>
+        <td class="td_a_down">
+            <?=$a_down?>
+        </td>
+        <td class="td_pep_mng">
+            <?=$mng_btn?>
         </td>
     </tr>
     <?php
@@ -397,50 +404,115 @@ $('#tot_price').text('<?=number_format($total_price)?>원');
 <?php } ?>
 </form>
 
-<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;from_date='.$from_date.'&amp;to_date='.$to_date.'&amp;page='); ?>
+<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;year_month='.$year_month.'&amp;mb_name2='.$mb_name2.'&amp;page='); ?>
 
-<?php if($super_admin){ ?>
-<div id="mng_box">
-    <table class="mng_tbl">
-        <thead>
-            <tr>
-                <th>유종</th>
-                <th>리터당금액</th>
-                <th>리터당거리</th>
-                <th>관리</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="text-align:center;">휘발유</td>
-                <td>
-                    <input type="text" name="cf_perprice_gasoline" id="cf_perprice_gasoline" class="mng_input mng_num" value="<?=(($config['cf_perprice_gasoline'])?$config['cf_perprice_gasoline']:'')?>" style="width:80px;text-align:right"><span>원</span>
-                </td>
-                <td style="text-align:center;">
-                    <input type="text" name="cf_perkm_gasoline" id="cf_perkm_gasoline" class="mng_input mng_num" value="<?=(($config['cf_perkm_gasoline'])?$config['cf_perkm_gasoline']:'')?>" style="width:30px;text-align:right"><span>km</span>
-                </td>
-                <td rowspan="2">
-                    <button id="mng_save">설정값저장</button>
-                    <button id="mng_setting">설정값셋팅</button>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align:center;">경유</td>
-                <td>
-                    <input type="text" name="cf_perprice_diesel" id="cf_perprice_diesel" class="mng_input mng_num" value="<?=(($config['cf_perprice_diesel'])?$config['cf_perprice_diesel']:'')?>" style="width:80px;text-align:right"><span>원</span>
-                </td>
-                <td style="text-align:center;">
-                    <input type="text" name="cf_perkm_diesel" id="cf_perkm_diesel" class="mng_input mng_num" value="<?=(($config['cf_perkm_diesel'])?$config['cf_perkm_diesel']:'')?>" style="width:30px;text-align:right"><span>km</span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div id="pep_modal">
+	<div id="pep_modal_tbl">
+		<div id="pep_modal_td">
+			<div id="pep_modal_bg"></div>
+		    <form name="fpepfile" id="fpepfile" action="<?=G5_USER_ADMIN_URL?>/personal_expenses_file_update.php" method="post" enctype="multipart/form-data" onsubmit="return fpepfile_submit(this);">
+                <input type="hidden" name="sst" value="<?php echo $sst ?>">
+                <input type="hidden" name="sod" value="<?php echo $sod ?>">
+                <input type="hidden" name="sst2" value="<?php echo $sst2 ?>">
+                <input type="hidden" name="sod2" value="<?php echo $sod2 ?>">
+                <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
+                <input type="hidden" name="stx" value="<?php echo $stx ?>">
+                <input type="hidden" name="page" value="<?php echo $page ?>">
+                <input type="hidden" name="token" value="">
+                <?php if($year_month){ ?>
+                <input type="hidden" name="year_month" value="<?=$year_month?>">
+                <?php } ?>
+                <?php if($mb_name2){ ?>
+                <input type="hidden" name="mb_name2" value="<?=$mb_name2?>">
+                <?php } ?>
+                <?php if($super_admin){ ?>
+                <input type="hidden" name="adm" value="1">
+                <?php } ?>
+
+		        <i class="fa fa-times pep_modal_close" aria-hidden="true"></i>
+		        <div id="pep_modal_in">
+		            <div id="pep_modal_hd">
+		                <h2>영수증파일 등록</h2>
+		            </div>
+		            <div id="pep_modal_cont"> 
+		                <input type="hidden" id="md_pep_idx" name="pep_idx" value="">  
+		                <input type="file" name="pep_img" id="pep_img">  
+		            </div>
+		            <div id="pep_modal_ft">
+		                <button type="submit" class="btn btn_02" id="btn_file_submit">확인</button>
+		            </div>
+		        </div>
+				<div id="pep_modal_view">
+                    <a href="" class="a_download">[파일다운로드]<span class="sp_filename"></span></a>
+                    <label for="pep_img_del"><input type="checkbox" name="pep_img_del" id="pep_img_del" value="1"> 삭제</label>
+				</div>
+            </form>
+	    </div>
+    </div>
 </div>
-<?php } ?>
 
+<div id="pep_modal2">
+	<div id="pep_modal_tbl2">
+		<div id="pep_modal_td2">
+			<div id="pep_modal_bg2"></div>
+		    <div id="image_box">
+                <i class="fa fa-times pep_modal_close2" aria-hidden="true"></i>
+                <img src="" id="pep_modal_image">
+            </div>
+	    </div>
+    </div>
+</div>
 <script>
+//영수증버튼 클릭시 팝업 표시
+$('.btn_receipt').on('click',function(){
+    $('#pep_modal').show();
+    $('#md_pep_idx').val($(this).attr('pep_idx'));
+    if($(this).attr('exist') == '1'){
+        console.log('in');
+        $('#pep_modal_view').show();
+        $('.a_download').attr('href',$(this).attr('a_download_url'));
+        $('.sp_filename').text($(this).attr('fle_name_orig'));
+    }
+});
+//모달의 close 또는 배경을 클릭하면 팝업 닫는다
+$('.pep_modal_close,#pep_modal_bg').on('click',function(){
+    $('#md_pep_idx').val('');
+    $('#pep_img').val('');
+    $('.a_download').attr('href','');
+    $('.sp_filename').text('');
+    $('#pep_modal_view').hide();
+    $('#pep_modal').hide();
+});
+
+//이미지 보기 클릭시 팝업 표시
+$('.a_view').on('click',function(){
+    $('#pep_modal2').show();
+    $('#pep_modal_image').attr('src',$(this).attr('view'));
+});
+//이미지모달의 close 또는 배경을 클릭하면 팝업 닫는다
+$('.pep_modal_close2,#pep_modal_bg2').on('click',function(){
+    $('#pep_modal_image').attr('src','');
+    $('#pep_modal2').hide();
+});
+
+
+function fpepfile_submit(f){
+    if(!f.pep_idx.value){
+        alert('해당데이터의 고유번호가 제대로 넘어오지 않았습니다.');
+        return false;
+    }
+    // console.log(f.pep_img_del.checked);return false;
+    if(!f.pep_img_del.checked && !f.pep_img.value){
+        alert('파일을 선택해 주세요.');
+        f.pep_img.focus();
+        return false;
+    }
+
+    return true;
+}
+
 // 가격 입력 쉼표 처리
-$(document).on( 'keyup','#pcu_start_km, #pcu_arrival_km, .pcu_start_km, .pcu_arrival_km, .pcu_per_price, .pcu_per_km, .pcu_price',function(e) {
+$(document).on( 'keyup','#pep_price, .pep_price',function(e) {
     var price = thousand_comma($(this).val().replace(/[^0-9]/g,""));
     var price2 = $(this).val().replace(/[^0-9]/g,"")
     price = (price == '0') ? '' : price;
@@ -453,157 +525,32 @@ $(document).on( 'keyup','.mng_num',function(e) {
     $(this).val(price);
 });
 
-$('#mng_save').on('click',function(){
-    if(!$('#cf_perprice_gasoline').val()){
-        alert('리터당 휘발유가격을 입력해 주세요.');
-        $('#cf_perprice_gasoline').focus();
-        return false;
-    }
-    if(!$('#cf_perkm_gasoline').val()){
-        alert('휘발유의 리터당 이동거리 입력해 주세요.');
-        $('#cf_perkm_gasoline').focus();
-        return false;
-    }
-    if(!$('#cf_perprice_diesel').val()){
-        alert('리터당 경유가격을 입력해 주세요.');
-        $('#cf_perprice_diesel').focus();
-        return false;
-    }
-    if(!$('#cf_perkm_diesel').val()){
-        alert('경유의 리터당 이동거리 입력해 주세요.');
-        $('#cf_perkm_diesel').focus();
-        return false;
-    }
-
-	var cf_perprice_gasoline = Number($('#cf_perprice_gasoline').val());
-	var cf_perprice_diesel = Number($('#cf_perprice_diesel').val());
-	var cf_perkm_gasoline = Number($('#cf_perkm_gasoline').val());
-	var cf_perkm_diesel = Number($('#cf_perkm_diesel').val());
-
-    var link = '<?=G5_USER_ADMIN_URL?>/personal_caruse_mng_update.php';
-	$.ajax({
-		type : "POST",
-		url : link,
-		dataType : "text",
-		data : {'cf_perprice_gasoline': cf_perprice_gasoline, 'cf_perprice_diesel': cf_perprice_diesel, 'cf_perkm_gasoline': cf_perkm_gasoline, 'cf_perkm_diesel': cf_perkm_diesel},
-		success : function(res){
-			alert('유종별 기준정보를 저장했습니다.');
-		},
-		error : function(xmlReq){
-			alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
-		}
-	});
-});
-
-$('#mng_setting').on('click',function(){
-    if(!$('#cf_perprice_gasoline').val()){
-        alert('리터당 휘발유가격을 입력해 주세요.');
-        $('#cf_perprice_gasoline').focus();
-        return false;
-    }
-    if(!$('#cf_perkm_gasoline').val()){
-        alert('휘발유의 리터당 이동거리 입력해 주세요.');
-        $('#cf_perkm_gasoline').focus();
-        return false;
-    }
-    if(!$('#cf_perprice_diesel').val()){
-        alert('리터당 경유가격을 입력해 주세요.');
-        $('#cf_perprice_diesel').focus();
-        return false;
-    }
-    if(!$('#cf_perkm_diesel').val()){
-        alert('경유의 리터당 이동거리 입력해 주세요.');
-        $('#cf_perkm_diesel').focus();
-        return false;
-    }
-
-    if (!is_checked("chk[]")) {
-        alert("세팅 하실 항목을 하나 이상 선택하세요.");
-        return false;
-    }
-
-    var perprice_gasoline = $('#cf_perprice_gasoline').val();
-    var perkm_gasoline = $('#cf_perkm_gasoline').val();
-    var perprice_diesel = $('#cf_perprice_diesel').val();
-    var perkm_diesel = $('#cf_perkm_diesel').val();
-    var f = document.getElementById("form01");
-    var chk = document.getElementsByName("chk[]");
-
-    for (i=0; i<chk.length; i++){ //#pcu_oil_type_
-        if(chk[i].checked){
-            if($('#pcu_start_km_'+i).val() == ''){
-                alert('출발당시(km)를 입력해 주세요.');
-                $('#pcu_start_km_'+i).focus();
-                return false;
-                break;
-            }
-
-            if($('#pcu_arrival_km_'+i).val() == ''){
-                alert('도착당시(km)를 입력해 주세요.');
-                $('#pcu_arrival_km_'+i).focus();
-                return false;
-                break;
-            }
-
-            var diff_km = $('#pcu_arrival_km_'+i).attr('num') - $('#pcu_start_km_'+i).attr('num');
-            if(diff_km <= 0){
-                alert('도착당시(km)값이 출발당시(km)값이하의 수치로 입력하시면 안됩니다.\n옳바른 수치를 입력해 주세요.');
-                $('#pcu_arrival_km_'+i).val('');
-                $('#pcu_arrival_km_'+i).focus();
-                return false;
-                break;
-            }
-            var oil_type = $('#pcu_oil_type_'+i).val();
-            var perprice = eval('perprice_'+oil_type);
-            var perprice_comma = thousand_comma(eval('perprice_'+oil_type));
-            var perkm = eval('perkm_'+oil_type);
-            var perkm_comma = thousand_comma(eval('perkm_'+oil_type));
-            var price = (diff_km / perkm) * perprice;//(이동거리 / 리터당이동거리) x 리터당유류비
-            var price_comma = thousand_comma(price);
-
-            $('#pcu_per_price_'+i).val(perprice_comma).attr('num',perprice);
-            $('#pcu_per_km_'+i).val(perkm_comma).attr('num',perkm);
-            $('#pcu_price_'+i).val(price_comma).attr('num',price);
-        }
-    }
-});
 
 
-$("#pcu_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", closeText:'취소', onClose:function(){if($(window.event.srcElement).hasClass('ui-datepicker-close')){$(this).val('');}} });
-$(".pcu_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+$("#pep_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", closeText:'취소', onClose:function(){if($(window.event.srcElement).hasClass('ui-datepicker-close')){$(this).val('');}} });
+$(".pep_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
 
 <?php if(!$super_ceo_admin){ ?>
 function form_personal_submit(f){
 
-    if(!f.pcu_date.value){
+    if(!f.pep_date.value){
         alert('사용일을 입력해 주세요.');
-        f.pcu_date.focus();
+        f.pep_date.focus();
         return false;
     }
-    if(!f.pcu_reason.value){
-        alert('사용목적을 입력해 주세요.');
-        f.pcu_reason.focus();
+    if(!f.pep_subject.value){
+        alert('목적지 입력해 주세요.');
+        f.pep_subject.focus();
         return false;
     }
-    if(!f.pcu_start_km.value){
-        alert('출발당시(km)정보를 입력해 주세요.');
-        f.pcu_start_km.focus();
+    if(!f.pep_content.value){
+        alert('사용내용을 입력해 주세요.');
+        f.pep_content.focus();
         return false;
     }
-    if(!f.pcu_arrival_km.value){
-        alert('도착당시(km)정보를 입력해 주세요.');
-        f.pcu_arrival_km.focus();
-        return false;
-    }
-    if(f.pcu_arrival_km.getAttribute('num') - f.pcu_start_km.getAttribute('num') <= 0){
-        alert('도착당시(km)값이 출발당시(km)값이하의 수치로 입력하시면 안됩니다.\n옳바른 수치를 입력해 주세요.');
-        f.pcu_arrival_km.value = '';
-        f.pcu_arrival_km.focus();
-        return false;
-    }
-    if(!f.pcu_oil_type.value){
-        alert('유종을 선택해 주세요.');
-        f.pcu_oil_type.focus();
+    if(!f.pep_price.value){
+        alert('사용금액을 입력해 주세요.');
+        f.pep_price.focus();
         return false;
     }
 
@@ -618,11 +565,11 @@ function slet_input(f){
         return false;
     }
     var chk = document.getElementsByName("chk[]");
-    var pcu_status = document.getElementById('pcu_status_change').value;
+    var pep_status = document.getElementById('pep_status_change').value;
 
-    for (i=0; i<chk.length; i++){ //#pcu_oil_type_
+    for (i=0; i<chk.length; i++){ //#pep_oil_type_
         if(chk[i].checked){
-            $('#pcu_status_'+i).val(pcu_status);
+            $('#pep_status_'+i).val(pep_status);
         }
     }
 }
@@ -637,31 +584,23 @@ function form01_submit(f)
     var chk = document.getElementsByName("chk[]");
     for (i=0; i<chk.length; i++){
         if(chk[i].checked){
-            if($('#pcu_reason_'+i).val() == ''){
-                alert('자가사용 목적을 입력해 주세요.');
-                $('#pcu_reason_'+i).focus();
+            if($('#pep_subject_'+i).val() == ''){
+                alert('목적지를 입력해 주세요.');
+                $('#pep_subject_'+i).focus();
                 return false;
                 break;
             }
 
-            if($('#pcu_start_km_'+i).val() == ''){
-                alert('출발당시(km)를 입력해 주세요.');
-                $('#pcu_start_km_'+i).focus();
+            if($('#pep_content_'+i).val() == ''){
+                alert('사용내용 입력해 주세요.');
+                $('#pep_content_'+i).focus();
                 return false;
                 break;
             }
 
-            if($('#pcu_arrival_km_'+i).val() == ''){
-                alert('도착당시(km)를 입력해 주세요.');
-                $('#pcu_arrival_km_'+i).focus();
-                return false;
-                break;
-            }
-
-            if($('#pcu_arrival_km_'+i).attr('num') - $('#pcu_start_km_'+i).attr('num') <= 0){
-                alert('도착당시(km)값이 출발당시(km)값이하의 수치로 입력하시면 안됩니다.\n옳바른 수치를 입력해 주세요.');
-                $('#pcu_arrival_km_'+i).val('');
-                $('#pcu_arrival_km_'+i).focus();
+            if($('#pep_price_'+i).val() == ''){
+                alert('사용금액을 입력해 주세요.');
+                $('#pep_price_'+i).focus();
                 return false;
                 break;
             }
@@ -669,7 +608,7 @@ function form01_submit(f)
     }
 
     if(document.pressed == "선택삭제") {
-        if(!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
+        if(!confirm("선택한 내역을 정말 삭제하시겠습니까?")) {
             return false;
         }
     }

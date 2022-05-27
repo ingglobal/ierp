@@ -1398,14 +1398,14 @@ function mime_content_type($filename) {
 
 // 파일을 업로드 함
 if(!function_exists('upload_file2')){
-	function upload_file2($srcfile, $destfile, $dir)
-	{
-		if ($destfile == "") return false;
-		// 업로드 한후 , 퍼미션을 변경함
-		@move_uploaded_file($srcfile, $dir.'/'.$destfile);
-		@chmod($dir.'/'.$destfile, G5_FILE_PERMISSION);
-		return true;
-	}
+function upload_file2($srcfile, $destfile, $dir)
+{
+	if ($destfile == "") return false;
+	// 업로드 한후 , 퍼미션을 변경함
+	@move_uploaded_file($srcfile, $dir.'/'.$destfile);
+	@chmod($dir.'/'.$destfile, G5_FILE_PERMISSION);
+	return true;
+}
 }
 
 

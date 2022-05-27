@@ -12,7 +12,8 @@ $where[] = " mb_level >= 6 AND mb_level <= 8 ";   // 디폴트 검색조건
 
 
 // 관리자는 전부, 다른 사람들은 자기 이하만 노출
-if($is_admin=='super') {
+//if($is_admin=='super') {
+if($super_admin) {
     $where[] = " (1) ";
 }
 // 삭제권한을 가진 사람
@@ -176,7 +177,8 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
         //print_r2($g5['board']['setting2_name']);
 
         // 관리권한이 있으면 수정 (d 권한이 있거나 팀장이거나 자기것만)
-        if (!auth_check($auth[$sub_menu],'d',1) || $member['mb_1']>=6 || $row['mb_id']==$member['mb_id']) {
+        //if (!auth_check($auth[$sub_menu],'d',1) || $member['mb_1']>=6 || $row['mb_id']==$member['mb_id']) {
+        if ($super_admin || $member['mb_1']>=6 || $row['mb_id']==$member['mb_id']) {
             $s_mod = '<a href="./employee_form.php?'.$qstr.'&amp;w=u&amp;mb_id='.$row['mb_id'].'" class="btn btn_03">수정</a>';
         } else {
             $s_mod = '-';

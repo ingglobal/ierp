@@ -232,7 +232,7 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
     <?php } ?>
     <?php } ?>
 
-    <tr style="display:<?php if($is_admin!='super') echo 'none';?>;">
+    <tr style="display:<?php if(!$super_admin) echo 'none'; //if($is_admin!='super') echo 'none';?>;">
         <th scope="row"><label for="mb_leave_date">탈퇴일자</label></th>
         <td>
             <input type="text" name="mb_leave_date" value="<?php echo $mb['mb_leave_date'] ?>" id="mb_leave_date" class="frm_input" maxlength="8">

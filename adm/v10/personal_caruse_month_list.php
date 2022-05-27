@@ -87,12 +87,12 @@ $sql = " SELECT (ROW_NUMBER() OVER(ORDER BY pcu_date)) AS num
             , CONCAT(YEAR(pcu_date),'-',LPAD(MONTH(pcu_date),'2','0'),'%') AS pcu_month_sch
             , SUM(pcu_price) AS pcu_sum
             , ( SELECT COUNT(*)
-                FROM g5_1_personal_caruse
+                FROM {$g5['personal_caruse_table']}
                 WHERE pcu_status = 'ok'
                     AND pcu_date LIKE pcu_month_sch
             ) AS pcu_cnt
             , ( SELECT SUM(pcu_price)
-                FROM g5_1_personal_caruse
+                FROM {$g5['personal_caruse_table']}
                 WHERE pcu_status = 'ok'
                     AND pcu_date LIKE pcu_month_sch
             ) AS pcu_sum2

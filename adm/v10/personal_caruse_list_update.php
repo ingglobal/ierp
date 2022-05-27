@@ -43,7 +43,7 @@ if ($_POST['act_button'] == "선택수정") {
 
         $sql = " UPDATE {$g5_table_name} SET
                     pcu_date = '".$_POST['pcu_date'][$pcu_idx_v]."'
-                    ,pcu_reason = '".$_POST['pcu_reason'][$pcu_idx_v]."'
+                    ,pcu_reason = '".trim(strip_tags($_POST['pcu_reason'][$pcu_idx_v]))."'
                     ,pcu_start_km = '".$_POST['pcu_start_km'][$pcu_idx_v]."'
                     ,pcu_arrival_km = '".$_POST['pcu_arrival_km'][$pcu_idx_v]."'
                     ,pcu_oil_type = '".$_POST['pcu_oil_type'][$pcu_idx_v]."'

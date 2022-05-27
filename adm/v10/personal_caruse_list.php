@@ -133,6 +133,9 @@ position:relative;top:0px;}
 .lb_km span{position:absolute;top:2px;right:5px;}
 #form01 select{height:35px;line-height:35px;}
 input[type="checkbox"].disable{opacity:0.3;}
+
+.tr_even{background:#efefef !important;}
+
 .td_pcu_date{width:90px;}
 .td_pcu_why{width:170px;}
 .td_pcu_reason{width:400px;}
@@ -169,9 +172,7 @@ input[type="checkbox"].disable{opacity:0.3;}
 <div class="sch_name_box">
     <ul class="sch_name">
         <?php
-        $skip_arr = array('테스일','일정관리');
         for($v=0;$mrow=sql_fetch_array($mb_result);$v++){
-            if(in_array($mrow['mb_name'],$skip_arr)) continue;
         ?>
             <li class="bli<?=(($mb_name2 == $mrow['mb_name'])?' focus':'')?>" mb_name2="<?=$mrow['mb_name']?>"><?=$mrow['mb_name']?></li>
         <?php } ?>
@@ -317,15 +318,20 @@ $('.bli').on('click',function(){
     <tbody>
     <?php for ($i=0; $row=sql_fetch_array($result); $i++) {
         if($i == 0) $total_price = $row['pcu_sum'];
+
+		$list_num = $total_count - ($page - 1) * $rows;
+        $row['num'] = $list_num - $i;
+
+		$tr_bg = ($i % 2 == 0)?'tr_even':'';
     ?>
-    <tr>
+    <tr class="<?=$tr_bg?>">
         <td class="td_chk">
             <input type="hidden" name="pcu_idx[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_idx'] ?>" id="pcu_idx_<?=$row['pcu_idx']?>">
             <input type="hidden" name="mb_id[<?=$row['pcu_idx']?>]" value="<?php echo $row['mb_id'] ?>" id="mb_id_<?=$row['pcu_idx']?>">
             <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['pcu_reason']); ?></label>
             <input type="checkbox" name="chk[]"<?=((!$super_admin && $row['pcu_status'] == 'ok')?" onclick='return false;'":"")?> class="<?=((!$super_admin && $row['pcu_status'] == 'ok')?'disable':'')?>" value="<?=$row['pcu_idx']?>" id="chk_<?php echo $i ?>">
         </td>
-        <td class="td_pcu_idx"><?=$row['pcu_idx']?></td>
+        <td class="td_pcu_idx"><?=$row['num']?></td>
         <td class="td_mb_name"><?=$row['mb_name']?></td>
         <td class="td_pcu_date">
             <input type="text" name="pcu_date[<?=$row['pcu_idx']?>]" value="<?php echo $row['pcu_date'] ?>" readonly class="frm_input readonly pcu_date" style="width:100px;">
@@ -406,7 +412,7 @@ $('#tot_price').text('<?=number_format($total_price)?>원');
 <?php } ?>
 </form>
 
-<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;from_date='.$from_date.'&amp;to_date='.$to_date.'&amp;page='); ?>
+<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;year_month='.$year_month.'&amp;mb_name2='.$mb_name2.'&amp;page='); ?>
 
 <?php if($super_admin){ ?>
 <div id="mng_box">

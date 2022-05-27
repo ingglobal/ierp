@@ -114,7 +114,7 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			</td>
 		</tr>
         <tr>
-			<th scope="row">개인경비사용내역 상태</th>
+			<th scope="row">개인지출내역 상태</th>
 			<td colspan="3">
 				<?php echo help('pending=대기,ok=승인,reject=반려,trash=삭제') ?>
 				<input type="text" name="set_personal_expensesstatus" value="<?php echo $g5['setting']['set_personal_expensesstatus'] ?>" id="set_personal_expensesstatus" required class="required frm_input" style="width:60%;">
