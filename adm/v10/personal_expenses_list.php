@@ -159,7 +159,7 @@ input[type="checkbox"].disable{opacity:0.3;}
 #pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #pep_modal_bg2{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:0;}
 #pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box{background:#fff;display:inline-block;width:500px;position:relative;z-index: 10;text-align:left;border-radius:10px;}
 #pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box .pep_modal_close2{cursor:pointer;font-size:3em;color:#fff;position:absolute;top:-40px;right:-40px;}
-#pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box{width:600px;text-align:center;background:#000;}
+#pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box{width:600px;max-height:700px;text-align:center;background:#000;overflow-y:auto;}
 #pep_modal2 #pep_modal_tbl2 #pep_modal_td2 #image_box #pep_modal_image{max-width:600px;}
 </style>
 <div class="local_ov01 local_ov">
