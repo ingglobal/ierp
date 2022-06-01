@@ -20,11 +20,17 @@ if(!isset($config['cf_perprice_gasoline'])) {
                     ADD `cf_perkm_gasoline` INT(11) NOT NULL DEFAULT '0' AFTER `cf_perprice_diesel`,
                     ADD `cf_perkm_diesel` INT(11) NOT NULL DEFAULT '0' AFTER `cf_perkm_gasoline` ", true);
 }
+if(!isset($config['cf_perprice_lpg'])) {
+    sql_query(" ALTER TABLE `{$g5['config_table']}`
+                    ADD `cf_perprice_lpg` INT(11) NOT NULL DEFAULT '0' AFTER `cf_perkm_diesel`,
+                    ADD `cf_perkm_lpg` INT(11) NOT NULL DEFAULT '0' AFTER `cf_perprice_lpg` ", true);
+}
 
 $g5['title'] = '개인차량사용내역';
 if($super_admin){
     include_once('./_top_menu_personalcaruse.php');
 }
+
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
@@ -434,7 +440,7 @@ $('#tot_price').text('<?=number_format($total_price)?>원');
                 <td style="text-align:center;">
                     <input type="text" name="cf_perkm_gasoline" id="cf_perkm_gasoline" class="mng_input mng_num" value="<?=(($config['cf_perkm_gasoline'])?$config['cf_perkm_gasoline']:'')?>" style="width:30px;text-align:right"><span>km</span>
                 </td>
-                <td rowspan="2">
+                <td rowspan="3">
                     <button id="mng_save">설정값저장</button>
                     <button id="mng_setting">설정값셋팅</button>
                 </td>
@@ -446,6 +452,15 @@ $('#tot_price').text('<?=number_format($total_price)?>원');
                 </td>
                 <td style="text-align:center;">
                     <input type="text" name="cf_perkm_diesel" id="cf_perkm_diesel" class="mng_input mng_num" value="<?=(($config['cf_perkm_diesel'])?$config['cf_perkm_diesel']:'')?>" style="width:30px;text-align:right"><span>km</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;">LPG</td>
+                <td>
+                    <input type="text" name="cf_perprice_lpg" id="cf_perprice_lpg" class="mng_input mng_num" value="<?=(($config['cf_perprice_lpg'])?$config['cf_perprice_lpg']:'')?>" style="width:80px;text-align:right"><span>원</span>
+                </td>
+                <td style="text-align:center;">
+                    <input type="text" name="cf_perkm_lpg" id="cf_perkm_lpg" class="mng_input mng_num" value="<?=(($config['cf_perkm_lpg'])?$config['cf_perkm_lpg']:'')?>" style="width:30px;text-align:right"><span>km</span>
                 </td>
             </tr>
         </tbody>
@@ -531,6 +546,16 @@ $('#mng_setting').on('click',function(){
         $('#cf_perkm_diesel').focus();
         return false;
     }
+    if(!$('#cf_perprice_lpg').val()){
+        alert('리터당 LPG가격을 입력해 주세요.');
+        $('#cf_perprice_lpg').focus();
+        return false;
+    }
+    if(!$('#cf_perkm_lpg').val()){
+        alert('LPG의 리터당 이동거리 입력해 주세요.');
+        $('#cf_perkm_lpg').focus();
+        return false;
+    }
 
     if (!is_checked("chk[]")) {
         alert("세팅 하실 항목을 하나 이상 선택하세요.");
@@ -541,6 +566,8 @@ $('#mng_setting').on('click',function(){
     var perkm_gasoline = $('#cf_perkm_gasoline').val();
     var perprice_diesel = $('#cf_perprice_diesel').val();
     var perkm_diesel = $('#cf_perkm_diesel').val();
+    var perprice_lpg = $('#cf_perprice_lpg').val();
+    var perkm_lpg = $('#cf_perkm_lpg').val();
     var f = document.getElementById("form01");
     var chk = document.getElementsByName("chk[]");
 

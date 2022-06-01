@@ -93,7 +93,7 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			</td>
 		</tr>
         <tr>
-			<th scope="row">유류타입 mb_oil_type(meta)</th>
+			<th scope="row">유류타입(유종) mb_oil_type(meta)</th>
 			<td colspan="3">
 				<?php echo help('gasoline=휘발유,diesel=경유,electricity=전기,lpg=LPG') ?>
 				<input type="text" name="set_mb_oiltype" value="<?php echo $g5['setting']['set_mb_oiltype'] ?>" id="set_mb_grade" required class="required frm_input" style="width:60%;">
