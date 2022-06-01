@@ -504,18 +504,30 @@ $('#mng_save').on('click',function(){
         $('#cf_perkm_diesel').focus();
         return false;
     }
+    if(!$('#cf_perprice_lpg').val()){
+        alert('리터당 LPG가격을 입력해 주세요.');
+        $('#cf_perprice_lpg').focus();
+        return false;
+    }
+    if(!$('#cf_perkm_lpg').val()){
+        alert('LPG의 리터당 이동거리 입력해 주세요.');
+        $('#cf_perkm_lpg').focus();
+        return false;
+    }
 
 	var cf_perprice_gasoline = Number($('#cf_perprice_gasoline').val());
 	var cf_perprice_diesel = Number($('#cf_perprice_diesel').val());
 	var cf_perkm_gasoline = Number($('#cf_perkm_gasoline').val());
 	var cf_perkm_diesel = Number($('#cf_perkm_diesel').val());
+	var cf_perprice_lpg = Number($('#cf_perprice_lpg').val());
+	var cf_perkm_lpg = Number($('#cf_perkm_lpg').val());
 
     var link = '<?=G5_USER_ADMIN_URL?>/personal_caruse_mng_update.php';
 	$.ajax({
 		type : "POST",
 		url : link,
 		dataType : "text",
-		data : {'cf_perprice_gasoline': cf_perprice_gasoline, 'cf_perprice_diesel': cf_perprice_diesel, 'cf_perkm_gasoline': cf_perkm_gasoline, 'cf_perkm_diesel': cf_perkm_diesel},
+		data : {'cf_perprice_gasoline': cf_perprice_gasoline, 'cf_perprice_diesel': cf_perprice_diesel, 'cf_perprice_lpg': cf_perprice_lpg, 'cf_perkm_gasoline': cf_perkm_gasoline, 'cf_perkm_diesel': cf_perkm_diesel, 'cf_perkm_lpg': cf_perkm_lpg},
 		success : function(res){
 			alert('유종별 기준정보를 저장했습니다.');
 		},
