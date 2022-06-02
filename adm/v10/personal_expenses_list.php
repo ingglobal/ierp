@@ -508,6 +508,12 @@ function fpepfile_submit(f){
         return false;
     }
 
+    if (!f.pep_img.value.match(/\.(gif|jpe?g|png)$/i) && f.pep_img.value) {
+        alert('영수증파일은 jpg,png,gif등의 이미지 파일만 가능합니다.');
+        f.pep_img.focus();
+        return false;
+    }
+
     return true;
 }
 
