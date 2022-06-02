@@ -20,9 +20,11 @@ $mb_result = sql_query($mb_sql,1);
 $mb_arr = array();
 $ym_arr = months_range(G5_TIME_YMD,12,'asc');
 $ym_total_arr = array();
+$ym_monthkm_arr = array();
 for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
     foreach($ym_arr as $ym)
         $ym_total_arr[$ym] = 0;
+        $ym_monthkm_arr[$ym] = 0;
         $mb_arr[$mrow['mb_id']];
         $mb_arr[$mrow['mb_id']][$mrow['mb_name']][$ym] = array(
             'mb_name' => ''
@@ -96,6 +98,11 @@ $sql = " SELECT (ROW_NUMBER() OVER(ORDER BY pcu_date)) AS num
                 WHERE pcu_status = 'ok'
                     AND pcu_date LIKE pcu_month_sch
             ) AS pcu_sum2
+            , ( SELECT SUM(pcu_arrival_km - pcu_start_km)
+                FROM {$g5['personal_caruse_table']}
+                WHERE pcu_status = 'ok'
+                    AND pcu_date LIKE pcu_month_sch
+            ) AS pcu_month_km
         {$sql_common}
         {$sql_search}
         {$sql_group}
@@ -139,6 +146,7 @@ for($i=0;$row=sql_fetch_array($result);$i++){
     $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_total'] = $row['pcu_sum2'];
     $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_total_km'] = $row['pcu_total_km'];
     $ym_total_arr[$row['pcu_month']] = $row['pcu_sum2'];
+    $ym_monthkm_arr[$row['pcu_month']] = $row['pcu_month_km'];
     // print_r3($row['pcu_sum2']);
 }
 // print_r2($ym_total_arr);
@@ -172,7 +180,9 @@ $total_price = 0;
 .td_pcu_per_price{width:100px;}
 .td_pcu_per_km{width:30px;}
 .td_pcu_price{width:100px;text-align:right !important;}
-
+.td_caruse_sum{position:relative;}
+.pers_km{position:absolute;top:0;left:3px;color:blue;font-size:0.9em;}
+.month_km{position:absolute;top:-4px;left:3px;color:darkred;font-size:0.8em;}
 .tr_even{background:#efefef !important;}
 </style>
 <div class="local_ov01 local_ov" style="display:none;">
@@ -199,7 +209,10 @@ $total_price = 0;
     <tr style="background:#eff1cc;">
         <td colspan="2" class="td_total_ttl">월별총합계</td>
         <?php foreach($ym_total_arr as $mk => $mv){ ?>
-        <td class="td_caruse_sum" style="text-align:right;font-weight:700;"><?=(($mv)?number_format($mv).'<span style="margint-left:3px;">원</span>':'')?></td>
+        <td class="td_caruse_sum" style="text-align:right;font-weight:700;">
+            <?=(($mv)?number_format($mv).'<span style="margint-left:3px;">원</span>':'')?>
+            <?=(($mv)?'<div class="month_km">'.number_format($ym_monthkm_arr[$mk]).'<span style="margint-left:3px;"> km</span></div>':'')?>
+        </td>
         <?php } ?>
     </tr>
     <?php
@@ -217,7 +230,10 @@ $total_price = 0;
         ?>
         </td>
         <?php foreach($ym_arr as $ymv){ ?>
-        <td class="td_caruse_sum" style="text-align:right;"><?=(($v[$va[0]][$ymv]['pcu_sum'])?number_format($v[$va[0]][$ymv]['pcu_sum']).'<span style="margin-left:3px;">원</span>':'')?></td>
+        <td class="td_caruse_sum" style="text-align:right;">
+            <?=(($v[$va[0]][$ymv]['pcu_sum'])?number_format($v[$va[0]][$ymv]['pcu_sum']).'<span style="margin-left:3px;">원</span>':'')?>
+            <?=(($v[$va[0]][$ymv]['pcu_total_km'])?'<div class="pers_km">'.number_format($v[$va[0]][$ymv]['pcu_total_km']).'<span style="margin-left:3px;">km</span></div>':'')?>
+        </td>
         <?php } ?>
     </tr>
     <?php } ?>
