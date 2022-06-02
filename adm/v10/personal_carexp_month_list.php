@@ -19,13 +19,16 @@ $mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 
 $mb_result = sql_query($mb_sql,1);
 $mb_arr = array();
 $ym_arr = months_range(G5_TIME_YMD,12,'asc');
+$ym_total_cars = array();
+$ym_total_exps = array();
 $ym_total_arr = array();
 $ym_monthkm_arr = array();
 for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
     foreach($ym_arr as $ym){
+        $ym_total_cars[$ym] = 0;
+        $ym_total_exps[$ym] = 0;
         $ym_total_arr[$ym] = 0;
         $ym_monthkm_arr[$ym] = 0;
-
     }
     $mb_arr[$mrow['mb_id']];
     $mb_arr[$mrow['mb_id']][$mrow['mb_name']][$ym] = array(
@@ -39,7 +42,7 @@ for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
 // print_r3($mb_arr);
 
 
-$g5['title'] = '개인차량사용월별통계';
+$g5['title'] = '개인월별전체통계';
 if($super_admin){
     include_once('./_top_menu_personalcaruse.php');
 }
@@ -105,6 +108,18 @@ $sql = " SELECT (ROW_NUMBER() OVER(ORDER BY pcu_date)) AS num
                 WHERE pcu_status = 'ok'
                     AND pcu_date LIKE pcu_month_sch
             ) AS pcu_month_km
+            , (
+                SELECT SUM(pep_price) 
+                        FROM {$g5['personal_expenses_table']}
+                    WHERE pep_status = 'ok'
+                        AND pep_date LIKE pcu_month_sch
+                        AND mb_id = pcu.mb_id
+            ) AS pep_sum
+            , ( SELECT SUM(pep_price)
+                FROM {$g5['personal_expenses_table']}
+                WHERE pep_status = 'ok'
+                    AND pep_date LIKE pcu_month_sch
+            ) AS pep_sum2
         {$sql_common}
         {$sql_search}
         {$sql_group}
@@ -145,21 +160,22 @@ $row(
 for($i=0;$row=sql_fetch_array($result);$i++){
     $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['mb_name'] = $row['mb_name'];
     $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_sum'] = $row['pcu_sum'];
-    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_total'] = $row['pcu_sum2'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pep_sum'] = $row['pep_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_total'] = $row['pcu_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pep_total'] = $row['pep_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['p_total'] = $row['pcu_sum'] + $row['pep_sum'];
     $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_total_km'] = $row['pcu_total_km'];
-    $ym_total_arr[$row['pcu_month']] = $row['pcu_sum2'];
+    $ym_total_cars[$row['pcu_month']] = $row['pcu_sum2'];
+    $ym_total_exps[$row['pcu_month']] = $row['pep_sum2'];
+    $ym_total_arr[$row['pcu_month']] = $row['pcu_sum2'] + $row['pep_sum2'];
+    // echo ($row['pep_sum2'])."<br>";
     $ym_monthkm_arr[$row['pcu_month']] = $row['pcu_month_km'];
     // print_r3($row['pcu_sum2']);
 }
-// print_r2($ym_total_arr);
+// print_r3($ym_total_cars);
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
 
-$cur_url = ($_SERVER['SERVER_PORT'] != '80' ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-$cur_url = (preg_match("/\?/",$cur_url)) ? $cur_url.'&' : $cur_url.'?';
-$cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_url);
-$cur_url = str_replace('?&','?',$cur_url);
-$cur_url = str_replace('&&','&',$cur_url);
 
 $colspan = count($ym_arr) + 2;
 $total_price = 0;
@@ -182,10 +198,16 @@ $total_price = 0;
 .td_pcu_per_price{width:100px;}
 .td_pcu_per_km{width:30px;}
 .td_pcu_price{width:100px;text-align:right !important;}
-.td_caruse_sum{position:relative;}
+.td_caruse_sum{position:relative;padding-top:14px !important;}
 .pers_km{position:absolute;top:0;left:3px;color:blue;font-size:0.9em;}
 .month_km{position:absolute;top:-4px;left:3px;color:darkred;font-size:0.8em;}
 .tr_even{background:#efefef !important;}
+.tot_cars{position:absolute;top:-4px;left:4px;font-size:0.8em;color:darkred;}
+.tot_exps{position:absolute;top:-4px;right:4px;font-size:0.8em;color:blue;}
+.tot_ttl{}
+.dv_cars{position:absolute;top:-4px;left:4px;font-size:0.8em;color:darkred;}
+.dv_exps{position:absolute;top:-4px;right:4px;font-size:0.8em;color:blue;}
+.dv_ttl{}
 </style>
 <div class="local_ov01 local_ov" style="display:none;">
     <?php echo $listall ?>
@@ -212,8 +234,9 @@ $total_price = 0;
         <td colspan="2" class="td_total_ttl">월별총합계</td>
         <?php foreach($ym_total_arr as $mk => $mv){ ?>
         <td class="td_caruse_sum" style="text-align:right;font-weight:700;">
-            <?=(($mv)?number_format($mv).'<span style="margint-left:3px;">원</span>':'')?>
-            <?=(($mv)?'<div class="month_km">'.number_format($ym_monthkm_arr[$mk]).'<span style="margint-left:3px;"> km</span></div>':'')?>
+            <?php if($ym_total_cars[$mk]){ ?><div class="tot_cars"><?=number_format($ym_total_cars[$mk])?>(차)</div><?php } ?>
+            <?php if($ym_total_exps[$mk]){ ?><div class="tot_exps"><?=number_format($ym_total_exps[$mk])?>(지)</div><?php } ?>
+            <?php if($mv){ ?><div class="tot_arr"><?=number_format($mv)?><span>원</span></div><?php } ?>
         </td>
         <?php } ?>
     </tr>
@@ -233,8 +256,9 @@ $total_price = 0;
         </td>
         <?php foreach($ym_arr as $ymv){ ?>
         <td class="td_caruse_sum" style="text-align:right;">
-            <?=(($v[$va[0]][$ymv]['pcu_sum'])?number_format($v[$va[0]][$ymv]['pcu_sum']).'<span style="margin-left:3px;">원</span>':'')?>
-            <?=(($v[$va[0]][$ymv]['pcu_total_km'])?'<div class="pers_km">'.number_format($v[$va[0]][$ymv]['pcu_total_km']).'<span style="margin-left:3px;">km</span></div>':'')?>
+            <?=(($v[$va[0]][$ymv]['pcu_total'])?'<div class="dv_cars">'.number_format($v[$va[0]][$ymv]['pcu_total']).'(차)</div>':'')?>
+            <?=(($v[$va[0]][$ymv]['pep_total'])?'<div class="dv_exps">'.number_format($v[$va[0]][$ymv]['pep_total']).'(지)</div>':'')?>
+            <?=(($v[$va[0]][$ymv]['p_total'])?'<div class="dv_ttl">'.number_format($v[$va[0]][$ymv]['p_total']).'<span>원</span></div>':'')?>
         </td>
         <?php } ?>
     </tr>
