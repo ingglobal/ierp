@@ -75,6 +75,7 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
         , (pcu_arrival_km - pcu_start_km) AS pcu_diff_km
+        , (SUM(pcu_arrival_km - pcu_start_km) OVER()) AS pcu_sum_diffkm
         , (SUM(pcu_price) OVER()) AS pcu_sum
         {$sql_common}
         {$sql_search}
@@ -126,7 +127,8 @@ input[type="text"]{padding:0 5px;}
 
 #tot_box{position:absolute;display:none;top:10px;right:10px;font-size:1.3em;}
 #tot_box:after{display:block;visibility:hidden;clear:both;content:'';}
-#tot_box strong{color:#555;float:left;font-weight:500;}
+#tot_box strong{color:#555;float:left;font-weight:500;margin-left:20px;}
+#tot_box #tot_km{float:left;margin-left:10px;font-weight:700;color:darkblue;font-size:1.2em;}
 #tot_box #tot_price{float:left;margin-left:10px;font-weight:700;color:darkblue;font-size:1.2em;}
 
 #pcu_date{width:90px;}
@@ -233,6 +235,8 @@ $('.bli').on('click',function(){
 <div class="local_desc01 local_desc" style="display:no ne;position:relative;">
     <p><?php if(!$super_admin){ echo '<span style="color:blue;">'.$member['mb_name'].'</span>님의 '; } ?>개인차량사용내역을 관리하는 페이지입니다.</p>
     <div id="tot_box">
+        <strong>검색 총이동거리 : </strong>
+        <div id="tot_km"></div>
         <strong>검색 총금액 : </strong>
         <div id="tot_price"></div>
     </div>
@@ -323,7 +327,10 @@ $('.bli').on('click',function(){
     </thead>
     <tbody>
     <?php for ($i=0; $row=sql_fetch_array($result); $i++) {
-        if($i == 0) $total_price = $row['pcu_sum'];
+        if($i == 0) {
+            $total_price = $row['pcu_sum'];
+            $total_km = $row['pcu_sum_diffkm'];
+        }
 
 		$list_num = $total_count - ($page - 1) * $rows;
         $row['num'] = $list_num - $i;
@@ -407,6 +414,7 @@ $('.bli').on('click',function(){
 <?php if($total_price){ ?>
 <script>
 $('#tot_box').css('display','block');
+$('#tot_km').text('<?=number_format($total_km)?> km');
 $('#tot_price').text('<?=number_format($total_price)?>원');
 </script>
 <?php } ?>
@@ -612,7 +620,7 @@ $('#mng_setting').on('click',function(){
             var perprice_comma = thousand_comma(eval('perprice_'+oil_type));
             var perkm = eval('perkm_'+oil_type);
             var perkm_comma = thousand_comma(eval('perkm_'+oil_type));
-            var price = (diff_km / perkm) * perprice;//(이동거리 / 리터당이동거리) x 리터당유류비
+            var price = Math.floor(((diff_km / perkm) * perprice) / 10) * 10;//(이동거리 / 리터당이동거리) x 리터당유류비
             var price_comma = thousand_comma(price);
 
             $('#pcu_per_price_'+i).val(perprice_comma).attr('num',perprice);
