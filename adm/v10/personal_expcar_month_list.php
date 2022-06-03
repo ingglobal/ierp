@@ -198,15 +198,17 @@ $total_price = 0;
 .td_pcu_per_price{width:100px;}
 .td_pcu_per_km{width:30px;}
 .td_pcu_price{width:100px;text-align:right !important;}
-.td_caruse_sum{position:relative;padding-top:14px !important;}
+.td_caruse_sum{position:relative;padding-top:14px !important;padding-bottom:6px !important;}
 .pers_km{position:absolute;top:0;left:3px;color:blue;font-size:0.9em;}
 .month_km{position:absolute;top:-4px;left:3px;color:darkred;font-size:0.8em;}
 .tr_even{background:#efefef !important;}
 .tot_cars{position:absolute;top:-4px;left:4px;font-size:0.6em;color:darkred;}
 .tot_exps{position:absolute;top:-4px;right:4px;font-size:0.6em;color:blue;}
+.tot_km{position:absolute;bottom:-4px;left:4px;font-size:0.6em;color:darkred;}
 .tot_ttl{}
 .dv_cars{position:absolute;top:-4px;left:4px;font-size:0.7em;color:darkred;}
 .dv_exps{position:absolute;top:-4px;right:4px;font-size:0.7em;color:blue;}
+.dv_km{position:absolute;bottom:-4px;left:4px;font-size:0.7em;color:darkred;}
 .dv_ttl{}
 </style>
 <div class="local_ov01 local_ov" style="display:none;">
@@ -236,6 +238,7 @@ $total_price = 0;
         <td class="td_caruse_sum" style="text-align:right;font-weight:700;">
             <?php if($ym_total_cars[$mk]){ ?><div class="tot_cars"><?=number_format($ym_total_cars[$mk])?>(차)</div><?php } ?>
             <?php if($ym_total_exps[$mk]){ ?><div class="tot_exps"><?=number_format($ym_total_exps[$mk])?>(지)</div><?php } ?>
+            <?php if($ym_monthkm_arr[$mk]){ ?><div class="tot_km"><?=number_format($ym_monthkm_arr[$mk])?>(k)</div><?php } ?>
             <?php if($mv){ ?><div class="tot_arr"><?=number_format($mv)?><span>원</span></div><?php } ?>
         </td>
         <?php } ?>
@@ -258,6 +261,7 @@ $total_price = 0;
         <td class="td_caruse_sum" style="text-align:right;">
             <?=(($v[$va[0]][$ymv]['pcu_total'])?'<div class="dv_cars">'.number_format($v[$va[0]][$ymv]['pcu_total']).'(차)</div>':'')?>
             <?=(($v[$va[0]][$ymv]['pep_total'])?'<div class="dv_exps">'.number_format($v[$va[0]][$ymv]['pep_total']).'(지)</div>':'')?>
+            <?=(($v[$va[0]][$ymv]['pcu_total_km'])?'<div class="dv_km">'.number_format($v[$va[0]][$ymv]['pcu_total_km']).'(k)</div>':'')?>
             <?=(($v[$va[0]][$ymv]['p_total'])?'<div class="dv_ttl">'.number_format($v[$va[0]][$ymv]['p_total']).'<span>원</span></div>':'')?>
         </td>
         <?php } ?>
