@@ -50,7 +50,7 @@ for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
 
 $g5['title'] = '개인월별전체통계';
 if($super_admin){
-    include_once('./_top_menu_personalexpenses.php');
+    include_once('./_top_menu_personalcaruse.php');
 }
 include_once('./_head.php');
 echo $g5['container_sub_title'];

@@ -239,7 +239,7 @@ $total_price = 0;
                 <div class="dv_mgr">담당자</div>
                 <div class="dv_sign"></div>
             </li>
-            <li>
+            <li style="margin-left:-1px;">
                 <div class="dv_mgr">대표</div>
                 <div class="dv_sign"></div>
             </li>
