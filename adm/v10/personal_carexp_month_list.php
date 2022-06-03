@@ -13,6 +13,12 @@ $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파�
 // $qstr .= ($year_month) ? '&year_month='.$year_month : ''; // 추가로 확장해서 넘겨야 할 변수들
 // $qstr .= ($mb_name) ? '&mb_name='.$mb_name : ''; // 추가로 확장해서 넘겨야 할 변수들
 
+$ym2_arr = months_range(G5_TIME_YMD,2); 
+// print_r3($ym2_arr);
+$apv_ym_arr = explode('-',$ym2_arr[1]);
+$apv_y = $apv_ym_arr[0].'년';
+$apv_m = $apv_ym_arr[1].'월';
+$apv_ym = $apv_y.' '.$apv_m;
 
 $mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 8 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일','최호기','허준영') ORDER BY mb_name ";
 // echo $mb_sql;
@@ -44,7 +50,7 @@ for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
 
 $g5['title'] = '개인월별전체통계';
 if($super_admin){
-    include_once('./_top_menu_personalcaruse.php');
+    include_once('./_top_menu_personalexpenses.php');
 }
 include_once('./_head.php');
 echo $g5['container_sub_title'];
@@ -202,74 +208,101 @@ $total_price = 0;
 .pers_km{position:absolute;top:0;left:3px;color:blue;font-size:0.9em;}
 .month_km{position:absolute;top:-4px;left:3px;color:darkred;font-size:0.8em;}
 .tr_even{background:#efefef !important;}
-.tot_cars{position:absolute;top:-4px;left:4px;font-size:0.8em;color:darkred;}
-.tot_exps{position:absolute;top:-4px;right:4px;font-size:0.8em;color:blue;}
-.tot_km{position:absolute;bottom:-4px;left:4px;font-size:0.8em;color:darkred;}
+.tot_cars{position:absolute;top:-4px;left:4px;font-size:0.6em;color:darkred;}
+.tot_exps{position:absolute;top:-4px;right:4px;font-size:0.6em;color:blue;}
+.tot_km{position:absolute;bottom:-4px;left:4px;font-size:0.6em;color:darkred;}
 .tot_ttl{}
-.dv_cars{position:absolute;top:-4px;left:4px;font-size:0.8em;color:darkred;}
-.dv_exps{position:absolute;top:-4px;right:4px;font-size:0.8em;color:blue;}
-.dv_km{position:absolute;bottom:-4px;left:4px;font-size:0.8em;color:darkred;}
+.dv_cars{position:absolute;top:-4px;left:4px;font-size:0.7em;color:darkred;}
+.dv_exps{position:absolute;top:-4px;right:4px;font-size:0.7em;color:blue;}
+.dv_km{position:absolute;bottom:-4px;left:4px;font-size:0.7em;color:darkred;}
 .dv_ttl{}
+#dv_approval{text-align:right;position:relative;}
+#dv_approval h1{position:absolute;top:10px;left:10px;font-size:3em;}
+#dv_approval p{position:absolute;top:90px;left:10px;font-size:1.6em;}
+#dv_approval ul{display:inline-block;padding-bottom:10px;}
+#dv_approval ul li{float:left;border:1px solid #333;width:120px;text-align:center;}
+#dv_approval ul li .dv_mgr{}
+#dv_approval ul li .dv_sign{height:100px;border-top:1px solid #333;}
 </style>
+<script type = "text/javascript" src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script type = "text/javascript" src = "https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <div class="local_ov01 local_ov" style="display:none;">
     <?php echo $listall ?>
     <span class="btn_ov01"><span class="ov_txt">총</span><span class="ov_num"> <?php echo number_format($total_count) ?></span></span>
 </div>
-
-<div class="local_desc01 local_desc" style="display:none;position:relative;">
-    <p><?php if(!$super_admin){ echo '<span style="color:blue;">'.$member['mb_name'].'</span>님의 '; } ?>개인차량사용내역을 관리하는 페이지입니다.</p>
-</div>
-<div class="tbl_head01 tbl_wrap">
-    <table class="table table-bordered table-condensed">
-    <caption><?php echo $g5['title']; ?> 목록</caption>
-    <thead>
-    <tr>
-        <th scope="col">번호</th>
-        <th scope="col">이름</th>
-        <?php foreach($ym_arr as $ym_v){ ?>
-        <th scope="col"><?=$ym_v?>월</th>
-        <?php } ?>
-    </tr>
-    </thead>
-    <tbody>
-    <tr style="background:#eff1cc;">
-        <td colspan="2" class="td_total_ttl">월별총합계</td>
-        <?php foreach($ym_total_arr as $mk => $mv){ ?>
-        <td class="td_caruse_sum" style="text-align:right;font-weight:700;">
-            <?php if($ym_total_cars[$mk]){ ?><div class="tot_cars"><?=number_format($ym_total_cars[$mk])?>(차)</div><?php } ?>
-            <?php if($ym_total_exps[$mk]){ ?><div class="tot_exps"><?=number_format($ym_total_exps[$mk])?>(지)</div><?php } ?>
-            <?php if($ym_monthkm_arr[$mk]){ ?><div class="tot_km"><?=number_format($ym_monthkm_arr[$mk])?>(k)</div><?php } ?>
-            <?php if($mv){ ?><div class="tot_arr"><?=number_format($mv)?><span>원</span></div><?php } ?>
-        </td>
-        <?php } ?>
-    </tr>
-    <?php
-    $no = 0;
-    foreach($mb_arr as $k => $v){
-        $no++;
-        $tr_bg = ($no % 2 == 0)?'tr_even':'';
-    ?>
-    <tr class="<?=$tr_bg?>">
-        <td class="td_no"><?=$no?></td>
-        <td class="td_mb_name">
+<div id="pdf_box">
+    <div id="dv_approval">
+        <h1><?=$g5['title']?>(<?=$apv_ym?>)</h1>
+        <p><?=G5_TIME_YMD?></p>
+        <ul>
+            <li>
+                <div class="dv_mgr">담당자</div>
+                <div class="dv_sign"></div>
+            </li>
+            <li style="margin-left:-1px;">
+                <div class="dv_mgr">대표</div>
+                <div class="dv_sign"></div>
+            </li>
+        </ul>
+    </div>
+    <div class="local_desc01 local_desc" style="display:none;position:relative;">
+        <p><?php if(!$super_admin){ echo '<span style="color:blue;">'.$member['mb_name'].'</span>님의 '; } ?>개인차량사용내역을 관리하는 페이지입니다.</p>
+    </div>
+    <div class="tbl_head01 tbl_wrap">
+        <table class="table table-bordered table-condensed">
+        <caption><?php echo $g5['title']; ?> 목록</caption>
+        <thead>
+        <tr>
+            <th scope="col">번호</th>
+            <th scope="col">이름</th>
+            <?php foreach($ym_arr as $ym_v){ ?>
+            <th scope="col"><?=$ym_v?>월</th>
+            <?php } ?>
+        </tr>
+        </thead>
+        <tbody>
+        <tr style="background:#eff1cc;">
+            <td colspan="2" class="td_total_ttl">월별총합계</td>
+            <?php foreach($ym_total_arr as $mk => $mv){ ?>
+            <td class="td_caruse_sum" style="text-align:right;font-weight:700;">
+                <?php if($ym_total_cars[$mk]){ ?><div class="tot_cars"><?=number_format($ym_total_cars[$mk])?>(차)</div><?php } ?>
+                <?php if($ym_total_exps[$mk]){ ?><div class="tot_exps"><?=number_format($ym_total_exps[$mk])?>(지)</div><?php } ?>
+                <?php if($ym_monthkm_arr[$mk]){ ?><div class="tot_km"><?=number_format($ym_monthkm_arr[$mk])?>(k)</div><?php } ?>
+                <?php if($mv){ ?><div class="tot_arr"><?=number_format($mv)?><span>원</span></div><?php } ?>
+            </td>
+            <?php } ?>
+        </tr>
         <?php
-        $va = array_keys($v);
-        echo $va[0];
+        $no = 0;
+        foreach($mb_arr as $k => $v){
+            $no++;
+            $tr_bg = ($no % 2 == 0)?'tr_even':'';
         ?>
-        </td>
-        <?php foreach($ym_arr as $ymv){ ?>
-        <td class="td_caruse_sum" style="text-align:right;">
-            <?=(($v[$va[0]][$ymv]['pcu_total'])?'<div class="dv_cars">'.number_format($v[$va[0]][$ymv]['pcu_total']).'(차)</div>':'')?>
-            <?=(($v[$va[0]][$ymv]['pep_total'])?'<div class="dv_exps">'.number_format($v[$va[0]][$ymv]['pep_total']).'(지)</div>':'')?>
-            <?=(($v[$va[0]][$ymv]['pcu_total_km'])?'<div class="dv_km">'.number_format($v[$va[0]][$ymv]['pcu_total_km']).'(k)</div>':'')?>
-            <?=(($v[$va[0]][$ymv]['p_total'])?'<div class="dv_ttl">'.number_format($v[$va[0]][$ymv]['p_total']).'<span>원</span></div>':'')?>
-        </td>
+        <tr class="<?=$tr_bg?>">
+            <td class="td_no"><?=$no?></td>
+            <td class="td_mb_name">
+            <?php
+            $va = array_keys($v);
+            echo $va[0];
+            ?>
+            </td>
+            <?php foreach($ym_arr as $ymv){ ?>
+            <td class="td_caruse_sum" style="text-align:right;">
+                <?=(($v[$va[0]][$ymv]['pcu_total'])?'<div class="dv_cars">'.number_format($v[$va[0]][$ymv]['pcu_total']).'(차)</div>':'')?>
+                <?=(($v[$va[0]][$ymv]['pep_total'])?'<div class="dv_exps">'.number_format($v[$va[0]][$ymv]['pep_total']).'(지)</div>':'')?>
+                <?=(($v[$va[0]][$ymv]['pcu_total_km'])?'<div class="dv_km">'.number_format($v[$va[0]][$ymv]['pcu_total_km']).'(k)</div>':'')?>
+                <?=(($v[$va[0]][$ymv]['p_total'])?'<div class="dv_ttl">'.number_format($v[$va[0]][$ymv]['p_total']).'<span>원</span></div>':'')?>
+            </td>
+            <?php } ?>
+        </tr>
         <?php } ?>
-    </tr>
-    <?php } ?>
-    </tbody>
-    </table>
-</div><!--//.tbl_head01-->
+        </tbody>
+        </table>
+    </div><!--//.tbl_head01-->
+</div><!--//#pdf_box-->
+<div class="btn_fixed_top">
+    <a href="javascript:" class="btn btn_02 pdf_btn">PDF다운로드</a>
+</div>
 <?php if($total_price){ ?>
 <script>
 $('#tot_box').css('display','block');
@@ -282,7 +315,24 @@ $('#tot_price').text('<?=number_format($total_price)?>원');
 
 
 <script>
+//pdf다운로드 버튼을 클릭하면
+$('.pdf_btn').on('click',function(){
+    //pdf_wrap을 canvas객체로 변환
+    html2canvas($('#pdf_box')[0]).then(function(canvas) {
+        var doc = new jsPDF('p', 'mm', 'a4'); //jspdf객체 생성
+        var imgData = canvas.toDataURL('image/png'); //캔버스를 이미지로 변환
+        var imgWidth = 200;//pageHeight * 3; // 이미지 가로 210길이(mm) A4 기준
+        var pageHeight = imgWidth * 1.414;//imgWidth * 1.414;  // 출력 페이지 세로 길이 계산 A4 기준
+        var imgHeight = canvas.height * imgWidth / canvas.width;
+        var heightLeft = imgHeight;
+        var pos_x = 5;
+        var pos_y = 5;
 
+        doc.addImage(imgData, 'PNG', pos_x, pos_y, imgWidth, imgHeight); //이미지를 기반으로 pdf생성
+
+        doc.save('<?php echo get_text($g5['title'].'_'.$apv_ym) ?>.pdf'); //pdf저장
+    });
+});
 </script>
 <?php
 include_once ('./_tail.php');
