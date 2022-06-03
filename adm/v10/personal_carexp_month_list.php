@@ -48,7 +48,7 @@ for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
 // print_r3($mb_arr);
 
 
-$g5['title'] = '개인월별전체통계';
+$g5['title'] = '개인경비월별전체통계';
 if($super_admin){
     include_once('./_top_menu_personalcaruse.php');
 }
