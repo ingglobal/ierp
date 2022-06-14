@@ -4,13 +4,14 @@ $url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
 //$5$API$3Ue8EDeh9uh5SBT98qSOmiuz636aFqZyV5aMgFmL4rD
 $darr = array(
     'crtfcKey' => $g5['kosmo_erp_crtfckey'],
-    'logDt' => G5_TIME_YMDHIS,
+    'logDt' => G5_TIME_YMDHIS.'.000',
     'useSe' => '등록',
     'sysUser' => 'test2',
     'conectIp' => ':::2',
     'dataUsgqty' => ''
 );
-print_r2($darr);
+// print_r2($darr);
+// exit;
 $opt = array(
     'http' => array(
         'header' => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -21,7 +22,7 @@ $opt = array(
 $context = stream_context_create($opt); //데이터 가공
 $result = file_get_contents($url, false, $context); //전송 ~ 결과값 반환
 $data = json_decode($result, true);
-print_r2($data);
+// print_r2($data);
 /*
 $url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
 $crtcKey = $g5['kosmo_erp_crtfckey'];

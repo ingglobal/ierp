@@ -1704,7 +1704,7 @@ function send_kosmo_log(){
 	*/
 	$darr = array(
 		'crtfcKey' => $g5['kosmo_erp_crtfckey'],
-		'logDt' => G5_TIME_YMDHIS,
+		'logDt' => G5_TIME_YMDHIS.'.000',
 		'useSe' => $user_status,
 		'sysUser' => $member['mb_id'],
 		'conectIp' => $member['mb_login_ip'],
