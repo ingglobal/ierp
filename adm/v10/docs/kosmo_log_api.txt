@@ -39,7 +39,8 @@ user.02.function.php
 //KOSMO에 log데이터 전송 함수 정의
 if(!function_exists('send_kosmo_log')){
 function send_kosmo_log(){
-	global $g5, $board, $is_member, $member, $w, $stx, $mb;
+	global $g5, $board, $sub_menu, $is_member, $member, $w, $stx, $mb;
+
 	if(!$is_member)
 		return;
 
@@ -49,37 +50,42 @@ function send_kosmo_log(){
 	if(!$member['mb_id'])
 		return;
 
+	if($board['bo_1']){
+		$access_menu_cd = $board['bo_1'];
+	} else if($sub_menu){
+		$access_menu_cd = $sub_menu;
+	} else {
+		$access_menu_cd = '960100';
+	}
+
+	// print_r2($access_menu_cd);exit;
+
 	$user_status = '';
 	if(preg_match('/update$/i',$g5['file_name'])){
 		if(!$w) $user_status = '등록';
 		else if($w == 'u') $user_status = '수정';
 		else if($w == 'd') $user_status = '삭제';
 	}
-	else if(preg_match('/list$/i',$g5['file_name'])){
+	else if(preg_match('/list$/i',$g5['file_name']) || preg_match('/board$/i',$g5['file_name'])){
 		if($stx) $user_status = '검색';
 	}
 	else{
 		if($g5['file_name'] == 'login_check'){
-			//print_r2($member);exit;
+			// print_r2($member);exit;
 			$user_status = '접속';
 		}
 		else if($g5['file_name'] == 'logout'){
+			// print_r2($g5);exit;
 			$user_status = '종료';
 		}
 	}
-
+	// print_r2($g5);exit;
+	// print_r2($user_status);exit;
 	if(!$user_status)
 		return;
-	//print_r3($user_status);return;
+
 	$url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
-	/*
-	$crtcKey = $g5['kosmo_erp_crtfckey'];
-	$logDt = G5_TIME_YMDHIS.'.000';
-	$useSe = $user_status;
-	$sysUser = $member['mb_id'];
-	$conectIp = $member['mb_login_ip'];
-	$dataUsgqty = '';
-	*/
+
 	$darr = array(
 		'crtfcKey' => $g5['kosmo_erp_crtfckey'],
 		'logDt' => G5_TIME_YMDHIS.'.000',
@@ -88,7 +94,7 @@ function send_kosmo_log(){
 		'conectIp' => $member['mb_login_ip'],
 		'dataUsgqty' => ''
 	);
-
+	// print_r3($darr);exit;
 	$opt = array(
 		'http' => array(
 			'header' => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -96,9 +102,29 @@ function send_kosmo_log(){
 			'content' => http_build_query($darr)
 		)
 	);
+	$_opt = json_encode($opt);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $_opt);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	$result = curl_exec($ch);
+	/*
 	$context = stream_context_create($opt); //데이터 가공
 	$result = file_get_contents($url, false, $context); //전송 ~ 결과값 반환
+	*/
 	$data = json_decode($result, true);
+
+	//위의 정보를 다시 epcs DB서버 g5_5_user_log테이블에 저장한다.
+	$sql = " INSERT INTO {$g5['user_log_table']} SET
+			mb_id = '{$member['mb_id']}',
+			usl_menu_cd = '{$access_menu_cd}',
+			usl_type = '{$user_status}',
+			usl_reg_dt = '".G5_TIME_YMDHIS."'
+	";
+	// print_r2($sql);exit;
+	sql_query($sql,1);
 }
 }
 
@@ -123,10 +149,28 @@ if(!$user_log_tbl){
 
 ###################################################################################
 
-
 user.08.hook.php
 
 function u_member_login_check()함수 안 제일 하단에 아래 소스 추가
 
 //kosmo에 사용현황 log 전송 함수(extend/suer.02.function.php에 정의)
 send_kosmo_log();
+
+###################################################################################
+_top_menu_stat.php
+
+에 아래 메뉴소스를 추가/수정해라
+
+// 최고관리자인 경우만
+if($member['mb_level']>=10) {
+    // $sub_title_list = '
+    //     <a href="./stat_setting_goal.php" class="btn_top_menu '.$active_stat_setting_goal.'">영업목표설정</a>
+    // ';
+	$sub_title_list = '
+        <a href="./stat_user_log.php" class="btn_top_menu '.$active_stat_user_log.'">사용자로그통계</a>
+    ';
+}
+
+###################################################################################
+stat_user_log.php
+위 파일을 생성하고 아래소스를 추가해라.
