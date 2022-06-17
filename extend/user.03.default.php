@@ -607,4 +607,10 @@ foreach ($set_values as $set_value) {
 	}
 }
 unset($set_values);unset($set_value);
+
+//사용자 로그 테이블(g5_5_user_log)이 존재하는지 확인하고 없으면 설치
+$user_log_tbl = @sql_query(" DESC ".$g5['user_log_table']." ", false);
+if(!$user_log_tbl){
+	include_once(G5_USER_ADMIN_SQLS_PATH.'/create_user_log.php');
+}
 ?>

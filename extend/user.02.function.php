@@ -1661,7 +1661,8 @@ function get_category_option2($bo_table='', $ca_name='')
 //KOSMO에 log데이터 전송 함수
 if(!function_exists('send_kosmo_log')){
 function send_kosmo_log(){
-	global $g5, $board, $is_member, $member, $w, $stx, $mb;
+	global $g5, $board, $sub_menu, $is_member, $member, $w, $stx, $mb;
+
 	if(!$is_member)
 		return;
 
@@ -1671,28 +1672,40 @@ function send_kosmo_log(){
 	if(!$member['mb_id'])
 		return;
 
+	if($board['bo_1']){
+		$access_menu_cd = $board['bo_1'];
+	} else if($sub_menu){
+		$access_menu_cd = $sub_menu;
+	} else {
+		$access_menu_cd = '960100';
+	}
+
+	// print_r2($access_menu_cd);exit;
+
 	$user_status = '';
 	if(preg_match('/update$/i',$g5['file_name'])){
 		if(!$w) $user_status = '등록';
 		else if($w == 'u') $user_status = '수정';
 		else if($w == 'd') $user_status = '삭제';
 	}
-	else if(preg_match('/list$/i',$g5['file_name'])){
+	else if(preg_match('/list$/i',$g5['file_name']) || preg_match('/board$/i',$g5['file_name'])){
 		if($stx) $user_status = '검색';
 	}
 	else{
 		if($g5['file_name'] == 'login_check'){
-			//print_r2($member);exit;
+			// print_r2($member);exit;
 			$user_status = '접속';
 		}
 		else if($g5['file_name'] == 'logout'){
+			// print_r2($g5);exit;
 			$user_status = '종료';
 		}
 	}
-
+	// print_r2($g5);exit;
+	// print_r2($user_status);exit;
 	if(!$user_status)
 		return;
-	//print_r3($user_status);return;
+	
 	$url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
 	/*
 	$crtcKey = $g5['kosmo_erp_crtfckey'];
@@ -1710,7 +1723,7 @@ function send_kosmo_log(){
 		'conectIp' => $member['mb_login_ip'],
 		'dataUsgqty' => ''
 	);
-
+	// print_r3($darr);exit;
 	$opt = array(
 		'http' => array(
 			'header' => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -1731,6 +1744,16 @@ function send_kosmo_log(){
 	$result = file_get_contents($url, false, $context); //전송 ~ 결과값 반환
 	*/
 	$data = json_decode($result, true);
+	
+	//위의 정보를 다시 epcs DB서버 g5_5_user_log테이블에 저장한다.
+	$sql = " INSERT INTO {$g5['user_log_table']} SET
+			mb_id = '{$member['mb_id']}',
+			usl_menu_cd = '{$access_menu_cd}',
+			usl_type = '{$user_status}',
+			usl_reg_dt = '".G5_TIME_YMDHIS."'
+	";
+	// print_r2($sql);exit;
+	sql_query($sql,1);
 }
 }
 

@@ -1,8 +1,36 @@
 user.01.config.php
 
+//path,url 상수추가
+define('G5_USER_ADMIN_SQLS_PATH',   G5_ADMIN_PATH.'/'.G5_USER_ADMIN_DIR.'/'.'sqls');
+define('G5_USER_ADMIN_SQLS_URL',    G5_ADMIN_URL.'/'.G5_USER_ADMIN_DIR.'/'.'sqls');
+
+// 테이블정의 추가
+$g5['user_log_table'] = USER_TABLE_PREFIX.'user_log';
+
 // kosmo 인증키 환경변수 추가
 $g5['kosmo_erp_crtfckey'] = '$5$API$3Ue8EDeh9uh5SBT98qSOmiuz636aFqZyV5aMgFmL4rD';
 
+###################################################################################
+adm > v10 안에 sqls라는 폴더를 생성한다.
+adm > v10 > sqls 안에 create_user_log.php 파일을 생성하고 아래 소스를 기입한다.
+create_user_log.php
+
+<?php
+if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
+
+$user_log_sql = " CREATE TABLE
+`".$g5['user_log_table']."` (
+    `usl_idx`     BIGINT(20) NOT NULL,
+    `mb_id`       VARCHAR(50)  NOT NULL COMMENT '접속자 id',
+    `usl_menu_cd` VARCHAR(50)  NOT NULL COMMENT '접속메뉴코드',
+    `usl_type`    VARCHAR(50)  NOT NULL DEFAULT 'login' COMMENT 'login=접속,logout=종료,register=등록,modify=수정,
+    delete=삭제,search=검색',
+    `usl_reg_dt`  DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '등록일시'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
+
+sql_query($user_log_sql);
+sql_query(" ALTER TABLE `".$g5['user_log_table']."` ADD PRIMARY KEY (`usl_idx`) ");
+sql_query(" ALTER TABLE `".$g5['user_log_table']."` MODIFY `usl_idx` bigint(20) NOT NULL AUTO_INCREMENT ");
 
 ###################################################################################
 
@@ -20,7 +48,7 @@ function send_kosmo_log(){
 
 	if(!$member['mb_id'])
 		return;
-	
+
 	$user_status = '';
 	if(preg_match('/update$/i',$g5['file_name'])){
 		if(!$w) $user_status = '등록';
@@ -39,14 +67,14 @@ function send_kosmo_log(){
 			$user_status = '종료';
 		}
 	}
-	
+
 	if(!$user_status)
 		return;
 	//print_r3($user_status);return;
 	$url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
 	/*
 	$crtcKey = $g5['kosmo_erp_crtfckey'];
-	$logDt = G5_TIME_YMDHIS;
+	$logDt = G5_TIME_YMDHIS.'.000';
 	$useSe = $user_status;
 	$sysUser = $member['mb_id'];
 	$conectIp = $member['mb_login_ip'];
@@ -54,7 +82,7 @@ function send_kosmo_log(){
 	*/
 	$darr = array(
 		'crtfcKey' => $g5['kosmo_erp_crtfckey'],
-		'logDt' => G5_TIME_YMDHIS,
+		'logDt' => G5_TIME_YMDHIS.'.000',
 		'useSe' => $user_status,
 		'sysUser' => $member['mb_id'],
 		'conectIp' => $member['mb_login_ip'],
@@ -85,6 +113,13 @@ function u_common_header()함수 안 제일 하단에 아래 소스 추가
 //kosmo에 사용현황 log 전송 함수(extend/suer.02.function.php에 정의)
 send_kosmo_log();
 
+
+//제일 하단에 아래 소스를 추가해라
+//사용자 로그 테이블(g5_5_user_log)이 존재하는지 확인하고 없으면 설치
+$user_log_tbl = @sql_query(" DESC ".$g5['user_log_table']." ", false);
+if(!$user_log_tbl){
+	include_once(G5_USER_ADMIN_SQLS_PATH.'/create_user_log.php');
+}
 
 ###################################################################################
 

@@ -32,6 +32,8 @@ define('G5_USER_ADMIN_IMG_PATH',    G5_ADMIN_PATH.'/'.G5_USER_ADMIN_DIR.'/'.G5_I
 define('G5_USER_ADMIN_IMG_URL',     G5_ADMIN_URL.'/'.G5_USER_ADMIN_DIR.'/'.G5_IMG_DIR);
 define('G5_USER_ADMIN_JS_PATH',     G5_ADMIN_PATH.'/'.G5_USER_ADMIN_DIR.'/'.G5_JS_DIR);
 define('G5_USER_ADMIN_JS_URL',      G5_ADMIN_URL.'/'.G5_USER_ADMIN_DIR.'/'.G5_JS_DIR);
+define('G5_USER_ADMIN_SQLS_PATH',   G5_ADMIN_PATH.'/'.G5_USER_ADMIN_DIR.'/'.'sqls');
+define('G5_USER_ADMIN_SQLS_URL',    G5_ADMIN_URL.'/'.G5_USER_ADMIN_DIR.'/'.'sqls');
 define('G5_USER_ADMIN_MOBILE_PATH', G5_USER_ADMIN_PATH.'/'.G5_MOBILE_DIR);
 define('G5_USER_ADMIN_MOBILE_URL',  G5_USER_ADMIN_URL.'/'.G5_MOBILE_DIR);
 define('G5_USER_ADMIN_MOBILE_AJAX_PATH', G5_USER_ADMIN_PATH.'/'.G5_MOBILE_DIR.'/'.G5_AJAX_DIR);
@@ -65,6 +67,7 @@ $g5['term_table']                   = USER_TABLE_PREFIX.'term';
 $g5['term_relation_table']          = USER_TABLE_PREFIX.'term_relation';
 $g5['ymd_table']                    = USER_TABLE_PREFIX.'ymd';
 $g5['file_table']                   = USER_TABLE_PREFIX.'file';
+$g5['user_log_table']               = USER_TABLE_PREFIX.'user_log';
 
 // kosmo 인증키
 $g5['kosmo_erp_crtfckey'] = '$5$API$3Ue8EDeh9uh5SBT98qSOmiuz636aFqZyV5aMgFmL4rD';
