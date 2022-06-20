@@ -1665,7 +1665,7 @@ function send_kosmo_log(){
 
 	if(!$is_member)
 		return;
-
+	
 	if(!$g5['setting']['set_userlog_crtfckey'])
 		return;
 
