@@ -18,6 +18,8 @@ define('G5_USER_ADMIN_SQLS_URL',    G5_ADMIN_URL.'/'.G5_USER_ADMIN_DIR.'/'.'sqls
 // 테이블정의 추가
 $g5['user_log_table'] = USER_TABLE_PREFIX.'user_log';
 
+// kosmo 인증키 환경변수 추가
+$g5['kosmo_erp_crtfckey'] = $g5['setting']['set_userlog_crtfckey'];
 
 ###################################################################################
 adm > v10 안에 sqls라는 폴더를 생성한다.
@@ -53,7 +55,7 @@ function send_kosmo_log(){
 	if(!$is_member)
 		return;
 
-	if(!$g5['setting']['set_userlog_crtfckey'])
+	if(!$g5['kosmo_erp_crtfckey'])
 		return;
 
 	if(!$member['mb_id'])
@@ -96,7 +98,7 @@ function send_kosmo_log(){
 	$url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
 
 	$darr = array(
-		'crtfcKey' => $g5['setting']['set_userlog_crtfckey'],
+		'crtfcKey' => $g5['kosmo_erp_crtfckey'],
 		'logDt' => G5_TIME_YMDHIS.'.000',
 		'useSe' => $user_status,
 		'sysUser' => $member['mb_id'],
