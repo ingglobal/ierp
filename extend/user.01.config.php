@@ -69,6 +69,4 @@ $g5['ymd_table']                    = USER_TABLE_PREFIX.'ymd';
 $g5['file_table']                   = USER_TABLE_PREFIX.'file';
 $g5['user_log_table']               = USER_TABLE_PREFIX.'user_log';
 
-// kosmo 인증키
-$g5['kosmo_erp_crtfckey'] = '$5$API$3Ue8EDeh9uh5SBT98qSOmiuz636aFqZyV5aMgFmL4rD';
 ?>

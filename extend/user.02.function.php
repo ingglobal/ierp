@@ -1666,7 +1666,7 @@ function send_kosmo_log(){
 	if(!$is_member)
 		return;
 
-	if(!$g5['kosmo_erp_crtfckey'])
+	if(!$g5['setting']['set_userlog_crtfckey'])
 		return;
 
 	if(!$member['mb_id'])
@@ -1708,7 +1708,7 @@ function send_kosmo_log(){
 	
 	$url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
 	/*
-	$crtcKey = $g5['kosmo_erp_crtfckey'];
+	$crtcKey = $g5['setting']['set_userlog_crtfckey'];
 	$logDt = G5_TIME_YMDHIS;
 	$useSe = $user_status;
 	$sysUser = $member['mb_id'];
@@ -1716,7 +1716,7 @@ function send_kosmo_log(){
 	$dataUsgqty = '';
 	*/
 	$darr = array(
-		'crtfcKey' => $g5['kosmo_erp_crtfckey'],
+		'crtfcKey' => $g5['setting']['set_userlog_crtfckey'],
 		'logDt' => G5_TIME_YMDHIS.'.000',
 		'useSe' => $user_status,
 		'sysUser' => $member['mb_id'],

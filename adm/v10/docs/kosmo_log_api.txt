@@ -1,3 +1,14 @@
+adm/v10/config_form.php
+아래와 같은 환경변수 추가
+<tr>
+	<th scope="row">스마트공장<br>사후관리로그 API Key값</th>
+	<td colspan="3">
+		<?php echo help('ex) $5$API$3Ue8EDeh9uh5SBT98qSOmiuz636aFqZyV5aMgFmL4rD') ?>
+		<input type="text" name="set_userlog_crtfckey" value="<?php echo $g5['setting']['set_userlog_crtfckey'] ?>" id="set_userlog_crtfckey" required class="required frm_input" style="width:60%;">
+	</td>
+</tr>
+
+###################################################################################
 user.01.config.php
 
 //path,url 상수추가
@@ -7,8 +18,6 @@ define('G5_USER_ADMIN_SQLS_URL',    G5_ADMIN_URL.'/'.G5_USER_ADMIN_DIR.'/'.'sqls
 // 테이블정의 추가
 $g5['user_log_table'] = USER_TABLE_PREFIX.'user_log';
 
-// kosmo 인증키 환경변수 추가
-$g5['kosmo_erp_crtfckey'] = '$5$API$3Ue8EDeh9uh5SBT98qSOmiuz636aFqZyV5aMgFmL4rD';
 
 ###################################################################################
 adm > v10 안에 sqls라는 폴더를 생성한다.
@@ -44,7 +53,7 @@ function send_kosmo_log(){
 	if(!$is_member)
 		return;
 
-	if(!$g5['kosmo_erp_crtfckey'])
+	if(!$g5['setting']['set_userlog_crtfckey'])
 		return;
 
 	if(!$member['mb_id'])
@@ -87,7 +96,7 @@ function send_kosmo_log(){
 	$url = 'https://log.smart-factory.kr/apisvc/sendLogData.json';
 
 	$darr = array(
-		'crtfcKey' => $g5['kosmo_erp_crtfckey'],
+		'crtfcKey' => $g5['setting']['set_userlog_crtfckey'],
 		'logDt' => G5_TIME_YMDHIS.'.000',
 		'useSe' => $user_status,
 		'sysUser' => $member['mb_id'],
@@ -172,5 +181,4 @@ if($member['mb_level']>=10) {
 }
 
 ###################################################################################
-stat_user_log.php
-위 파일을 생성하고 아래소스를 추가해라.
+stat_user_log.php 파일 생성( ierp  참고 adm / v10 /  )
