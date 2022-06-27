@@ -19,7 +19,7 @@ if ($w == '') {
 	${$pre}['prj_idx'] = ($prj_idx) ? $prj_idx : '';
     $sound_only = '<strong class="sound_only">필수</strong>';
     $w_display_none = ';display:none';  // 쓰기에서 숨김
-    
+
     ${$pre}['com_idx'] = rand(1,3);
     ${$pre}['prj_doc_no'] = 'ING-'.rand(131001,139999).'-'.rand(1,9).'a';
     ${$pre}['prj_belongto'] = 'first';
@@ -42,25 +42,25 @@ else if ($w == 'u') {
     $mb_account = get_table_meta('member','mb_id',${$pre}['mb_id_account']);
 
 	// 관련 파일 추출
-	$sql = "SELECT * FROM {$g5['file_table']} 
+	$sql = "SELECT * FROM {$g5['file_table']}
 			WHERE fle_db_table = '".$pre."' AND fle_db_id = '".${$pre."_idx"}."' ORDER BY fle_sort, fle_reg_dt DESC ";
 	$rs = sql_query($sql,1);
 	//echo $sql."<br>";
 	//echo $pre;exit;
 	//print_r2($rs);exit;
 	for($i=0;$row=sql_fetch_array($rs);$i++) {
-		${$pre}[$row['fle_type']][$row['fle_sort']]['file'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['file'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							'&nbsp;&nbsp;'.$row['fle_name_orig'].'&nbsp;&nbsp;<a href="'.G5_USER_ADMIN_URL.'/lib/download.php?file_fullpath='.urlencode(G5_PATH.$row['fle_path'].'/'.$row['fle_name']).'&file_name_orig='.$row['fle_name_orig'].'">파일다운로드</a>'
 							.'&nbsp;&nbsp;<input type="checkbox" name="'.$row['fle_type'].'_del['.$row['fle_sort'].']" value="1"> 삭제'
 							:'';
-		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_name'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_name'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							$row['fle_name'] : '' ;
-		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_path'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_path'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							$row['fle_path'] : '' ;
-		${$pre}[$row['fle_type']][$row['fle_sort']]['exists'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['exists'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							1 : 0 ;
 	}
-	
+
 }
 else
     alert('제대로 된 값이 넘어오지 않았습니다.');
@@ -72,7 +72,7 @@ for ($i=0;$i<sizeof($check_array);$i++) {
 	${$check_array[$i].'_'.${$pre}[$check_array[$i]]} = ' checked';
 }
 
-$html_title = ($w=='')?'추가':'수정'; 
+$html_title = ($w=='')?'추가':'수정';
 $g5['title'] = '수입관리 '.$html_title;
 //include_once('./_top_menu_data.php');
 include_once ('./_head.php');
@@ -101,9 +101,9 @@ ${$pre}['prj_idx'] => 1
 ${$pre}['prp_type'] => remainder
 ${$pre}['prp_pay_no'] => 1
 ${$pre}['prp_price'] => 10000000
-${$pre}['prp_content'] => 
-${$pre}['prp_content2'] => 
-${$pre}['prp_doc_deal'] => 
+${$pre}['prp_content'] =>
+${$pre}['prp_content2'] =>
+${$pre}['prp_doc_deal'] =>
 ${$pre}['prp_plan_date'] => 0000-00-00
 ${$pre}['prp_issue_date'] => 0000-00-00
 ${$pre}['prp_pay_date'] => 0000-00-00
@@ -210,7 +210,7 @@ $del_flag = (${$pre}["prp_status"] != 'ok' && ${$pre}["prp_pay_date"] == '0000-0
 		<td>
 			<?php
 			//print_r2(${$pre});
-			$pj_field = sql_fetch('SELECT prj_name,prj_reg_dt,prj_type FROM '.$g5['project_table'].' WHERE prj_idx = "'.${$pre}['prj_idx'].'" ');
+			$pj_field = sql_fetch('SELECT prj_name,prj_reg_dt,prj_type,prj_content2 FROM '.$g5['project_table'].' WHERE prj_idx = "'.${$pre}['prj_idx'].'" ');
 			${$pre}['prj_name'] = $pj_field['prj_name'];
 			// 수주금액 추출
 			$prs1 = sql_fetch('SELECT prp_price FROM '.$g5['project_price_table'].' WHERE prj_idx = "'.${$pre}['prj_idx'].'" AND prp_type = "order" ');
@@ -275,6 +275,12 @@ $del_flag = (${$pre}["prp_status"] != 'ok' && ${$pre}["prp_pay_date"] == '0000-0
 		</td>
 	</tr>
 	<tr>
+		<th scope="row"><label for="prj_content2">수입지출 지시사항<br>(프로젝트견적)</label></th>
+		<td colspan="3">
+			<?=$pj_field['prj_content2']?>
+		</td>
+	</tr>
+	<tr>
 		<th scope="row"><label for="prp_content">지시내용</label></th>
 		<td>
 			<textarea name="prp_content" rows="5"><?=${$pre}['prp_content']?></textarea>
@@ -319,12 +325,12 @@ $(function() {
 		win_item_goal = window.open(url, "win_item_goal", "left=300,top=150,width=550,height=600,scrollbars=1");
         win_item_goal.focus();
     });
-	
+
 	//alert($(".date").length);
 	//$(".date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
 	$("#prp_plan_date,#prp_issue_date,#prp_planpay_date,#prp_pay_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
-	
-	
+
+
     // 가격 입력 쉼표 처리
 	$(document).on( 'keyup','input[name$=_price]',function(e) {
 //        console.log( $(this).val() )
@@ -358,24 +364,24 @@ function form01_submit(f) {
 		f.prp_planpay_date.focus();
 		return false;
 	}
-	
+
 	if(f.prp_status.value == 'ok' && (f.prp_pay_date.value == '0000-00-00' || f.prp_pay_date.value == '' || !f.prp_pay_date.value)){
 		alert('상태값이 완료이면 [수금완료일]을 입력해 주세요.');
 		f.prp_pay_date.focus();
 		return false;
 	}
-	
+
 	if((f.prp_status.value == 'pending' && f.prp_pay_date.value != '0000-00-00' && f.prp_pay_date.value != '') || (f.prp_status.value == '' && f.prp_pay_date.value != '0000-00-00' && f.prp_pay_date.value != '')){
 		alert('수금완료일을 입력하셨으면 상태값을 [완료]로 선택하세요.');
 		f.prp_status.focus();
 		return false;
 	}
-	
+
 	if(f.prp_status.value == 'trash'){
 		if(!confirm("신중하게 결정하세요. 정말로 삭제 하시겠습니까?"))
 			return false;
 	}
-	
+
     return true;
 }
 
