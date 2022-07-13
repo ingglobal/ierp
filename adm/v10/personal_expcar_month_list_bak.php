@@ -4,6 +4,11 @@ include_once('./_common.php');
 
 auth_check($auth[$sub_menu],"r");
 
+// 변수 설정, 필드 구조 및 prefix 추출
+$table_name = 'personal_caruse';
+$g5_table_name = $g5[$table_name.'_table'];
+$fields = sql_field_names($g5_table_name);
+$pre = substr($fields[0],0,strpos($fields[0],'_'));
 $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파일명
 // $qstr .= ($year_month) ? '&year_month='.$year_month : ''; // 추가로 확장해서 넘겨야 할 변수들
 // $qstr .= ($mb_name) ? '&mb_name='.$mb_name : ''; // 추가로 확장해서 넘겨야 할 변수들
@@ -34,10 +39,9 @@ for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
     $mb_arr[$mrow['mb_id']];
     $mb_arr[$mrow['mb_id']][$mrow['mb_name']][$ym] = array(
         'mb_name' => ''
-        ,'pcu_sum_price' => 0
-        ,'pep_sum_price' => 0
-        ,'pcu_sum_km' => 0
-        ,'p_total_price' => 0
+        ,'pcu_sum' => 0
+        ,'pcu_total' => 0
+        ,'pcu_total_km' => 0
     );
 }
 
@@ -53,132 +57,125 @@ echo $g5['container_sub_title'];
 
 $show_months = 13; //몇개월치를 볼것인가?
 
+$sql_common = " FROM {$g5['personal_caruse_table']} AS pcu
+                    LEFT JOIN {$g5['member_table']} AS mb ON pcu.mb_id = mb.mb_id
+";
+
+
+$where = array();
+//$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
+$where[] = " pcu_status = 'ok' ";   // 디폴트 검색조건
+$where[] = " pcu_date >= DATE_SUB(pcu_date, INTERVAL {$show_months} MONTH) ";   // 디폴트 검색조건
+
+
+// 최종 WHERE 생성
+if ($where)
+    $sql_search = ' WHERE '.implode(' AND ', $where);
+
 
 if (!$sst) {
-    $sst = "mb_name";
+    $sst = "pcu_date";
     $sod = "";
 }
 
-$sql_group = " GROUP BY MONTH(p_date), mb_id ";
+if (!$sst2) {
+    $sst2 = ", mb_name";
+    $sod2 = "";
+}
 
-$sql_order = " ORDER BY {$sst} {$sod} ";
+$sql_group = " GROUP BY MONTH(pcu_date), pcu.mb_id ";
 
-$uni_sql = " SELECT pcu_idx AS p_idx
-                    ,pcu.mb_id
-                    ,mb.mb_name
-                    ,pcu_date AS p_date
-                    ,pcu_why AS p_topic
-                    ,pcu_reason AS p_desc
-                    ,pcu_start_km AS p_start_km
-                    ,pcu_arrival_km AS p_arrival_km
-                    ,pcu_per_price AS p_per_price
-                    ,pcu_per_km AS p_per_km
-                    ,pcu_oil_type AS p_oil_type
-                    ,pcu_price AS p_price
-                    ,pcu_price
-                    ,'0' AS pep_price
-                    ,pcu_status AS p_status
-                    ,pcu_reg_dt AS p_reg_dt
-                    ,pcu_update_dt AS p_update_dt
-                    ,'pcu' AS p_type
-            FROM {$g5['personal_caruse_table']} AS pcu
-            LEFT JOIN {$g5['member_table']} AS mb ON pcu.mb_id = mb.mb_id
+$sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} ";
+
+$rows = 100;//25;//$config['cf_page_rows'];
+if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
+$from_record = ($page - 1) * $rows; // 시작 열을 구함
+
+$sql = " SELECT (ROW_NUMBER() OVER(ORDER BY pcu_date)) AS num
+            , pcu.mb_id
+            , mb_name
+            , SUM(pcu_arrival_km - pcu_start_km) AS pcu_total_km
+            , CONCAT(YEAR(pcu_date),'-',LPAD(MONTH(pcu_date),'2','0')) AS pcu_month
+            , CONCAT(YEAR(pcu_date),'년',LPAD(MONTH(pcu_date),'2','0'),'월') AS pcu_month2
+            , CONCAT(YEAR(pcu_date),'-',LPAD(MONTH(pcu_date),'2','0'),'%') AS pcu_month_sch
+            , SUM(pcu_price) AS pcu_sum
+            , ( SELECT COUNT(*)
+                FROM {$g5['personal_caruse_table']}
                 WHERE pcu_status = 'ok'
-                    AND pcu_date >= DATE_SUB(pcu_date, INTERVAL {$show_months} MONTH)
-
-            UNION
-
-            SELECT pep_idx AS p_idx
-                    ,pep.mb_id
-                    ,mb.mb_name
-                    ,pep_date AS p_date
-                    ,pep_subject AS p_topic
-                    ,pep_content AS p_desc
-                    ,'0' AS p_start_km
-                    ,'0' AS p_arrival_km
-                    ,'0' AS p_per_price
-                    ,'0' AS p_per_km
-                    ,'' AS p_oil_type
-                    ,pep_price AS p_price
-                    ,'0' AS pcu_price
-                    ,pep_price
-                    ,pep_status AS p_status
-                    ,pep_reg_dt AS p_reg_dt
-                    ,pep_update_dt AS p_update_dt
-                    ,'pep' AS p_type
-            FROM {$g5['personal_expenses_table']} AS pep
-            LEFT JOIN {$g5['member_table']} AS mb ON pep.mb_id = mb.mb_id
-                WHERE pep_status = 'ok'
-                    AND pep_date >= DATE_SUB(pep_date, INTERVAL {$show_months} MONTH)
-";
-// echo $uni_sql;
-$sql = " SELECT mb_id
-                ,mb_name
-                , SUM(p_arrival_km - p_start_km) AS p_sum_km
-                , CONCAT(YEAR(p_date),'-',LPAD(MONTH(p_date),'2','0')) AS p_month
-                , CONCAT(YEAR(p_date),'년',LPAD(MONTH(p_date),'2','0'),'월') AS p_month2
-                , CONCAT(YEAR(p_date),'-',LPAD(MONTH(p_date),'2','0'),'%') AS p_month_sch
-                , SUM(pcu_price) AS sum_pcu_price
-                , SUM(pep_price) AS sum_pep_price
-                , SUM(p_price) AS sum_person_price
-                , ( SELECT SUM(pcu_price)
-                    FROM {$g5['personal_caruse_table']}
-                    WHERE pcu_status = 'ok'
-                        AND pcu_date LIKE p_month_sch
-                ) AS month_pcu_price
-                , ( SELECT SUM(pcu_arrival_km - pcu_start_km)
-                    FROM {$g5['personal_caruse_table']}
-                    WHERE pcu_status = 'ok'
-                        AND pcu_date LIKE p_month_sch
-                ) AS month_km
-                , ( SELECT SUM(pep_price)
-                    FROM {$g5['personal_expenses_table']}
+                    AND pcu_date LIKE pcu_month_sch
+            ) AS pcu_cnt
+            , ( SELECT SUM(pcu_price)
+                FROM {$g5['personal_caruse_table']}
+                WHERE pcu_status = 'ok'
+                    AND pcu_date LIKE pcu_month_sch
+            ) AS pcu_sum2
+            , ( SELECT SUM(pcu_arrival_km - pcu_start_km)
+                FROM {$g5['personal_caruse_table']}
+                WHERE pcu_status = 'ok'
+                    AND pcu_date LIKE pcu_month_sch
+            ) AS pcu_month_km
+            , ( SELECT SUM(pep_price) 
+                        FROM {$g5['personal_expenses_table']}
                     WHERE pep_status = 'ok'
-                        AND pep_date LIKE p_month_sch
-                ) AS month_pep_price
-            FROM ( {$uni_sql} ) AS pun
+                        AND pep_date LIKE pcu_month_sch
+                        AND mb_id = pcu.mb_id
+            ) AS pep_sum
+            , ( SELECT SUM(pep_price)
+                FROM {$g5['personal_expenses_table']}
+                WHERE pep_status = 'ok'
+                    AND pep_date LIKE pcu_month_sch
+            ) AS pep_sum2
+        {$sql_common}
+        {$sql_search}
         {$sql_group}
         {$sql_order}
 ";
+        //LIMIT {$from_record}, {$rows}
 
 // echo $sql;
 $result = sql_query($sql,1);
 /*
 $mb_arr(
-     [ing25481444] => Array
-        [권순우] => Array
-             [2022-07] => Array
-                [mb_name] => 
-                [pcu_sum_price] => 0
-                [pep_sum_price] => 0
-                [pcu_sum_km] => 0
-                [p_total_price] => 0
+    [tomasjoa](
+        [임채완](
+            [2022-04](
+                'mb_name' => ''
+                ,'pcu_sum' => 0
+                ,'pcu_total' => 0
+                ,'pcu_total_km' => 0
+            )
+        )
+    )
 )
 $row(
-    [mb_id] => ing25481444
-    [mb_name] => 권순우
-    [p_sum_km] => 0
-    [p_month] => 2022-06
-    [p_month2] => 2022년06월
-    [p_month_sch] => 2022-06%
-    [sum_pcu_price] => 0
-    [sum_pep_price] => 55440
-    [sum_person_price] => 55440
+    [num] => 2
+    [mb_id] => tomasjoa
+    [mb_name] => 임채완
+    [pcu_month] => 2022-05
+    [pcu_month2] => 2022년05월
+    [pcu_month_sch] => 2022-05%
+    [pcu_sum] => 62720
+    [pcu_cnt] => 3
+    [pcu_sum2] => 67220
+    [pcu_total_km] => 23432
 )
 */
 
-// print_r2($mb_arr);
+
 for($i=0;$row=sql_fetch_array($result);$i++){
-    $mb_arr[$row['mb_id']][$row['mb_name']][$row['p_month']]['mb_name'] = $row['mb_name'];
-    $mb_arr[$row['mb_id']][$row['mb_name']][$row['p_month']]['pcu_sum_price'] = $row['sum_pcu_price'];
-    $mb_arr[$row['mb_id']][$row['mb_name']][$row['p_month']]['pep_sum_price'] = $row['sum_pep_price'];
-    $mb_arr[$row['mb_id']][$row['mb_name']][$row['p_month']]['pep_sum_km'] = $row['p_sum_km'];
-    $mb_arr[$row['mb_id']][$row['mb_name']][$row['p_month']]['p_total_price'] = $row['sum_person_price'];
-    // print_r2($row);
-    $ym_total_cars[$row['p_month']] = $row['month_pcu_price'];
-    $ym_total_exps[$row['p_month']] = $row['month_pep_price'];
-    $ym_total_arr[$row['p_month']] = $row['month_pcu_price'] + $row['month_pep_price'];
-    $ym_monthkm_arr[$row['p_month']] = $row['month_km'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['mb_name'] = $row['mb_name'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_sum'] = $row['pcu_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pep_sum'] = $row['pep_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_total'] = $row['pcu_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pep_total'] = $row['pep_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['p_total'] = $row['pcu_sum'] + $row['pep_sum'];
+    $mb_arr[$row['mb_id']][$row['mb_name']][$row['pcu_month']]['pcu_total_km'] = $row['pcu_total_km'];
+    $ym_total_cars[$row['pcu_month']] = $row['pcu_sum2'];
+    $ym_total_exps[$row['pcu_month']] = $row['pep_sum2'];
+    $ym_total_arr[$row['pcu_month']] = $row['pcu_sum2'] + $row['pep_sum2'];
+    // echo ($row['pep_sum2'])."<br>";
+    $ym_monthkm_arr[$row['pcu_month']] = $row['pcu_month_km'];
+    // print_r3($row['pcu_sum2']);
 }
 // print_r3($ym_total_cars);
 
@@ -290,10 +287,10 @@ $total_price = 0;
             </td>
             <?php foreach($ym_arr as $ymv){ ?>
             <td class="td_caruse_sum" style="text-align:right;">
-                <?=(($v[$va[0]][$ymv]['pcu_sum_price'])?'<div class="dv_cars">'.number_format($v[$va[0]][$ymv]['pcu_sum_price']).'(차)</div>':'')?>
-                <?=(($v[$va[0]][$ymv]['pep_sum_price'])?'<div class="dv_exps">'.number_format($v[$va[0]][$ymv]['pep_sum_price']).'(지)</div>':'')?>
-                <?=(($v[$va[0]][$ymv]['pep_sum_km'])?'<div class="dv_km">'.number_format($v[$va[0]][$ymv]['pep_sum_km']).'(k)</div>':'')?>
-                <?=(($v[$va[0]][$ymv]['p_total_price'])?'<div class="dv_ttl">'.number_format($v[$va[0]][$ymv]['p_total_price']).'<span>원</span></div>':'')?>
+                <?=(($v[$va[0]][$ymv]['pcu_total'])?'<div class="dv_cars">'.number_format($v[$va[0]][$ymv]['pcu_total']).'(차)</div>':'')?>
+                <?=(($v[$va[0]][$ymv]['pep_total'])?'<div class="dv_exps">'.number_format($v[$va[0]][$ymv]['pep_total']).'(지)</div>':'')?>
+                <?=(($v[$va[0]][$ymv]['pcu_total_km'])?'<div class="dv_km">'.number_format($v[$va[0]][$ymv]['pcu_total_km']).'(k)</div>':'')?>
+                <?=(($v[$va[0]][$ymv]['p_total'])?'<div class="dv_ttl">'.number_format($v[$va[0]][$ymv]['p_total']).'<span>원</span></div>':'')?>
             </td>
             <?php } ?>
         </tr>
@@ -311,6 +308,9 @@ $('#tot_box').css('display','block');
 $('#tot_price').text('<?=number_format($total_price)?>원');
 </script>
 <?php } ?>
+
+
+<?php ;//echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;from_date='.$from_date.'&amp;to_date='.$to_date.'&amp;page='); ?>
 
 
 <script>
