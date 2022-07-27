@@ -190,7 +190,7 @@ if($board['bo_5_subj'] && $board['bo_5'] && preg_match("/,/",$board['bo_5']) && 
         for ($i=0; $i<count($list); $i++) {
         	if ($i%2==0) $lt_class = "even";
         	else $lt_class = "";
-            $days_acc += $list[$i]['wr_dayoff_cnt'];
+            $days_acc += ($list[$i]['wr_apply_status'] == 'ok' || $list[$i]['wr_apply_status'] == 'pending')?$list[$i]['wr_dayoff_cnt']:0;
 		?>
         <tr class="<?php if ($list[$i]['is_notice']) echo "bo_notice"; ?> <?php echo $lt_class ?>">
             <?php if ($is_checkbox) { ?>
