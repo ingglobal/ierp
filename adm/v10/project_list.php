@@ -110,12 +110,13 @@ if(G5_IS_MOBILE){
 $items = array(
     "prj_idx"=>array('번호',0,2,0)
     ,"prj_name"=>array("프로젝트명",0,0,0)
-    ,"prj_quot_yn"=>array("견적형",0,0,0)
-    ,"prj_type"=>array("타입",0,0,0,'50px')
+    // ,"prj_quot_yn"=>array("견적형",0,0,0)
+    ,"prj_contract_date"=>array("수주일",0,0,0)
+    ,"prj_percent"=>array("진행율",0,0,0)
+    // ,"prj_type"=>array("타입",0,0,0,'50px')
     ,"com_name"=>array("업체명",0,0,0)
     ,"prj_end_company"=>array("최종고객",0,0,0)
     ,"prj_content"=>array("지시사항",0,0,0)
-    ,"prj_percent"=>array("진행율",0,0,0)
     ,"prj_status"=>array("상태",0,0,0)
     //,"prs_content"=>array("내용",0,0,0)
 );
@@ -194,8 +195,9 @@ $items = array(
 				else if($k1 == 'prj_idx') $th_wd = '70px';
 				else if($k1 == 'prj_name') $th_wd = '200px';
 				else if($k1 == 'prj_quot_yn') $th_wd = '40px';
-				else if($k1 == 'prj_content') $th_wd = '300px';
+				else if($k1 == 'prj_contract_date') $th_wd = '60px';
 				else if($k1 == 'prj_percent') $th_wd = '45px';
+				else if($k1 == 'prj_content') $th_wd = '300px';
 				else if($k1 == 'prj_status') $th_wd = '62px';
 				
 
@@ -221,10 +223,9 @@ $items = array(
 			WHERE fle_db_table = 'project' AND fle_db_id = '".$row['prj_idx']."' ORDER BY fle_sort, fle_reg_dt DESC ";
 		$rs = sql_query($sql,1);
 		//echo $sql."<br>";
+        $cnt = $rs->num_rows;
 		for($j=0;$row2=sql_fetch_array($rs);$j++) {
-			$row[$row2['fle_type']][$row2['fle_sort']]['file'] = (is_file(G5_PATH.$row2['fle_path'].'/'.$row2['fle_name'])) ? 
-								'<a href="'.G5_USER_ADMIN_URL.'/lib/download.php?file_fullpath='.urlencode(G5_PATH.$row2['fle_path'].'/'.$row2['fle_name']).'&file_name_orig='.$row2['fle_name_orig'].'"><i class="fa fa-cloud-download" aria-hidden="true"></i><div style="display:none;">'.$row2['fle_name_orig'].'</div></a>'
-								:'';
+			$row[$row2['fle_type']][$row2['fle_sort']]['file'] = (is_file(G5_PATH.$row2['fle_path'].'/'.$row2['fle_name'])) ? '<a href="'.G5_USER_ADMIN_URL.'/lib/download.php?file_fullpath='.urlencode(G5_PATH.$row2['fle_path'].'/'.$row2['fle_name']).'&file_name_orig='.$row2['fle_name_orig'].'"><i class="fa fa-cloud-download" aria-hidden="true"></i><div style="display:none;">'.$row2['fle_name_orig'].'</div></a>':'';
 			
 		}
 		
@@ -260,9 +261,14 @@ $items = array(
                     $list[$k1] = $row[$k1];
                     $list[$k1] .= ($row['prj_name_req']) ? '<span class="pm_req txt_redblink">수정요청</span>' : '';
                 }
+                else if($k1=='prj_contract_date'){
+                    $row[$k1] = ($row[$k1] == '0000-00-00') ? '-' : $row[$k1];
+                    $list[$k1] = $row[$k1];
+                }
                 else if($k1=='prj_percent') {
                     $prjpercent = ($row[$k1] < 100 || $row[$k1] != 100) ? 'style="color:blue;"' : '';
-                    $list[$k1] = ($row[$k1]) ? '<span '.$prjpercent.'>'.$row[$k1].'%</span>' : '<span '.$prjpercent.'>-</span>';
+                    $per_link = ($row['prj_status'] == 'ok' && !$member['mb_manager_yn']) ? 'javascript:':'./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;'.$pre.'_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea;
+                    $list[$k1] = ($row[$k1]) ? '<a href="'.$per_link.'" '.$prjpercent.'>'.$row[$k1].'%</a>' : '<span '.$prjpercent.'>-</span>';
                 }
                 else if($k1=='prj_type') {
                     $list[$k1] = ($row[$k1]) ? $g5['set_prj_type_value'][$row[$k1]] : '-';
@@ -290,10 +296,11 @@ $items = array(
 		<td>
 			<div class="file_box">
 			<?php
-			echo $row['prj_data'][0]['file'];
-			echo $row['prj_data'][1]['file'];
-			echo $row['prj_data'][2]['file'];
-			echo $row['prj_data'][3]['file'];
+            echo ($cnt)?'<i class="fa fa-paperclip" aria-hidden="true"></i><span class="clip_cnt" style="margin-left:3px;">'.$cnt.'</span>':'-';
+			// echo $row['prj_data'][0]['file'];
+			// echo $row['prj_data'][1]['file'];
+			// echo $row['prj_data'][2]['file'];
+			// echo $row['prj_data'][3]['file'];
 			?>
 			</div>
 		</td>

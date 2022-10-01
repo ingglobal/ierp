@@ -119,7 +119,8 @@ $items1 = array(
     ,"prj_doc_no"=>array("발행번호",0,0,0)
     ,"prj_quot_file"=>array("견적서",0,0,0)
     ,"prj_board_count"=>array("코멘트",0,2,0)
-    ,"prj_reg_dt"=>array("등록일",0,0,0)
+    // ,"prj_reg_dt"=>array("등록일",0,0,0)
+    ,"prj_contract_date"=>array("수주일",0,0,0)
 );
 $items2 = array(
     "prj_end_company"=>array("최종고객",0,0,1)
@@ -324,8 +325,10 @@ $items = array_merge($items1,$items2);
                 $list[$k1] = $row[$k1];
 
                 // 변수 재설정
-                if($k1=='prj_reg_dt') {
-                    $list[$k1] = substr($row[$k1],0,10);
+                if($k1=='prj_contract_date'){ //($k1=='prj_reg_dt') {
+                    // $list[$k1] = substr($row[$k1],0,10);
+                    $row[$k1] = ($row[$k1] == '0000-00-00') ? '-':$row[$k1];
+                    $list[$k1] = $row[$k1];
                 }
 				else if($k1=='com_name') {
                     $list[$k1] = '<span style="font-weight:bold;">'.$row[$k1].'</span>';
