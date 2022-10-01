@@ -52,6 +52,11 @@ if ($stx) {
     }
 }
 
+if($sfl == 'incomplete'){
+    $where[] = " prj.prj_contract_date != '0000-00-00' ";
+    $where[] = " prj.prj_percent < '100' ";
+}
+
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
@@ -152,6 +157,7 @@ $items = array(
     }
     ?>
 	<option value="prj.com_idx"<?php echo get_selected($_GET['sfl'], "prj.com_idx"); ?>>업체번호</option>
+	<option value="incomplete"<?php echo get_selected($_GET['sfl'], "incomplete"); ?>>미완료</option>
 </select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
