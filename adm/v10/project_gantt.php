@@ -13,7 +13,7 @@ $week = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
 $week2 = array('일', '월', '화', '수', '목', '금', '토');
 
 // 시작일 (D-10)
-$w1 = sql_fetch(" SELECT date_add('".G5_TIME_YMD."', interval -15 day) AS start_day ",1);//처음 -10 //2번째 수정 -15
+$w1 = sql_fetch(" SELECT date_add('".G5_TIME_YMD."', interval -10 day) AS start_day ",1);//처음 -10 //2번째 수정 -15
 $sql_date_start = $w1['start_day'];
 $st_date = $st_date ?: $sql_date_start;
 $st_date1 = date_parse($st_date);
@@ -21,7 +21,7 @@ $st_date1 = date_parse($st_date);
 //echo $week2[date("w",strtotime($st_date))]."<br>";
 // print_r2($st_date1);
 // 종료일 (D+30, 실제는 31일간 추출)
-$w2 = sql_fetch(" SELECT date_add('".G5_TIME_YMD."', interval +46 day) AS end_day ",1);//처음 +31 //2번째수정 +46
+$w2 = sql_fetch(" SELECT date_add('".G5_TIME_YMD."', interval +51 day) AS end_day ",1);//처음 +31 //2번째수정 +46
 $sql_date_end = $w2['end_day'];
 //echo $sql_date_end."<br>";
 $en_date = $en_date ?: $sql_date_end;
