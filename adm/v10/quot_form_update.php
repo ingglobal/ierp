@@ -275,8 +275,9 @@ foreach($_REQUEST as $key => $value ) {
 		meta_update(array("mta_db_table"=>$table_name,"mta_db_id"=>${$pre."_idx"},"mta_key"=>$key,"mta_value"=>$value));
 	}
 }
-
+// echo $qstr;exit;
 //exit;
 //goto_url('./'.$fname.'_form.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
-alert('데이터가 등록되었습니다.','./'.$fname.'_list.php?'.$qstr, false);
+// alert('데이터가 등록되었습니다.','./'.$fname.'_list.php?'.$qstr, false);
+goto_url('./'.$fname.'_list.php?'.$qstr, false);
 ?>

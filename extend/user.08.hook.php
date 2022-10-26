@@ -20,8 +20,6 @@ function u_member_login_check(){
     // 로그인 기록을 남겨요.
     $tmp_sql = " insert into {$g5['login_table']} ( lo_ip, mb_id, lo_datetime, lo_location, lo_url ) values ( '".G5_SERVER_TIME."', '{$mb['mb_id']}', '".G5_TIME_YMDHIS."', '".$mb['mb_name']."',  '".$_SERVER['REMOTE_ADDR']."' ) ";
     sql_query($tmp_sql, FALSE);
-
-    send_kosmo_log();
 }
 
 ?>

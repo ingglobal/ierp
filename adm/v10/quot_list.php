@@ -12,12 +12,11 @@ $pre = substr($fields[0],0,strpos($fields[0],'_'));
 $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파일명
 //$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
 
-
 $g5['title'] = '프로젝트견적';
 //include_once('./_top_menu_company.php');
 include_once('./_head.php');
 //echo $g5['container_sub_title'];
-
+// print_r2($_REQUEST['stx']);
 /*
 $sql_common = " FROM {$g5['project_table']} AS prj
                     LEFT JOIN {$g5['company_table']} AS com ON com.com_idx = prj.com_idx

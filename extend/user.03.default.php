@@ -501,7 +501,7 @@ if(defined('G5_IS_ADMIN')){
 
 		// 후킹 추가
         @include_once($g5['hook_file_path'].'/u.'.$g5['file_name'].'.tail.php');
-        send_kosmo_log();
+		@include_once(G5_USER_ADMIN_PATH.'/_kosmolog.php');
 
         // 관리자 디버깅 메시지 (있는 경우만 나타남)
         if( is_array($g5['debug_msg']) ) {
