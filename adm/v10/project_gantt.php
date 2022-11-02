@@ -100,7 +100,7 @@ if ($where)
 // }
 // $sql_order = " ORDER BY {$sst} {$sod} ";
 // prs_role 이 먼저 나와야 함, PM이 나오고 그 다음..
-$sql_order = " ORDER BY prj_idx DESC, prs_role, mb_id_worker, prs_start_date ";
+$sql_order = " ORDER BY com.com_idx, prj_idx DESC, prs_role, mb_id_worker, prs_start_date ";
 
 $rows = $config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)

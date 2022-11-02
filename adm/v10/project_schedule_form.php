@@ -203,7 +203,13 @@ if(G5_IS_MOBILE){
 	<?php if($w == 'u'){ ?>
  	<tr>
 		<th scope="row">프로젝트<br>지시사항</th>
-		<td colspan="3" style="white-space:pre-line;"><?php echo $prs['prj_content'] ?></td>
+		<td colspan="3" <?=(($super_ceo_admin)?'':'style="white-space:pre-line;"')?>>
+			<?php if($super_ceo_admin){ ?>
+				<textarea name="prj_content" style="height:400px;"><?php echo $prs['prj_content'] ?></textarea>
+			<?php } else { ?>
+				<?php echo $prs['prj_content'] ?>
+			<?php } ?>
+		</td>
 	</tr>
 	<tr>
 		<th scope="row">프로젝트<br>기초자료파일</th>

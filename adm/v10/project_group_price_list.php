@@ -133,7 +133,9 @@ $total_gesan_misu = number_format($misu_result['nu_gesan_misu']);
 .malp:hover .pungsun{display:block;}
 .malp.jisi .pungsun{background:#d8d8f5;}
 .malp.misu .pungsun{background:#eceaa2;}
-
+.td_percent{position:relative;}
+.prj_per{}
+.prj_per_input{position:absolute;top:50%;left:50%;width:40px;margin-left:-23px;margin-top:-12px;text-align:right;}
 .per_bar{position:relative;height:10px;width:100%;min-width:60px;border-radius:5px;background:gray;overflow:hidden;}
 .per_bar .bar_in{height:100%;background:#37c537;border-radius:5px;}
 
@@ -386,10 +388,10 @@ function misu_sch(f){
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
             <td rowspan="<?=$p_cnt?>" style="text-align:right;"><?=number_format($row['prp_order_price'])?></td>
             <td rowspan="<?=$p_cnt?>" style="position:relative;"><?=$row['prj_collect_percent']?>%<div class="per_bar"><div class="bar_in" style="width:<?=$row['prj_collect_percent']?>%;"></div></div></td>
-            <td rowspan="<?=$p_cnt?>">
+            <td rowspan="<?=$p_cnt?>" class="td_percent">
                 <?php
                 $prjpercent = ($row['prj_percent'] < 100 || $row['prj_percent'] != 100) ? 'style="color:blue;"':'';
-                $row['prj_percent'] = '<span '.$prjpercent.'>'.$row['prj_percent'].'%</span>';
+                $row['prj_percent'] = '<span '.$prjpercent.' class="prj_per" prj_idx="'.$row['prj_idx'].'" prj_percent="'.$row['prj_percent'].'">'.$row['prj_percent'].'</span><span '.$prjpercent.'>%</span>';
                 echo $row['prj_percent'];
                 ?>
             </td><!-- 프로젝트 진행율 -->
@@ -577,11 +579,11 @@ function misu_sch(f){
             <td class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
             <td style="text-align:right;"><?=number_format($row['prp_order_price'])?></td>
             <td style="position:relative;"><?=$row['prj_collect_percent']?>%<div class="per_bar"><div class="bar_in" style="width:<?=$row['prj_collect_percent']?>%;"></div></div></td>
-            <td>
+            <td class="td_percent">
                 <?php
                 $prjpercent = ($row['prj_percent'] < 100 || $row['prj_percent'] != 100) ? 'style="color:blue;"':'';
-                $row['prj_percent'] = '<span '.$prjpercent.'>'.$row['prj_percent'].'%</span>';
-                echo $row['prj_percent'];
+                $prj_percent = '<span '.$prjpercent.' class="prj_per" prj_idx="'.$row['prj_idx'].'" prj_percent="'.$row['prj_percent'].'">'.$row['prj_percent'].'</span><span '.$prjpercent.'>%</span>';
+                echo $prj_percent;
                 ?>
             </td><!-- 프로젝트 진행율 -->
             <td style="text-align:right;"><?=(($row['prj_mi_price'] > 0) ? '<span style="color:orange;">'.$row['prj_misu_price'].'</span>' : '<span style="color:#333;">'.$row['prj_misu_price'].'</span>')?></td>
@@ -782,7 +784,66 @@ $(function(e) {
         document.execCommand('Copy');
         alert('클립보드 복사완료');
     });
+
+    //프로젝트 진행율 수정
+    $('.prj_per').on('click', function(){
+        $('.prj_per_input').remove();
+        var td = $(this).parent();
+        $('<input class="prj_per_input" name="prj_percent" value="'+$(this).attr('prj_percent')+'">').appendTo(td);
+        $('.prj_per_input').focus();
+        prj_per_event_on();
+    });
+
 });
+
+function prj_per_event_on(){
+    $('.prj_per_input').on('keyup',function(e){ //esc = 27, enter = 13
+        var ask = e.keyCode;
+        var prj_idx = $(this).siblings('.prj_per').attr('prj_idx');
+        var prj_percent = $(this).siblings('.prj_per').attr('prj_percent');
+        
+        if(ask == 27){//esc눌렀을때 input박스 제거
+            $(this).remove();
+            prj_per_event_off();
+        }
+        else if(ask == 13){
+            if(prj_percent == $(this).val()){
+                $(this).remove();
+                prj_per_event_off();
+                return false;
+            }
+            
+            var prj_per_url = '<?=G5_USER_ADMIN_AJAX_URL?>/prj_percent_change.php';
+            $.ajax({
+                type : "GET",
+                url : prj_per_url,
+                dataType : "text",
+                data : {"prj_idx":prj_idx,"prj_percent":$(this).val()},
+                success : function(res){
+                    alert(res+'%로 수정되었습니다.');
+                    $('.prj_per_input').siblings('.prj_per').attr('prj_percent',res).text(res);
+                    $('.prj_per_input').remove();
+                    prj_per_event_off();
+                },
+                error : function(req){
+                    alert('Status: ' + req.status + ' \n\rstatusText: ' + req.statusText + ' \n\rresponseText: ' + req.responseText);
+                    $('.prj_per_input').remove();
+                    prj_per_event_off();
+                }
+            });
+        }
+        else{
+            var num = $(this).val().replace(/[^0-9]/g,"");
+            if(num.charAt(0) == '0' && num.length > 1) num = num.substring(1);
+            num = (num == '') ? '0' : num;
+            if(Number(num) > 100) num = 100;
+            $(this).val(num);
+        }
+    });
+}
+function prj_per_event_off(){
+    $('.prj_per_input').off('keyup');
+}
 
 function form01_submit(f)
 {

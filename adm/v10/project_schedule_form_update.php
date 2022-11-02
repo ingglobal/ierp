@@ -80,7 +80,9 @@ else{
 	} 
 }
 */
-
+// print_r2($prj_content);exit;
+$prj_content = trim($prj_content);
+$prj_content = conv_unescape_nl(stripslashes($prj_content));
 if ($w == '') {
     
     $sql = " INSERT into {$g5_table_name} SET 
@@ -90,7 +92,15 @@ if ($w == '') {
 	";
     sql_query($sql,1);
 	${$pre."_idx"} = sql_insert_id();
-    
+    //prj_content 수정
+    if($super_ceo_admin){
+        $sql0 = " UPDATE {$g5['project_table']} SET
+                    prj_content = '{$prj_content}'
+                    , prj_update_dt = '".G5_TIME_YMDHIS."'
+                    WHERE prj_idx = '{$prj_idx}'
+        ";
+        sql_query($sql0,1);
+    }
 }
 else if ($w == 'u') {
 
@@ -105,6 +115,16 @@ else if ($w == 'u') {
 	";
     //echo $sql.'<br>';exit;
     sql_query($sql,1);
+    
+    //prj_content 수정
+    if($super_ceo_admin){
+        $sql0 = " UPDATE {$g5['project_table']} SET
+                    prj_content = '{$prj_content}'
+                    , prj_update_dt = '".G5_TIME_YMDHIS."'
+                    WHERE prj_idx = '{$prj_idx}'
+        ";
+        sql_query($sql0,1);
+    }
         
 }
 else if ($w == 'd') {
