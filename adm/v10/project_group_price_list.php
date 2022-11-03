@@ -134,6 +134,9 @@ $total_gesan_misu = number_format($misu_result['nu_gesan_misu']);
 .malp.jisi .pungsun{background:#d8d8f5;}
 .malp.misu .pungsun{background:#eceaa2;}
 .td_percent{position:relative;}
+.prjper{}
+.prj_per_close{position:absolute;top:5px;left:5px;color:red;font-size:1.6em;cursor:pointer;}
+.prj_per_send{position:absolute;top:5px;right:5px;color:blue;font-size:1.6em;cursor:pointer;}
 .prj_per{}
 .prj_per_input{position:absolute;top:50%;left:50%;width:40px;margin-left:-23px;margin-top:-12px;text-align:right;}
 .per_bar{position:relative;height:10px;width:100%;min-width:60px;border-radius:5px;background:gray;overflow:hidden;}
@@ -789,7 +792,7 @@ $(function(e) {
     $('.prj_per').on('click', function(){
         $('.prj_per_input').remove();
         var td = $(this).parent();
-        $('<input class="prj_per_input" name="prj_percent" value="'+$(this).attr('prj_percent')+'">').appendTo(td);
+        $('<i class="fa fa-times-circle prjper prj_per_close" aria-hidden="true"></i><input class="prjper prj_per_input" name="prj_percent" value="'+$(this).attr('prj_percent')+'"><i class="fa fa-exclamation-circle prjper prj_per_send" aria-hidden="true"></i>').appendTo(td);
         $('.prj_per_input').focus();
         prj_per_event_on();
     });
@@ -797,52 +800,61 @@ $(function(e) {
 });
 
 function prj_per_event_on(){
-    $('.prj_per_input').on('keyup',function(e){ //esc = 27, enter = 13
-        var ask = e.keyCode;
+    $('.prj_per_input').on('keyup',function(e){ //c = 67, n = 78, esc = 27, enter = 13
+        var num = $(this).val().replace(/[^0-9]/g,"");
+        if(num.charAt(0) == '0' && num.length > 1) num = num.substring(1);
+        num = (num == '') ? '0' : num;
+        if(Number(num) > 100) num = 100;
+        $(this).val(num);
+    });
+
+
+    $('.prj_per_close').on('click',function(){
+        $(this).remove();
+        $('.prj_per_input').remove();
+        $('.prj_per_send').remove();
+        prj_per_event_off();
+    });
+
+    $('.prj_per_send').on('click',function(){
         var prj_idx = $(this).siblings('.prj_per').attr('prj_idx');
         var prj_percent = $(this).siblings('.prj_per').attr('prj_percent');
-        
-        if(ask == 27){//esc눌렀을때 input박스 제거
+        if(prj_percent == $(this).siblings('.prj_per_input').val()){
             $(this).remove();
+            $('.prj_per_input').remove();
+            $('.prj_per_close').remove();
             prj_per_event_off();
+            return false;
         }
-        else if(ask == 13){
-            if(prj_percent == $(this).val()){
-                $(this).remove();
+        
+        var prj_per_url = '<?=G5_USER_ADMIN_AJAX_URL?>/prj_percent_change.php';
+        $.ajax({
+            type : "GET",
+            url : prj_per_url,
+            dataType : "text",
+            data : {"prj_idx":prj_idx,"prj_percent":$(this).siblings('.prj_per_input').val()},
+            success : function(res){
+                alert(res+'%로 수정되었습니다.');
+                $('.prj_per_input').siblings('.prj_per').attr('prj_percent',res).text(res);
+                $('.prj_per_input').remove();
+                $('.prj_per_close').remove();
+                $('.prj_per_send').remove();
                 prj_per_event_off();
-                return false;
+            },
+            error : function(req){
+                alert('Status: ' + req.status + ' \n\rstatusText: ' + req.statusText + ' \n\rresponseText: ' + req.responseText);
+                $('.prj_per_input').remove();
+                $('.prj_per_close').remove();
+                $('.prj_per_send').remove();
+                prj_per_event_off();
             }
-            
-            var prj_per_url = '<?=G5_USER_ADMIN_AJAX_URL?>/prj_percent_change.php';
-            $.ajax({
-                type : "GET",
-                url : prj_per_url,
-                dataType : "text",
-                data : {"prj_idx":prj_idx,"prj_percent":$(this).val()},
-                success : function(res){
-                    alert(res+'%로 수정되었습니다.');
-                    $('.prj_per_input').siblings('.prj_per').attr('prj_percent',res).text(res);
-                    $('.prj_per_input').remove();
-                    prj_per_event_off();
-                },
-                error : function(req){
-                    alert('Status: ' + req.status + ' \n\rstatusText: ' + req.statusText + ' \n\rresponseText: ' + req.responseText);
-                    $('.prj_per_input').remove();
-                    prj_per_event_off();
-                }
-            });
-        }
-        else{
-            var num = $(this).val().replace(/[^0-9]/g,"");
-            if(num.charAt(0) == '0' && num.length > 1) num = num.substring(1);
-            num = (num == '') ? '0' : num;
-            if(Number(num) > 100) num = 100;
-            $(this).val(num);
-        }
+        });
     });
 }
 function prj_per_event_off(){
     $('.prj_per_input').off('keyup');
+    $('.prj_per_close').off('click');
+    $('.prj_per_send').off('click');
 }
 
 function form01_submit(f)
