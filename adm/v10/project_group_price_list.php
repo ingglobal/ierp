@@ -10,7 +10,7 @@ $g5_table_name = $g5[$table_name.'_table'];
 $fields = sql_field_names($g5_table_name);
 $pre = substr($fields[0],0,strpos($fields[0],'_'));
 $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파일명
-//$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
+$qstr .= '&start_date='.$start_date.'&end_date='.$end_date; // 추가로 확장해서 넘겨야 할 변수들
 
 
 $g5['title'] = '수입관리';
@@ -65,6 +65,55 @@ else{
 	}
 }
 
+
+if($start_date || $end_date){
+    if($start_date && !$end_date){
+        alert('발행종료일을 입력해 주세요.');
+    }
+    else if(!$start_date && $end_date){
+        alert('발행시작일을 입력해 주세요.');
+    }
+
+
+    $prp_where = "";
+    if($start_date && !$end_date)
+        $prp_where .= " AND prp_issue_date >= '{$start_date}' ";
+    else if(!$start_date && $end_date)
+        $prp_where .= " AND prp_issue_date <= '{$end_date}' ";
+    else if($start_date && $end_date){
+        $prp_where .= " AND prp_issue_date >= '{$start_date}' ";
+        $prp_where .= " AND prp_issue_date <= '{$end_date}' ";     
+    }
+    
+    $prj_where = "";
+    if($sfl && $stx){
+        if($sfl == 'prj.prj_idx'){
+            $prj_where = " AND {$sfl} = '{$stx}' ";
+        }else if($sfl == 'com.com_name'){
+            $prj_where = " AND {$sfl} LIKE '%{$stx}%' ";
+        }else{
+            $prj_where = " AND {$sfl} LIKE '%{$stx}%' ";
+        }
+    }
+    
+    $prp_sql = " SELECT GROUP_CONCAT(prj.prj_idx) AS prj_idxs FROM {$g5['project_price_table']} AS prp
+                        LEFT JOIN {$g5['project_table']} AS prj ON prp.prj_idx = prj.prj_idx
+                        LEFT JOIN {$g5['company_table']} AS com ON prj.com_idx = com.com_idx
+        WHERE prp_type NOT IN ('submit','nego','order')
+            AND prp_status NOT IN ('trash','delete')
+            {$prp_where}{$prj_where}
+    ";
+    // echo $prp_sql."<br><br>";
+    $prp_res = sql_fetch($prp_sql);
+    if($prp_res['prj_idxs']){
+        $where[] = " prj.prj_idx IN ({$prp_res['prj_idxs']}) ";
+    }
+    
+    
+    $expected_price = 0;
+}
+
+
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
@@ -80,6 +129,9 @@ $rows = 25;//$config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
+
+$limit_common = ($start_date || $end_date) ? '' : " LIMIT {$from_record}, {$rows} ";
+
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , com.com_idx AS com_idx
             , (SELECT prp_pay_date FROM {$g5['project_price_table']} WHERE prj_idx = prj.prj_idx AND prp_type = 'order' AND prp_status = 'ok' ) AS prp_paid_date
@@ -89,9 +141,9 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS *
         {$sql_common}
 		{$sql_search}
         {$sql_order}
-		LIMIT {$from_record}, {$rows} 
+		{$limit_common} 
 ";
-//echo $sql;
+// echo $sql;
 $result = sql_query($sql,1);
 $count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") ); 
 $total_count = $count['total'];
@@ -165,16 +217,18 @@ $total_gesan_misu = number_format($misu_result['nu_gesan_misu']);
     <span class="btn_ov01"><span class="ov_txt">총</span><span class="ov_num"> <?php echo number_format($total_count) ?></span></span>
 </div>
 
-<form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
+<form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get" autocomplete="off">
     <label for="sfl" class="sound_only">검색대상</label>
     
     <select name="sfl" id="sfl">
         <option value="com.com_name"<?php echo get_selected($_GET['sfl'], "com.com_name"); ?>>업체명</option>
         <option value="prj_name"<?php echo get_selected($_GET['sfl'], "prj_name"); ?>>프로젝트명</option>
-        <option value="prj_idx"<?php echo get_selected($_GET['sfl'], "prj_idx"); ?>>프로젝트번호</option>
+        <option value="prj.prj_idx"<?php echo get_selected($_GET['sfl'], "prj.prj_idx"); ?>>프로젝트번호</option>
     </select>
     <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
     <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
+    <input type="text" name="start_date" value="<?=$start_date?>" id="start_date" class="frm_input" style="width:80px;" placeholder="발행시작일">
+    <input type="text" name="end_date" value="<?=$end_date?>" id="end_date" class="frm_input" style="width:80px;" placeholder="발행종료일">
     <input type="submit" class="btn_submit" value="검색">
     <a href="javascript:misu_sch($('#fsearch'));" class="btn <?=(($sfl == 'misu') ? 'btn_03':'btn_02')?>" id="misu_btn">미수금항목만보기</a>
 </form>
@@ -314,6 +368,7 @@ function misu_sch(f){
                     WHERE prj_idx = '".$row['prj_idx']."'
                         AND prp_type NOT IN ('submit','nego','order')
                         AND prp_status NOT IN ('trash','delete')
+                        {$prp_where}
                     ORDER BY prp_sort, prp_type, prp_reg_dt
         ";
         // echo $psql.'<br>';
@@ -431,6 +486,7 @@ function misu_sch(f){
         <?php            
             for($j=0;$prow=sql_fetch_array($p_result);$j++){
                 $c_mod = '<a href="./project_price_form.php?'.$qstr.'&amp;w=u&amp;g=1&amp;prj_idx='.$prow['prj_idx'].'&amp;prp_idx='.$prow['prp_idx'].'&amp;grp=1">수정</a>';
+                $expected_price += $prow['prp_price2'];
                 if($p_cnt > 1){ //가격레코드가 1개 이상일경우
                     if($j != 0) echo '<tr class="'.$bg.'">'.PHP_EOL;
         ?>
@@ -646,10 +702,11 @@ function misu_sch(f){
         <td colspan="13"></td>
     </tr>
     <tr style="background:#dddddd">
-    <td colspan="5">전체 (수주미수금 / 계산서발행미수금) 합계</td>
+    <td colspan="5">전체 (수주미수금 / 계산서발행미수금) 합계 | 수입예정 합계(현재페이지)</td>
         <td style="color:#f56b08;font-size:1.2em;text-align:right;"><?=$total_suju_misu?></td>
         <td style="color:#073ed8;font-size:1.2em;text-align:right;"><?=$total_gesan_misu?></td>
-        <td colspan="13"></td>
+        <td style="color:green;font-size:1.2em;text-align:right;"><?=number_format($expected_price)?></td>
+        <td colspan="12"></td>
     </tr>
     <?php
     }
@@ -701,6 +758,10 @@ function misu_sch(f){
 </div>
 <script>
 $(function(e) {
+    $("input[name=start_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", closeText: '취소', onClose: function(){ if($(window.event.srcElement).hasClass('ui-datepicker-close')){$(this).val('');} }, onSelect: function(selectedDate){$("input[name=end_date]").datepicker('option','minDate',selectedDate);} });
+
+    $("input[name=end_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", closeText: '취소', onClose: function(){ if($(window.event.srcElement).hasClass('ui-datepicker-close')){$(this).val('');} }, onSelect:function(selectedDate){$("input[name=start_date]").datepicker('option','maxDate',selectedDate); }});
+
     // 마우스 hover 설정
     $(".tbl_head01 tbody tr").on({
         mouseenter: function () {
