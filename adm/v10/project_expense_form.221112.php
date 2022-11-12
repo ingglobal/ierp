@@ -120,12 +120,7 @@ $sugeum = sql_fetch($ssql);
 $mis_price = $prs1['prp_price'] - $sugeum['sum_price'];
 $mis_per = ($prs1['prp_price'])?round($mis_price / $prs1['prp_price'] * 100,2):0;
 
-//수금완료금관련
-$sugm_price = $sugeum['sum_price'];
-$sugm_per = ($prs1['prp_price'])?round($sugm_price / $prs1['prp_price'] * 100,2):0;
 
-//지출상태
-$stat_price = $sugm_price - $exp['total'];
 
 //계약금에 대한 총지출금액 비율
 $exp_per = ($prs1['prp_price'])?round($exp['total'] / ($prs1['prp_price'] + $inp['prn_tot_price']) * 100,2):0;
@@ -138,7 +133,7 @@ $etc_per = ($exp['total'])?round($exp['etc_total']/$exp['total']*100,2):0;
 
 
 $html_title = '';//($w=='')?'추가':'수정';
-$g5['title'] = $prj_idx.'-['.$prj_name.'] 지출관리 '.$html_title;
+$g5['title'] = '['.$prj_name.'] 지출관리 '.$html_title;
 //include_once('./_top_menu_data.php');
 include_once ('./_head.php');
 /*
@@ -182,10 +177,10 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span{}
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span span.MultiFile-label{font-size:14px;border:1px solid #ccc;background:#eee;padding:2px 5px;border-radius:3px;line-height:1.2em;}
 
-.sm_tbl{width:500px;}
-.sm_tbl th{width:40%;background:none;font-weight:400;}
+.sm_tbl{width:340px;}
+.sm_tbl th{width:190px;background:none;font-weight:400;}
 .sm_tbl th,.sm_tbl td{padding:5px;border-top:1px dotted #ddd;border-bottom:1px dotted #ddd;}
-.sm_tbl td{text-align:right;position:relative;width:60%;}
+.sm_tbl td{text-align:right;position:relative;}
 .sm_tbl .th_ord{font-weight:600;}
 .sm_tbl .td_ord{font-weight:600;color:orange;}
 .sm_tbl .th_inp{font-weight:600;}
@@ -194,12 +189,8 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .sm_tbl .td_top{font-weight:600;color:brown;font-size:1.2em;}
 .sm_tbl .th_tot{color:darkred;}
 .sm_tbl .td_tot{color:red;}
-.sm_tbl .th_sug{color:darkblue;}
-.sm_tbl .td_sug{color:blue;}
 .sm_tbl .th_mis{color:red;}
 .sm_tbl .td_mis{color:red;}
-.sm_tbl .th_sta{color:darkgreen;}
-.sm_tbl .td_sta{color:green;}
 .sm_tbl .th_dif{color:darkblue;}
 .sm_tbl .td_dif{color:blue;}
 .sm_tbl .th_mcn{}
@@ -217,7 +208,6 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .grp_box{display:block;position:absolute;bottom:4px;left:0px;width:100%;height:5px;overflow:hidden;background:#ccc;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
 .grp_box .grp_in_mi{background:red;}
-.grp_box .grp_in_su{background:orange;}
 </style>
 <form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
 <input type="hidden" name="w" value="<?php echo $w ?>">
@@ -258,18 +248,12 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<td class="td_ord"><?=number_format($prs1['prp_price'])?>원</td>
 					</tr>
 					<tr>
-						<th class="th_dif">영업이익(<?=$dif_per?>%)<br>(수주금액 + 기타수입 기준%)</th>
-						<td class="td_dif">
-							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
-							<?=number_format($dif_price)?>원
-						</td>
+						<th class="th_inp">기타수입금액</th>
+						<td class="td_inp"><?=number_format($inp['prn_tot_price'])?>원</td>
 					</tr>
 					<tr>
-						<th class="th_sug">수금완료(<?=$sugm_per?>%)<br>(수주금액기준%)</th>
-						<td class="td_sug">
-							<div class="grp_box"><div class="grp_in grp_in_su" style="width:<?=$sugm_per?>%"></div></div>
-							<?=number_format($sugm_price)?>원
-						</td>
+						<th class="th_top">총수입금액</th>
+						<td class="td_top"><?=number_format($prs1['prp_price'] + $inp['prn_tot_price'])?>원</td>
 					</tr>
 					<tr>
 						<th class="th_mis">미수금(<?=$mis_per?>%)<br>(수주금액기준%)</th>
@@ -277,10 +261,6 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 							<div class="grp_box"><div class="grp_in grp_in_mi" style="width:<?=$mis_per?>%"></div></div>
 							<?=number_format($mis_price)?>원
 						</td>
-					</tr>
-					<tr>
-						<th class="th_sta">지출상태<br>(수금합계 - 지출합계)</th>
-						<td class="td_sta"><?=number_format($sugm_price)?> - <?=number_format($exp['total'])?> = <b style="font-size:1.05em;color:<?=(($stat_price<0)?'red':'')?>;"><?=number_format($stat_price)?></b>원</td>
 					</tr>
 					<?php } ?>
 					<tr>
@@ -290,6 +270,15 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 							<?=number_format($exp['total'])?>원
 						</td>
 					</tr>
+					<?php if($super_admin){ ?>
+					<tr>
+						<th class="th_dif">잔액(<?=$dif_per?>%)<br>(수주금액 + 기타수입 기준%)</th>
+						<td class="td_dif">
+							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
+							<?=number_format($dif_price)?>원
+						</td>
+					</tr>
+					<?php } ?>
 					<?php if($exp['mcn_total']){ ?>
 					<tr>
 						<th class="th_mcn">기계지출(<?=$mcn_per?>%)<br><span>(총지출기준%)</span></th>
