@@ -4,6 +4,8 @@ if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 // 사용자 테이블 정의
 define('PROJ_TABLE_PREFIX', G5_TABLE_PREFIX.'1_');
 
+$g5['card_table']               = PROJ_TABLE_PREFIX.'card';
+$g5['card_user_table']          = PROJ_TABLE_PREFIX.'card_user';
 $g5['company_table']            = PROJ_TABLE_PREFIX.'company';
 $g5['companyetc_table']         = PROJ_TABLE_PREFIX.'companyetc';
 $g5['company_member_table']     = PROJ_TABLE_PREFIX.'company_member';
