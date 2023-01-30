@@ -59,6 +59,20 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">카드사만료시작년도</th>
+			<td colspan="3">
+				<?php echo help('2020') ?>
+				<input type="text" name="set_cardexpire_startyear" value="<?php echo $g5['setting']['set_cardexpire_startyear'] ?>" id="set_cardexpire_startyear" required class="required frm_input" style="width:100px;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">카드사만료년수</th>
+			<td colspan="3">
+				<?php echo help('20') ?>
+				<input type="text" name="set_cardexpire_yearcnt" value="<?php echo $g5['setting']['set_cardexpire_yearcnt'] ?>" id="set_cardexpire_yearcnt" required class="required frm_input" style="width:100px;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">카드사종류</th>
 			<td colspan="3">
 				<?php echo help('381=KB국민카드,366=신한카드,044=하나카드,368=롯데카드,361=BC카드,371=NH농협카드,365=삼성카드,367=현대카드') ?>

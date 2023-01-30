@@ -116,6 +116,56 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
     <p>사원에게 지급한 카드를 관리하는 페이지 입니다.</p>
 </div>
 
+<?php
+$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 10 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일','최호기','허준영') ORDER BY mb_name ";
+// echo $mb_sql;
+$mb_result = sql_query($mb_sql,1);
+?>
+<div id="fcard_box">
+<form name="form_personal" id="form_personal" action="./personal_caruse_update.php" onsubmit="return form_personal_submit(this);" method="post">
+<select name="mb_id">
+    <option value="">::사용자선택::</option>
+    <?php for($v=0;$mrow=sql_fetch_array($mb_result);$v++){ ?>
+    <option value="<?=$mrow['mb_id']?>"><?=$mrow['mb_name']?></option>
+    <?php } ?>
+</select>
+<input type="hidden" name="mb_id" value="<?=$member['mb_id']?>">
+<label for="pcu_date" class="fp_label">
+    <input type="text" name="pcu_date" placeholder="사용일" id="pcu_date" readonly class="frm_input readonly" value="">
+</label>
+<label for="pcu_reason" class="fp_label">
+    <input type="text" name="pcu_reason" placeholder="사용목적" id="pcu_reason" class="frm_input" value="" style="width:200px;">
+</label>
+<label for="pcu_start_km" class="fp_label lb_km">
+    <input type="text" name="pcu_start_km" placeholder="출발당시" id="pcu_start_km" class="frm_input" value="" num="">
+    <span>km</span>
+</label>
+<label for="pcu_arrival_km" class="fp_label lb_km">
+    <input type="text" name="pcu_arrival_km" placeholder="도착당시" id="pcu_arrival_km" class="frm_input" value="" num="">
+    <span>km</span>
+</label>
+<label for="pcu_oil_type" class="fp_label">
+    <select name="pcu_oil_type" id="pcu_oil_type">
+        <option value="">없음</option>
+        <?=$g5['set_mb_oiltype_options']?>
+    </select>
+</label>
+<input type="submit" class="btn_register" value="등록">
+<script>
+    $('#pcu_oil_type').val('<?=$member['mb_oil_type']?>');
+</script>
+</form>
+<?php if($super_admin){ ?>
+	
+<div id="status_change">
+    <select name="pcu_status_change" id="pcu_status_change">
+        <?=$g5['set_personal_carusestatus_options']?>
+    </select>
+    <button type="button" onclick="slet_input(document.getElementById('form01'));" class="btn_status_change">상태일괄변경</button>
+</div>
+<?php } ?>
+</div><!--//#fcard_box-->
+
 <form name="form01" id="form01" action="./card_user_list_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
