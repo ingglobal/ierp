@@ -8,7 +8,8 @@ if (!count($_POST['chk'])) {
     alert($_POST['act_button']." 하실 항목을 하나 이상 체크하세요.");
 }
 
-auth_check($auth[$sub_menu], 'w');
+if(!$super_admin)
+    auth_check($auth[$sub_menu], 'w');
 
 check_admin_token();
 
@@ -24,7 +25,8 @@ if ($_POST['act_button'] == "선택수정") {
         if (!$mb['mb_id']) {
             $msg .= $mb['mb_id'].' : 회원자료가 존재하지 않습니다.\\n';
         } else if ($is_admin != 'super' && $mb['mb_level'] >= $member['mb_level']) {
-            $msg .= $mb['mb_id'].' : 자신보다 권한이 높거나 같은 회원은 수정할 수 없습니다.\\n';
+            if(!$super_admin)
+                $msg .= $mb['mb_id'].' : 자신보다 권한이 높거나 같은 회원은 수정할 수 없습니다.\\n';
         } else if ($member['mb_id'] == $mb['mb_id']) {
             $msg .= $mb['mb_id'].' : 로그인 중인 관리자는 수정 할 수 없습니다.\\n';
         } else {

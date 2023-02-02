@@ -161,8 +161,7 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
 		<th scope="row"><label for="mb_3">직급(직함)<?php if($is_admin){ ?>(mb_3)<?php } ?><strong class="sound_only">필수</strong></label></th>
 		<td>
             <?php
-            // if(auth_check($auth[$sub_menu],'d',1)&&$member['mb_1']<=4)
-            if(!$super_admin)
+            if(auth_check($auth[$sub_menu],'d',1)&&$member['mb_1']<=4)
                 echo '<select name="mb_3" id="mb_3" title="직급선택" class=""  onFocus="this.initialSelect = this.selectedIndex;" onChange="this.selectedIndex = this.initialSelect;">';
             else
                 echo '<select name="mb_3" id="mb_3" title="직급선택" class="">';
@@ -263,8 +262,7 @@ this.form.mb_intercept_date.value=this.form.mb_intercept_date.defaultValue; }">
         </th>
 		<td colspan="<?=(($member['mb_level'] >= 8 || $member['mb_6'] == 1) ? '' : '3')?>">
             <?php
-            // if(auth_check($auth[$sub_menu],'d',1)&&$member['mb_1']<=4)
-            if(!$super_admin)
+            if(auth_check($auth[$sub_menu],'d',1)&&$member['mb_1']<=4)
                 echo '<select name="mb_6" id="mb_6" title="등급선택" class=""  onFocus="this.initialSelect = this.selectedIndex;" onChange="this.selectedIndex = this.initialSelect;">';
             else
                 echo '<select name="mb_6" id="mb_6" title="등급선택" class="">';

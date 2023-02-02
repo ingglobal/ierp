@@ -151,7 +151,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
     <caption><?php echo $g5['title']; ?> 목록</caption>
     <thead>
     <tr>
-        <th scope="col" id="mb_list_chk" style="display:<?php if(!$super_admin) echo 'none';?>">
+        <th scope="col" id="mb_list_chk" style="display:<?php if(auth_check($auth[$sub_menu],'d',1)) echo 'none';?>">
             <label for="chkall" class="sound_only">회원 전체</label>
             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
         </th>
@@ -206,7 +206,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
     ?>
 
     <tr class="<?php echo $bg; ?>" tr_id="<?php echo $row['mb_id'] ?>">
-        <td headers="mb_list_chk" class="td_chk" style="display:<?php if(!$super_admin) echo 'none';?>">
+        <td headers="mb_list_chk" class="td_chk" style="display:<?php if(auth_check($auth[$sub_menu],'d',1)) echo 'none';?>">
             <input type="hidden" name="mb_id[<?php echo $i ?>]" value="<?php echo $row['mb_id'] ?>" id="mb_id_<?php echo $i ?>">
             <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['mb_name']); ?> <?php echo get_text($row['mb_nick']); ?>님</label>
             <input type="checkbox" name="chk[]" value="<?php echo $i ?>" id="chk_<?php echo $i ?>">
@@ -235,8 +235,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
         <td headers="mb_list_mobile" class="td_tel"><?php echo get_text($row['mb_hp']); ?></td>
         <td headers="mb_list_auth" class="td_mbstat text_left padding_left_20"><!-- 소속 -->
             <input type="hidden" name="mb_2_old[<?php echo $i ?>]" value="<?php echo $row['mb_2'] ?>" id="mb_2_old_<?php echo $i ?>">
-            <?php  ;//if(auth_check($auth[$sub_menu],'d',1)) { ?>
-            <?php  if(!$super_admin) { ?>
+            <?php  if(auth_check($auth[$sub_menu],'d',1)) { ?>
             <input type="hidden" name="mb_2[<?php echo $i ?>]" value="<?php echo $row['mb_2'] ?>" id="mb_2_<?php echo $i ?>" class="tbl_input full_input">
             <?php echo $g5['department_up_names'][$row['mb_2']] ?>
             <?php } else { ?>
@@ -248,8 +247,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
             <?php } ?>
         </td>
         <td headers="mb_list_1" class="td_1"><!-- 직책 -->
-            <?php  ;//if(auth_check($auth[$sub_menu],'d',1)) { ?>
-            <?php  if(!$super_admin) { ?>
+            <?php  if(auth_check($auth[$sub_menu],'d',1)) { ?>
             <input type="hidden" name="mb_1[<?php echo $i ?>]" value="<?php echo $row['mb_1'] ?>" id="mb_1_<?php echo $i ?>" class="tbl_input full_input">
             <?php echo $g5['set_mb_positions_value'][$row['mb_1']] ?>
             <?php } else { ?>
@@ -294,8 +292,8 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
 <div class="btn_fixed_top" style="display:<?php if(!$super_admin) echo 'none';?>">
     <?php if(!auth_check($auth[$sub_menu],'d',1)) { ?>
     <a href="./_win_push_all.php" id="btn_push_all" class="btn btn_03" style="margin-right:20px;">전체푸시</a>
-    <?php } ?>
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
+    <?php } ?>
 
     <?php ;//if(!auth_check($auth[$sub_menu],'d',1)) { ?>
     <?php if($super_admin) { ?>
