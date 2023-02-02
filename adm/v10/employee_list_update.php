@@ -29,7 +29,9 @@ if ($_POST['act_button'] == "선택수정") {
                 $msg .= $mb['mb_id'].' : 자신보다 권한이 높거나 같은 회원은 수정할 수 없습니다.\\n';
         } else if ($member['mb_id'] == $mb['mb_id']) {
             $msg .= $mb['mb_id'].' : 로그인 중인 관리자는 수정 할 수 없습니다.\\n';
-        } else {
+        } 
+        
+        if(!$msg){
             if($_POST['mb_certify'][$k])
                 $mb_adult = (int) $_POST['mb_adult'][$k];
             else
