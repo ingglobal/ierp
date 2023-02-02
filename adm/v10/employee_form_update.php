@@ -154,151 +154,123 @@ else if ($w == 'u')
 else
     alert('제대로 된 값이 넘어오지 않았습니다.');
 
-//기존 회원권한 삭제
-$auth_del_sql = " DELETE FROM {$g5['auth_table']} where mb_id = '{$mb_id}' ";
-sql_query($auth_del_sql,1);
-
+    
 //탈퇴 및 접근차단이 아닐때만 권한 재설정
 if(!$leave_flag){
-    //회원권한 재설정
-    if($_POST['mb_6'] == 1) {
-        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
-            ('{$mb_id}', '200100', 'r,w'),
-            ('{$mb_id}', '960100', 'r,w'),
-            ('{$mb_id}', '960120', 'r,w'),
-            ('{$mb_id}', '960130', 'r,w'),
-            ('{$mb_id}', '960140', 'r,w'),
-            ('{$mb_id}', '960150', 'r,w'),
-            ('{$mb_id}', '960200', 'r,w,d'),
-            ('{$mb_id}', '960250', 'r,w'),
-            ('{$mb_id}', '960210', 'r,w'),
-            ('{$mb_id}', '960240', 'r,w'),
-            ('{$mb_id}', '960248', 'r,w'),
-            ('{$mb_id}', '960245', 'r,w'),
-            ('{$mb_id}', '960255', 'r,w'),
-            ('{$mb_id}', '960215', 'r,w'),
-            ('{$mb_id}', '960230', 'r,w'),
-            ('{$mb_id}', '960260', 'r,w'),
-            ('{$mb_id}', '960280', 'r,w'),
-            ('{$mb_id}', '960220', 'r,w'),
-            ('{$mb_id}', '960400', 'r,w,d'),
-            ('{$mb_id}', '960500', 'r,w'),
-            ('{$mb_id}', '960600', 'r,w'),
-            ('{$mb_id}', '960610', 'r,w'),
-            ('{$mb_id}', '960620', 'r,w'),
-            ('{$mb_id}', '960630', 'r,w'),
-            ('{$mb_id}', '960640', 'r,w'),
-            ('{$mb_id}', '960700', 'r,w,d'),
-            ('{$mb_id}', '960800', 'r,w,d') ";
-        // echo $auth_ins_sql;exit;
-        sql_query($auth_ins_sql,1);
-    }
-    else if($_POST['mb_6'] == 2) {
-        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
-            ('{$mb_id}', '960100', 'r,w'),
-            ('{$mb_id}', '960130', 'r,w'),
-            ('{$mb_id}', '960140', 'r,w'),
-            ('{$mb_id}', '960150', 'r,w'),
-            ('{$mb_id}', '960200', 'r,w'),
-            ('{$mb_id}', '960250', 'r,w'),
-            ('{$mb_id}', '960210', 'r,w'),
-            ('{$mb_id}', '960215', 'r,w'),
-            ('{$mb_id}', '960230', 'r,w'),
-            ('{$mb_id}', '960260', 'r,w'),
-            ('{$mb_id}', '960280', 'r,w'),
-            ('{$mb_id}', '960220', 'r,w'),
-            ('{$mb_id}', '960400', 'r,w'),
-            ('{$mb_id}', '960600', 'r,w'),
-            ('{$mb_id}', '960610', 'r,w'),
-            ('{$mb_id}', '960620', 'r,w'),
-            ('{$mb_id}', '960630', 'r,w'),
-            ('{$mb_id}', '960640', 'r,w'),
-            ('{$mb_id}', '960700', 'r,w,d'),
-            ('{$mb_id}', '960800', 'r,w,d') ";
-        sql_query($auth_ins_sql,1);
-    }
-    else if($_POST['mb_6'] == 3) {
-        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
-            ('{$mb_id}', '960100', 'r,w'),
-            ('{$mb_id}', '960130', 'r,w'),
-            ('{$mb_id}', '960140', 'r,w'),
-            ('{$mb_id}', '960150', 'r'),
-            ('{$mb_id}', '960215', 'r,w'),
-            ('{$mb_id}', '960230', 'r,w'),
-            ('{$mb_id}', '960260', 'r,w'),
-            ('{$mb_id}', '960280', 'r,w'),
-            ('{$mb_id}', '960220', 'r,w'),
-            ('{$mb_id}', '960400', 'r,w'),
-            ('{$mb_id}', '960600', 'r,w'),
-            ('{$mb_id}', '960610', 'r,w'),
-            ('{$mb_id}', '960620', 'r,w'),
-            ('{$mb_id}', '960630', 'r,w'),
-            ('{$mb_id}', '960640', 'r,w'),
-            ('{$mb_id}', '960700', 'r'),
-            ('{$mb_id}', '960800', 'r,w') ";
-        sql_query($auth_ins_sql,1);
-    }
-    else if($_POST['mb_6'] == 4) {
-        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
-            ('{$mb_id}', '960100', 'r,w'),
-            ('{$mb_id}', '960130', 'r,w'),
-            ('{$mb_id}', '960140', 'r,w'),
-            ('{$mb_id}', '960150', 'r'),
-            ('{$mb_id}', '960215', 'r,w'),
-            ('{$mb_id}', '960230', 'r,w'),
-            ('{$mb_id}', '960260', 'r,w'),
-            ('{$mb_id}', '960280', 'r,w'),
-            ('{$mb_id}', '960220', 'r,w'),
-            ('{$mb_id}', '960400', 'r,w'),
-            ('{$mb_id}', '960600', 'r,w'),
-            ('{$mb_id}', '960610', 'r,w'),
-            ('{$mb_id}', '960620', 'r,w'),
-            ('{$mb_id}', '960630', 'r,w'),
-            ('{$mb_id}', '960640', 'r,w'),
-            ('{$mb_id}', '960700', 'r'),
-            ('{$mb_id}', '960800', 'r,w') ";
-        sql_query($auth_ins_sql,1);
-    }
-    else if($_POST['mb_6'] == 5) {
-        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
-            ('{$mb_id}', '960100', 'r,w'),
-            ('{$mb_id}', '960130', 'r,w'),
-            ('{$mb_id}', '960140', 'r,w'),
-            ('{$mb_id}', '960150', 'r'),
-            ('{$mb_id}', '960215', 'r'),
-            ('{$mb_id}', '960230', 'r,w'),
-            ('{$mb_id}', '960260', 'r,w'),
-            ('{$mb_id}', '960280', 'r,w'),
-            ('{$mb_id}', '960220', 'r,w'),
-            ('{$mb_id}', '960400', 'r,w'),
-            ('{$mb_id}', '960600', 'r,w'),
-            ('{$mb_id}', '960620', 'r,w'),
-            ('{$mb_id}', '960630', 'r,w'),
-            ('{$mb_id}', '960640', 'r,w'),
-            ('{$mb_id}', '960700', 'r'),
-            ('{$mb_id}', '960800', 'r,w') ";
-        sql_query($auth_ins_sql,1);
-    }
-    else {
-        if($mb_id == 'iljung'){
+    if($w == ''){
+        //기존 회원권한 삭제
+        $auth_del_sql = " DELETE FROM {$g5['auth_table']} where mb_id = '{$mb_id}' ";
+        sql_query($auth_del_sql,1);
+        //회원권한 재설정
+        if($_POST['mb_6'] == 1) {
             $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+                ('{$mb_id}', '200100', 'r,w'),
                 ('{$mb_id}', '960100', 'r,w'),
+                ('{$mb_id}', '960120', 'r,w'),
+                ('{$mb_id}', '960130', 'r,w'),
+                ('{$mb_id}', '960140', 'r,w'),
+                ('{$mb_id}', '960150', 'r,w'),
+                ('{$mb_id}', '960200', 'r,w,d'),
+                ('{$mb_id}', '960250', 'r,w'),
+                ('{$mb_id}', '960210', 'r,w'),
+                ('{$mb_id}', '960240', 'r,w'),
+                ('{$mb_id}', '960248', 'r,w'),
+                ('{$mb_id}', '960245', 'r,w'),
+                ('{$mb_id}', '960255', 'r,w'),
+                ('{$mb_id}', '960215', 'r,w'),
                 ('{$mb_id}', '960230', 'r,w'),
-                ('{$mb_id}', '960400', 'r,w'),
+                ('{$mb_id}', '960260', 'r,w'),
                 ('{$mb_id}', '960280', 'r,w'),
+                ('{$mb_id}', '960220', 'r,w'),
+                ('{$mb_id}', '960400', 'r,w,d'),
+                ('{$mb_id}', '960500', 'r,w'),
                 ('{$mb_id}', '960600', 'r,w'),
-                ('{$mb_id}', '960620', 'r,w') ";
+                ('{$mb_id}', '960610', 'r,w'),
+                ('{$mb_id}', '960620', 'r,w'),
+                ('{$mb_id}', '960630', 'r,w'),
+                ('{$mb_id}', '960640', 'r,w'),
+                ('{$mb_id}', '960700', 'r,w,d'),
+                ('{$mb_id}', '960800', 'r,w,d') ";
+            // echo $auth_ins_sql;exit;
             sql_query($auth_ins_sql,1);
         }
-        else{
+        else if($_POST['mb_6'] == 2) {
             $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
                 ('{$mb_id}', '960100', 'r,w'),
-				('{$mb_id}', '960130', 'r,w'),
+                ('{$mb_id}', '960130', 'r,w'),
+                ('{$mb_id}', '960140', 'r,w'),
+                ('{$mb_id}', '960150', 'r,w'),
+                ('{$mb_id}', '960200', 'r,w'),
+                ('{$mb_id}', '960250', 'r,w'),
+                ('{$mb_id}', '960210', 'r,w'),
+                ('{$mb_id}', '960215', 'r,w'),
+                ('{$mb_id}', '960230', 'r,w'),
+                ('{$mb_id}', '960260', 'r,w'),
+                ('{$mb_id}', '960280', 'r,w'),
+                ('{$mb_id}', '960220', 'r,w'),
+                ('{$mb_id}', '960400', 'r,w'),
+                ('{$mb_id}', '960600', 'r,w'),
+                ('{$mb_id}', '960610', 'r,w'),
+                ('{$mb_id}', '960620', 'r,w'),
+                ('{$mb_id}', '960630', 'r,w'),
+                ('{$mb_id}', '960640', 'r,w'),
+                ('{$mb_id}', '960700', 'r,w,d'),
+                ('{$mb_id}', '960800', 'r,w,d') ";
+            sql_query($auth_ins_sql,1);
+        }
+        else if($_POST['mb_6'] == 3) {
+            $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+                ('{$mb_id}', '960100', 'r,w'),
+                ('{$mb_id}', '960130', 'r,w'),
+                ('{$mb_id}', '960140', 'r,w'),
+                ('{$mb_id}', '960150', 'r'),
+                ('{$mb_id}', '960215', 'r,w'),
+                ('{$mb_id}', '960230', 'r,w'),
+                ('{$mb_id}', '960260', 'r,w'),
+                ('{$mb_id}', '960280', 'r,w'),
+                ('{$mb_id}', '960220', 'r,w'),
+                ('{$mb_id}', '960400', 'r,w'),
+                ('{$mb_id}', '960600', 'r,w'),
+                ('{$mb_id}', '960610', 'r,w'),
+                ('{$mb_id}', '960620', 'r,w'),
+                ('{$mb_id}', '960630', 'r,w'),
+                ('{$mb_id}', '960640', 'r,w'),
+                ('{$mb_id}', '960700', 'r'),
+                ('{$mb_id}', '960800', 'r,w') ";
+            sql_query($auth_ins_sql,1);
+        }
+        else if($_POST['mb_6'] == 4) {
+            $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+                ('{$mb_id}', '960100', 'r,w'),
+                ('{$mb_id}', '960130', 'r,w'),
+                ('{$mb_id}', '960140', 'r,w'),
+                ('{$mb_id}', '960150', 'r'),
+                ('{$mb_id}', '960215', 'r,w'),
+                ('{$mb_id}', '960230', 'r,w'),
+                ('{$mb_id}', '960260', 'r,w'),
+                ('{$mb_id}', '960280', 'r,w'),
+                ('{$mb_id}', '960220', 'r,w'),
+                ('{$mb_id}', '960400', 'r,w'),
+                ('{$mb_id}', '960600', 'r,w'),
+                ('{$mb_id}', '960610', 'r,w'),
+                ('{$mb_id}', '960620', 'r,w'),
+                ('{$mb_id}', '960630', 'r,w'),
+                ('{$mb_id}', '960640', 'r,w'),
+                ('{$mb_id}', '960700', 'r'),
+                ('{$mb_id}', '960800', 'r,w') ";
+            sql_query($auth_ins_sql,1);
+        }
+        else if($_POST['mb_6'] == 5) {
+            $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+                ('{$mb_id}', '960100', 'r,w'),
+                ('{$mb_id}', '960130', 'r,w'),
                 ('{$mb_id}', '960140', 'r,w'),
                 ('{$mb_id}', '960150', 'r'),
                 ('{$mb_id}', '960215', 'r'),
+                ('{$mb_id}', '960230', 'r,w'),
                 ('{$mb_id}', '960260', 'r,w'),
                 ('{$mb_id}', '960280', 'r,w'),
+                ('{$mb_id}', '960220', 'r,w'),
                 ('{$mb_id}', '960400', 'r,w'),
                 ('{$mb_id}', '960600', 'r,w'),
                 ('{$mb_id}', '960620', 'r,w'),
@@ -308,8 +280,37 @@ if(!$leave_flag){
                 ('{$mb_id}', '960800', 'r,w') ";
             sql_query($auth_ins_sql,1);
         }
-    }
-
+        else {
+            if($mb_id == 'iljung'){
+                $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+                    ('{$mb_id}', '960100', 'r,w'),
+                    ('{$mb_id}', '960230', 'r,w'),
+                    ('{$mb_id}', '960400', 'r,w'),
+                    ('{$mb_id}', '960280', 'r,w'),
+                    ('{$mb_id}', '960600', 'r,w'),
+                    ('{$mb_id}', '960620', 'r,w') ";
+                sql_query($auth_ins_sql,1);
+            }
+            else{
+                $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+                    ('{$mb_id}', '960100', 'r,w'),
+                    ('{$mb_id}', '960130', 'r,w'),
+                    ('{$mb_id}', '960140', 'r,w'),
+                    ('{$mb_id}', '960150', 'r'),
+                    ('{$mb_id}', '960215', 'r'),
+                    ('{$mb_id}', '960260', 'r,w'),
+                    ('{$mb_id}', '960280', 'r,w'),
+                    ('{$mb_id}', '960400', 'r,w'),
+                    ('{$mb_id}', '960600', 'r,w'),
+                    ('{$mb_id}', '960620', 'r,w'),
+                    ('{$mb_id}', '960630', 'r,w'),
+                    ('{$mb_id}', '960640', 'r,w'),
+                    ('{$mb_id}', '960700', 'r'),
+                    ('{$mb_id}', '960800', 'r,w') ";
+                sql_query($auth_ins_sql,1);
+            }
+        }
+    }   
 
     if($is_admin && $_POST['mb_6'] >= 2 && count($g5['set_mb_inoutprice_arr'])){
         $inout_arr = ($_POST['mb_8']) ? explode(',',$_POST['mb_8']) : array();
