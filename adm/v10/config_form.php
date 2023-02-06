@@ -87,6 +87,13 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">카드사용자상태값</th>
+			<td colspan="3">
+				<?php echo help('pending=대기,ok=사용중,hide=숨김,expire=만료,return=반납,trash=삭제') ?>
+				<input type="text" name="set_carduser_status" value="<?php echo $g5['setting']['set_carduser_status'] ?>" id="set_carduser_status" required class="required frm_input" style="width:60%;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">분류(카테고리) terms</th>
 			<td colspan="3">
 				<?php echo help('') ?>

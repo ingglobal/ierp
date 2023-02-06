@@ -28,6 +28,13 @@ if ($stx) {
     }
 }
 
+if($sch_crd_code){
+    $where[] = " crd_code = '{$sch_crd_code}' ";
+}
+if($sch_crd_expire_year){
+    $where[] = " crd_expire_year = '{$sch_crd_expire_year}' ";
+}
+
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
@@ -74,7 +81,7 @@ if(G5_IS_MOBILE){
 $colspan = 10;
 
 // 검색어 확장
-$qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea;
+$qstr .= $qstr.'&sch_crd_code='.$sch_crd_code.'&sch_crd_expire_year='.$sch_crd_expire_year;
 ?>
 <style>
 #fcard_box{padding-bottom:10px;}
@@ -94,18 +101,35 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
     <span class="btn_ov01"><span class="ov_txt">총</span><span class="ov_num"> <?php echo number_format($total_count) ?></span></span>
     <span class="btn_ov01"><span class="ov_txt">승인대기</span><span class="ov_num"> <?php echo number_format($pending_count) ?></span></span>
 </div>
-
+<?php 
+$xp_y = ($g5['setting']['set_cardexpire_startyear'])?$g5['setting']['set_cardexpire_startyear']:2020;
+$xp_c = ($g5['setting']['set_cardexpire_yearcnt'])?$g5['setting']['set_cardexpire_yearcnt']:20;
+?>
 <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
+<select name="sch_crd_code" id="sch_crd_code">
+    <option value="">::카드사선택::</option>
+    <?=$g5['set_card_value_options']?>
+</select>
+<script>
+$('#sch_crd_code').val('<?=$sch_crd_code?>');
+</script>
+<select name="sch_crd_expire_year" id="sch_crd_expire_year">
+    <option value="">::만기년::</option>
+    <?php for($y=0;$y<$xp_c;$y++){ ?>
+    <option value="<?=substr(($xp_y+$y),-2)?>"><?=substr(($xp_y+$y),-2)?></option>
+    <?php } ?>
+</select>
+<script>
+$('#sch_crd_expire_year').val('<?=$sch_crd_expire_year?>');
+</script>
 <label for="sfl" class="sound_only">검색대상</label>
-<select name="ser_com_type" class="cp_field" title="업종선택">
-	<option value="">전체업종</option>
-	<?=$g5['set_com_type_options_value']?>
-</select>
-<script>$('select[name=ser_com_type]').val('<?=$_GET['ser_com_type']?>').attr('selected','selected');</script>
 <select name="sfl" id="sfl">
-	<option value="crd_name"<?php echo get_selected($_GET['sfl'], "crd_name"); ?>>카드사명</option>
-    <option value="com_status"<?php echo get_selected($_GET['sfl'], "com_status"); ?>>상태</option>
+	<option value="crd_no"<?php echo get_selected($_GET['sfl'], "crd_no"); ?>>카드번호</option>
+    <option value="crd_memo"<?php echo get_selected($_GET['sfl'], "crd_memo"); ?>>메모</option>
 </select>
+<script>
+$('#sfl').val('<?=(($sfl)?$sfl:'crd_no')?>');
+</script>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
 <input type="submit" class="btn_submit" value="검색">
@@ -123,12 +147,9 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
     <?=$g5['set_card_value_options']?>
 </select>
 <label for="crd_no" class="fc_label">
-    <input type="text" name="crd_no" id="crd_no" placeholder="카드번호" class="frm_input" value="" onclick="javascript:only_number(this);">
+    <input type="text" name="crd_no" id="crd_no" placeholder="카드번호" class="frm_input card_no" value="" oninput="card_no_str(this);">
 </label>
-<?php 
-$xp_y = ($g5['setting']['set_cardexpire_startyear'])?$g5['setting']['set_cardexpire_startyear']:2020;
-$xp_c = ($g5['setting']['set_cardexpire_yearcnt'])?$g5['setting']['set_cardexpire_yearcnt']:20;
-?>
+
 <select name="crd_expire_month" id="crd_expire_month">
     <option value="">::만기월::</option>
     <?php for($m=1;$m<=12;$m++){ ?>
@@ -158,6 +179,8 @@ $xp_c = ($g5['setting']['set_cardexpire_yearcnt'])?$g5['setting']['set_cardexpir
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
+<input type="hidden" name="sch_crd_code" value="<?php echo $sch_crd_code ?>">
+<input type="hidden" name="sch_crd_expire_year" value="<?php echo $sch_crd_expire_year ?>">
 <input type="hidden" name="token" value="">
 <input type="hidden" name="w" value="">
 
@@ -188,6 +211,10 @@ $xp_c = ($g5['setting']['set_cardexpire_yearcnt'])?$g5['setting']['set_cardexpir
 		if($row['crd_status'] == 'expire')
 			$row['crd_status_expire_class']	= " tr_expire";
 
+        $row['crd_no'] = preg_replace('/^(\d{4})(\d{4})(\d{4})(\d{4})/','$1-$2-$3-$4',$row['crd_no']);
+
+        $row['crd_no'] = substr($row['crd_no'],0,19);
+        
         $bg = 'bg'.($i%2);
     ?>
 
@@ -212,9 +239,9 @@ $xp_c = ($g5['setting']['set_cardexpire_yearcnt'])?$g5['setting']['set_cardexpir
             </script>
 		</td>
 		<td class="td_crd_no"><!-- 카드번호 -->
-            <input type="text" name="crd_no[<?php echo $i ?>]" value="<?=$row['crd_no']?>" id="crd_no_<?=$i?>" class="frm_input">
+            <input type="text" name="crd_no[<?php echo $i ?>]" value="<?=$row['crd_no']?>" id="crd_no_<?=$i?>" class="frm_input card_no" oninput="card_no_str(this);">
 		</td>
-		<td class="td_crd_expire_month"><!-- 만기일 -->
+		<td class="td_crd_expire_month"><!-- 만기월 -->
             <select name="crd_expire_month[<?php echo $i ?>]" id="crd_expire_month_<?=$i?>">
                 <?php for($m=1;$m<=12;$m++){ ?>
                 <option value="<?=sprintf("%02d",$m)?>"><?=sprintf("%02d",$m)?></option>
@@ -224,7 +251,7 @@ $xp_c = ($g5['setting']['set_cardexpire_yearcnt'])?$g5['setting']['set_cardexpir
             $("#crd_expire_month_<?=$i?>").val('<?=$row['crd_expire_month']?>');
             </script>
 		</td>
-        <td class="td_crd_expire_year">
+        <td class="td_crd_expire_year"><!-- 만기년 -->
             <select name="crd_expire_year[<?php echo $i ?>]" id="crd_expire_year_<?=$i?>">
                 <?php for($y=0;$y<$xp_c;$y++){ ?>
                 <option value="<?=substr(($xp_y+$y),-2)?>"><?=substr(($xp_y+$y),-2)?></option>
@@ -238,10 +265,12 @@ $xp_c = ($g5['setting']['set_cardexpire_yearcnt'])?$g5['setting']['set_cardexpir
             <input type="text" name="crd_memo[<?php echo $i ?>]" value="<?=$row['crd_memo']?>" class="frm_input" style="width:100%;">
 		</td>
         <td headers="list_crd_status" class="td_crd_status"><!-- 상태 -->
-			<?php echo $g5['set_com_status_value'][$row['com_status']] ?>
-            <select name="crd_status[<?php echo $i ?>]">
-                <?=$g5['set_com_status_value_options']?>
+            <select name="crd_status[<?php echo $i ?>]" id="crd_status_<?php echo $i ?>">
+                <?=$g5['set_card_status_value_options']?>
             </select>
+            <script>
+            $('#crd_status_<?php echo $i ?>').val('<?=$row['crd_status']?>');
+            </script>
 		</td>
 		<td class="td_crd_reg_dt td_center font_size_14"><!-- 등록일 -->
 			<?=$row['crd_reg_dt']?>
@@ -305,15 +334,19 @@ $(function(e) {
 	});
 
     //숫자만 입력
-    $('#crd_no').on('keyup',function(){
-        var num = $(this).val().replace(/[^0-9]/g,"");
-        if(num.length > 16){
-            num = num.substring(0,16);
-        }
-        num = (num == '0') ? '' : num;
-        $(this).val(num);
-    });
+    // $('.card_no').on('keyup',function(){
+    //     var num = $(this).val().replace(/[^0-9]/g,"").replace(/^(\d{0,4})(\d{0,4})(\d{0,4})$/g,"$1-$2-$3").replace(/(\-{1,2})/g,"");
+    //     $(this).val(num);
+    // });
 });
+
+function card_no_str(inp){
+    if(inp.value.length <= 19){
+        inp.value = inp.value.replace(/[^0-9]/g, '').replace(/^(\d{4})(\d{4})(\d{4})(\d{4})$/g, "$1-$2-$3-$4").replace(/(\-{1,2})$/g, "");
+    }else{
+        inp.value = inp.value.substr(0,19);
+    }
+}
 
 
 function form_cardregist_submit(f){
@@ -383,10 +416,10 @@ function form01_submit(f)
         });
 
 		$('input[name="w"]').val('u');
-        return false;
+        // return false;
 	}
 
-	if(document.pressed == "선택삭제") {
+	else if(document.pressed == "선택삭제") {
 		if (!confirm("선택한 항목(들)을 정말 삭제 하시겠습니까?\n복구가 어려우니 신중하게 결정 하십시오.")) {
 			return false;
 		}

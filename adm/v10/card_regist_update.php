@@ -13,10 +13,11 @@ if(!$_POST['crd_expire_year']) alert('만기년을 선택해 주세요.');
 $crd_no = strip_tags($_POST['crd_no']);
 $crd_no = trim($crd_no);
 $crd_no = str_replace('&nbsp;','',$crd_no);
+$crd_no = preg_replace("/-/","",$crd_no);
 $crd_memo = strip_tags($_POST['crd_memo']);
 $crd_memo = trim($crd_memo);
 $crd_memo = str_replace('&nbsp;','',$crd_memo);
-// $pcu_start_km = preg_replace("/,/","",$_POST['pcu_start_km']);
+$pcu_start_km = preg_replace("/,/","",$_POST['pcu_start_km']);
 /*
 $mb = get_table_meta('member','mb_id',$member['mb_id']);
 if($mb['mb_oil_type'] != $pcu_oil_type || !$mb['mb_oil_type']){
@@ -35,4 +36,5 @@ $sql = " INSERT INTO {$g5['card_table']} SET
 ";
 sql_query($sql,1);
 
+$qstr .= $qstr.'&sch_crd_code='.$sch_crd_code.'&sch_crd_expire_year='.$sch_crd_expire_year;
 goto_url('./card_list.php?'.$qstr, false);

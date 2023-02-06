@@ -1,6 +1,6 @@
 <?php
-$sub_menu = '960210';
-include_once('./_ㅋcommon.php');
+$sub_menu = '960257';
+include_once('./_common.php');
 
 $sql_common = " FROM {$g5['member_table']} AS com";
 
@@ -59,7 +59,7 @@ $pending_count = $row['cnt'];
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
 
-$g5['title'] = '작업자목록';
+$g5['title'] = '사원목록';
 //검색어 확장
 $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea;
 include_once(G5_PATH.'/head.sub.php');
@@ -136,9 +136,9 @@ html,body{overflow:hidden;}
 $('body').attr({'onresize':'parent.resizeTo(400,640)','onload':'parent.resizeTo(400,640)'});
 $('.a_mag').on('click',function(){
 	//alert($(this).attr('mb_id'));
-	opener.document.getElementById('wr_mb_id_worker').value = $(this).attr('mb_id');
+	opener.document.getElementById('mb_id').value = $(this).attr('mb_id');
 	if($('#mb_rank').length) opener.document.getElementById('mb_rank').value = $(this).attr('mb_rank');
-	opener.document.getElementById('mb_worker_name').value = $(this).attr('mb_name');
+	opener.document.getElementById('mb_name').value = $(this).attr('mb_name');
 	window.close();
 });
 </script>
