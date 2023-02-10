@@ -277,7 +277,8 @@ $('#mb_name').on('click',function(){
 </div>
 
 <div class="btn_fixed_top">
-    <?php if(!auth_check($auth[$sub_menu],"d",1)) { ?>
+    <?php //if(!auth_check($auth[$sub_menu],"d",1)) { ?>
+    <?php if($super_admin) { ?>
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn" style="display:no ne;">
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
     <?php } ?>
