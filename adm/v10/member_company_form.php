@@ -51,7 +51,8 @@ include_once('./_head.sub.php');
 				<th scope="row">업체</th>
 				<td>
                     <div class="com_name_txt" id="com_name_txt"><?php echo $com['com_name'];?></div>
-					<input type="text" name="com_idx" value="<?php echo $cmm['com_idx'] ?>" id="com_idx" class="frm_input" style="width:35%;">
+					<input type="hidden" name="com_idx" value="<?php echo $cmm['com_idx'] ?>" id="com_idx">
+					<input type="text" name="com_name" value="<?php echo $cmm['com_name'] ?>" id="com_name" class="frm_input" style="width:35%;">
 					<a href="./company_select.popup.php?file_name=<?=$g5['file_name']?>&frm=form01&tar1=com_idx&tar2=com_name_txt" id="btn_company" class="btn_frmline">업체검색</a>
 				</td>
 			</tr>
@@ -60,7 +61,7 @@ include_once('./_head.sub.php');
 				<td>
                     <select name="cmm_title" id="cmm_title" style="width:100px;">
                         <option value="">직급선택</option>
-                        <?=$g5['set_mb_ranks_options_value']?>
+                        <?=$g5['set_mb_ranks_value_options']?>
                     </select>
                     <script>$("select[id=cmm_title]").val("<?=$cmm['cmm_title']?>").attr("selected","selected");</script>
 				</td>
