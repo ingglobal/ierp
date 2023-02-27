@@ -1,5 +1,5 @@
 <?php
-$sub_menu = "950300";
+$sub_menu = "960200";
 include_once('./_common.php');
 
 check_demo();
@@ -9,7 +9,7 @@ if (!count($_POST['chk'])) {
 }
 
 auth_check($auth[$sub_menu], 'w');
-
+// alert('here to');exit;
 check_admin_token();
 
 if ($_POST['act_button'] == "선택수정") {
