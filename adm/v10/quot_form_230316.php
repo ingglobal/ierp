@@ -275,6 +275,15 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 		</td>
 	</tr>
 	<tr>
+		<th scope="row"><label for="com_status">프로젝트타입</label></th>
+		<td colspan="3">
+			<select name="<?=$pre?>_type" id="<?=$pre?>_type">
+				<?=$g5['set_prj_type2_options']?>
+			</select>
+			<script>$('select[name="prj_type"]').val("<?=$row['prj_type']?>");</script>
+		</td>
+	</tr>
+	<tr>
 		<th scope="row">최종고객</th>
 		<td>
 			<input type="text" name="prj_end_company" value="<?=$row['prj_end_company']?>" class="frm_input" style="width:250px;">
@@ -326,8 +335,15 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 			<input type="text" name="prj_receivable" value="<?=$row['prj_receivable']?>" class="frm_input" style="width:130px;">&nbsp;원
 		</td-->
 		<th scope="row">진행율</th>
-		<td colspan="3">
+		<td>
 			<input type="text" name="prj_percent" value="<?=$row['prj_percent']?>" class="frm_input" style="width:130px;text-align:right;">&nbsp;%
+		</td>
+		<th scope="row">자사,타사</th>
+		<td>
+			<select name="prj_belongto" id="prj_belongto">
+				<?=$g5['set_prj_belongto_value_options']?>
+			</select>
+			<script>$('select[name="prj_belongto"]').val("<?=$row['prj_belongto']?>");</script>
 		</td>
 	</tr>
 	<tr>
@@ -500,13 +516,21 @@ $(function() {
 
 function form01_submit(f) {
 	<?php //echo get_editor_js('prj_content'); ?>
-
+	if(!f.prj_type.value){
+		alert('프로젝트타입을 선택하세요.');
+		f.prj_type.focus();
+		return false;
+	}
 	if(!f.prj_status.value){
 		alert('상태값을 선택해 주세요');
 		f.prj_status.focus();
 		return false;
 	}
-
+	if(!f.prj_belongto.value){
+		alert('자사/타사를 선택해 주세요');
+		f.prj_belongto.focus();
+		return false;
+	}
     return true;
 }
 
