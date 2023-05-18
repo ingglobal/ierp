@@ -4,6 +4,8 @@ include_once('./_common.php');
 
 auth_check($auth[$sub_menu],"r");
 
+$show_months = 13; //몇개월치를 볼것인가?
+
 // 변수 설정, 필드 구조 및 prefix 추출
 $table_name = 'personal_caruse';
 $g5_table_name = $g5[$table_name.'_table'];
@@ -18,7 +20,7 @@ $mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 
 // echo $mb_sql;
 $mb_result = sql_query($mb_sql,1);
 $mb_arr = array();
-$ym_arr = months_range(G5_TIME_YMD,12,'asc');
+$ym_arr = months_range(G5_TIME_YMD,$show_months,'asc');
 $ym_total_arr = array();
 $ym_monthkm_arr = array();
 for($m=0;$mrow=sql_fetch_array($mb_result);$m++){
@@ -46,7 +48,6 @@ if($super_admin){
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
-$show_months = 13; //몇개월치를 볼것인가?
 
 $sql_common = " FROM {$g5['personal_caruse_table']} AS pcu
                     LEFT JOIN {$g5['member_table']} AS mb ON pcu.mb_id = mb.mb_id
@@ -56,7 +57,7 @@ $sql_common = " FROM {$g5['personal_caruse_table']} AS pcu
 $where = array();
 //$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
 $where[] = " pcu_status = 'ok' ";   // 디폴트 검색조건
-$where[] = " pcu_date >= DATE_SUB(pcu_date, INTERVAL {$show_months} MONTH) ";   // 디폴트 검색조건
+$where[] = " pcu_date >= '{$ym_arr[0]}-01' ";   // 디폴트 검색조건
 
 
 // 최종 WHERE 생성
@@ -74,7 +75,7 @@ if (!$sst2) {
     $sod2 = "";
 }
 
-$sql_group = " GROUP BY MONTH(pcu_date), pcu.mb_id ";
+$sql_group = " GROUP BY YEAR(pcu_date), MONTH(pcu_date), pcu.mb_id ";
 
 $sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} ";
 
