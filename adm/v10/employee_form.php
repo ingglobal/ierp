@@ -273,6 +273,8 @@ this.form.mb_intercept_date.value=this.form.mb_intercept_date.defaultValue; }">
                 <?php echo $g5['set_mb_grade_value_options'] ?>
 			</select>
 			<script>$('select[name=mb_6]').val('<?=$mb['mb_6']?>').attr('selected','selected');</script>
+            <input type="checkbox" name="auth_reset" id="auth_reset" value="1">
+            <label for="auth_reset">메뉴권한재설정</label>
 		</td>
         <?php if($member['mb_level'] >= 8 || $member['mb_6'] == 1){ ?>
         <th scope="row">

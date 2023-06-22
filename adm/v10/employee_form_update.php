@@ -11,7 +11,9 @@ if ($w == 'u')
 if(!$super_admin) alert('최고운영진만 수정할 수 있습니다.');
 
 check_admin_token();
-
+// echo 'mb_manager_yn = '.$mb_manager_yn."<br>";
+// echo 'auth_reset = '.$auth_reset."<br>";
+// exit;
 $mb_id = trim($_POST['mb_id']);
 
 // 휴대폰번호 체크
@@ -157,7 +159,19 @@ else
     
 //탈퇴 및 접근차단이 아닐때만 권한 재설정
 if(!$leave_flag){
-    if($w == ''){
+    if($w == '' || $auth_reset){
+
+        //운영자에 추가하는 권한
+        $mb_manager_auth = '';
+        if($mb_manager_yn){
+            //업체관리, 프로젝트견적, 수입관리(과제별) 권한부여
+            $mb_manager_auth .= " 
+                ('{$mb_id}', '960200', 'r,w'),
+                ('{$mb_id}', '960210', 'r,w'),
+                ('{$mb_id}', '960240', 'r,w'),
+            ";
+        }
+
         //기존 회원권한 삭제
         $auth_del_sql = " DELETE FROM {$g5['auth_table']} where mb_id = '{$mb_id}' ";
         sql_query($auth_del_sql,1);
@@ -226,6 +240,7 @@ if(!$leave_flag){
                 ('{$mb_id}', '960150', 'r'),
                 ('{$mb_id}', '960215', 'r,w'),
                 ('{$mb_id}', '960230', 'r,w'),
+                {$mb_manager_auth}
                 ('{$mb_id}', '960260', 'r,w'),
                 ('{$mb_id}', '960280', 'r,w'),
                 ('{$mb_id}', '960220', 'r,w'),
