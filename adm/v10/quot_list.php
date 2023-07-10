@@ -109,6 +109,18 @@ if(G5_IS_MOBILE){
     }
 }
 // arr0:name, arr1:colspan, arr2:rowspan, arr3:sort, arr4:width
+$items0 = array(
+    "com_name"=>array("업체명",0,0,0)
+    ,"prj_idx"=>array('번호',0,2,0,0)
+    ,"prj_name"=>array("프로젝트명",0,0,1)
+    ,"prj_ask_date"=>array("요청날짜",0,0,0)
+    ,"mb_id_saler"=>array("영업담당자",0,0,0)
+    ,"prj_doc_no"=>array("발행번호",0,0,0)
+    ,"prj_quot_file"=>array("견적서",0,0,0)
+    ,"prj_board_count"=>array("코멘트",0,2,0)
+    // ,"prj_reg_dt"=>array("등록일",0,0,0)
+    ,"prj_contract_date"=>array("수주일",0,0,0)
+);
 $items1 = array(
     "prj_idx"=>array('번호',0,2,0,0)
     ,"com_name"=>array("업체명",0,0,0)
@@ -132,6 +144,7 @@ $items2 = array(
     ,"prj_status"=>array("상태",0,0,0)
 );
 $items = array_merge($items1,$items2);
+$sch_items = array_merge($items0,$items2)
 ?>
 <style>
 .td_prj_name {text-align:left !important;}
@@ -156,8 +169,8 @@ $items = array_merge($items1,$items2);
 <select name="sfl" id="sfl">
     <?php
     $skips = array('prj_set_output','prj_image','trm_idx_category','prj_idx2','prp_submit_price','prp_nego_price','prp_submit_price','prj_parts','prj_maintain','com_idx','mmg_idx','prj_checks','prj_item','imp_order_file');
-    if(is_array($items)) {
-        foreach($items as $k1 => $v1) {
+    if(is_array($sch_items)) {
+        foreach($sch_items as $k1 => $v1) {
             if(in_array($k1,$skips)) {continue;}
             echo '<option value="'.$k1.'" '.get_selected($sfl, $k1).'>'.$v1[0].'</option>';
         }
