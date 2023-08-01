@@ -27,7 +27,9 @@ if($w == 'u') {
             $msg .= ${$pre}[$pre.'_idx'].': 자료가 존재하지 않습니다.\\n';
         else {
             $sql = "	UPDATE {$g5_table_name} SET 
-                            ".$pre."_status = '".$_POST[$pre.'_status'][$k]."'
+                            mb_id_saler = '{$member['mb_id']}',
+                            ".$pre."_status = '".$_POST[$pre.'_status'][$k]."',
+                            ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
                         WHERE ".$pre."_idx = '".$_POST[$pre.'_idx'][$k]."' 
             ";
             
@@ -48,7 +50,9 @@ else if($w == 'd') {
         else {
             // 상태값 변경
             $sql = "	UPDATE {$g5_table_name} SET 
-                            ".$pre."_status = 'trash'
+                            mb_id_saler = '{$member['mb_id']}',
+                            ".$pre."_status = 'trash',
+                            ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
                         WHERE ".$pre."_idx = '".$_POST[$pre.'_idx'][$k]."' 
             ";
 			sql_query($sql,1);
