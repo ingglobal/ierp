@@ -199,3 +199,8 @@ $(function(){
     }
 });
 </script>
+<?php
+//모달관련
+if(is_file(G5_USER_ADMIN_MODAL_CSS_PATH.'/default_modal.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_MODAL_CSS_URL.'/default_modal.css">',0);
+if(is_file(G5_USER_ADMIN_MODAL_CSS_PATH.'/'.$g5['file_name'].'_modal.css')) add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_MODAL_CSS_URL.'/'.$g5['file_name'].'_modal.css">',0);
+@include_once(G5_USER_ADMIN_MODAL_PATH.'/'.$g5['file_name'].'_modal.php');

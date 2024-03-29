@@ -14,11 +14,14 @@ var swiper = new Swiper('#bo_cate', {
     spaceBetween: 0,
 });
 */
-
-
 }
 </script>
 <?php } ?>
+<!-- PC버전에서의 스크립트 -->
+<?php } else { ?>
+<script>
+
+</script>
 <?php } ?>
 <?php
 include_once (G5_ADMIN_PATH.'/admin.tail.php');

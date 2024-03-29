@@ -474,6 +474,41 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                 <input type="text" name="set_agenda_status" value="<?php echo $g5['setting']['set_agenda_status']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>
+		<tr>
+            <th scope="row">발주상태</th>
+            <td colspan="3">
+                <?php echo help('ok=확정,pending=대기,trash=삭제'); ?>
+                <input type="text" name="set_ppc_status" value="<?php echo $g5['setting']['set_ppc_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">개별발주상태</th>
+            <td colspan="3">
+                <?php echo help('ok=확정,pending=대기,trash=삭제'); ?>
+                <input type="text" name="set_ppt_status" value="<?php echo $g5['setting']['set_ppt_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">지출분배상태</th>
+            <td colspan="3">
+                <?php echo help('ok=확정,pending=대기,trash=삭제'); ?>
+                <input type="text" name="set_ppd_status" value="<?php echo $g5['setting']['set_ppd_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">지출분배타입</th>
+            <td colspan="3">
+                <?php echo help('all=전액,start=선금,middle=중도금,final=잔금,tax=부가세'); ?>
+                <input type="text" name="set_ppd_type" value="<?php echo $g5['setting']['set_ppd_type']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">지출분배지금통장</th>
+            <td colspan="3">
+                <?php echo help('bank=부산은행법인,project=과제'); ?>
+                <input type="text" name="set_ppd_bank" value="<?php echo $g5['setting']['set_ppd_bank']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
 		</tbody>
 		</table>
 	</div>

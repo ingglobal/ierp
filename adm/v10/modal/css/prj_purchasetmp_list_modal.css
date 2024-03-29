@@ -1,0 +1,9 @@
+@charset "utf-8";
+
+.mdl_cont{border-bottom:1px solid #294278;padding-bottom:5px;}
+.mdl_cont li strong,
+.mdl_cont li span{height:45px;line-height:45px;}
+.mdl_cont li strong{display:inline-block;padding:0 10px; width:120px;}
+.mdl_cont li span{display:inline-block;}
+.mdl_cont li span input{width:100px;}
+.mdl_tail{padding:10px 10px;text-align:right;}
