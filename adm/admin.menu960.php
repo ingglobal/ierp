@@ -14,7 +14,7 @@ $menu["menu960"] = array (
 	// array('960248', '기타수입관리(과제별)', ''.G5_USER_ADMIN_URL.'/project_income_list.php', 'project_income_list'),
 	array('960245', '실행가관리', ''.G5_USER_ADMIN_URL.'/project_expense_list.php', 'project_expense_list'),
 	// array('960255', '기타지출관리', ''.G5_USER_ADMIN_URL.'/etc_expense_list.php', 'etc_expense_list'),
-	array('960266', '발주관리', ''.G5_USER_ADMIN_URL.'/prj_purchase_list.php', 'prj_purchase_list'),
+	array('960266', '그룹발주관리', ''.G5_USER_ADMIN_URL.'/prj_purchase_list.php', 'prj_purchase_list'),
 	array('960268', '개별발주관리', ''.G5_USER_ADMIN_URL.'/prj_purchasetmp_list.php', 'prj_purchasetmp_list'),
 	array('960257', '카드관리', ''.G5_USER_ADMIN_URL.'/card_user_list.php', 'card_user_list'),
 	array('960215', '프로젝트관리', ''.G5_USER_ADMIN_URL.'/project_list.php', 'project_list'),

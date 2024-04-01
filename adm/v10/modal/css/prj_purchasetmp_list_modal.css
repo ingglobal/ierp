@@ -1,9 +1,22 @@
 @charset "utf-8";
 
-.mdl_cont{border-bottom:1px solid #294278;padding-bottom:5px;}
+.mdl_cont{border-bottom:1px solid #ddd;padding-bottom:5px;padding:10px;}
 .mdl_cont li strong,
 .mdl_cont li span{height:45px;line-height:45px;}
 .mdl_cont li strong{display:inline-block;padding:0 10px; width:120px;}
 .mdl_cont li span{display:inline-block;}
 .mdl_cont li span input{width:100px;}
 .mdl_tail{padding:10px 10px;text-align:right;}
+
+/*멀티파일관련*/
+.mdl_cont input[type="file"]{position:relative;width:250px;height:80px;border-radius:10px;overflow:hidden;cursor:pointer;}
+.mdl_cont input[type="file"]::before{display:block;content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:#ddd;opacity:1;z-index:3;}
+.mdl_cont input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드롭 가능)';position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:#333;}
+.mdl_cont .MultiFile-wrap ~ ul{margin-top:10px;}
+.mdl_cont .MultiFile-wrap ~ ul > li{margin-top:10px;}
+.mdl_cont .MultiFile-wrap .MultiFile-list{}
+.mdl_cont .MultiFile-wrap .MultiFile-list > .MultiFile-label{position:relative;padding-left:25px;margin-top:10px;}
+.mdl_cont .MultiFile-wrap .MultiFile-list > .MultiFile-label .MultiFile-remove{position:absolute;top:0;left:0;font-size:0;}
+.mdl_cont .MultiFile-wrap .MultiFile-list > .MultiFile-label .MultiFile-remove::after{content:'×';display:block;position:absolute;left:0;top:0;width:20px;height:20px;border:1px solid #ccc;border-radius:50%;font-size:14px;line-height:20px;text-align:center;}
+.mdl_cont .MultiFile-wrap .MultiFile-list > .MultiFile-label > span{}
+.mdl_cont .MultiFile-wrap .MultiFile-list > .MultiFile-label > span span.MultiFile-label{font-size:14px;border:1px solid #ccc;background:#eee;padding:2px 5px;border-radius:3px;line-height:1.2em;}

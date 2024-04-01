@@ -56,6 +56,15 @@ if ($ser_ppt_date != "") {
     $where[] = " ppt_date = '".trim($ser_ppt_date)."' ";
 }
 
+// 발주일 검색
+if ($ser_ppc_has != "") {
+    if($ser_ppc_has == 'no')
+        $where[] = ($sfl == 'ppc_idx' && $stx) ? " ppc_idx = '{$stx}' "  : " ppc_idx = '0' ";
+    else if($ser_ppc_has = 'ok'){
+        $where[] = ($sfl == 'ppc_idx' && $stx) ? " ppc_idx = '{$stx}' "  : " ppc_idx != '0' ";
+    }
+}
+
 
 // 최종 WHERE 생성
 if ($where)
@@ -125,6 +134,7 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 .td_ppt_date input{text-align:center;}
 .td_ppt_status{width:120px;}
 </style>
+<script src="<?=G5_USER_ADMIN_JS_URL?>/multifile/jquery.MultiFile.min.js" type="text/javascript" language="javascript"></script>
 <div class="local_ov01 local_ov">
     <?php echo $listall ?>
     <span class="btn_ov01"><span class="ov_txt">총</span><span class="ov_num"> <?php echo number_format($total_count) ?></span></span>
@@ -132,22 +142,28 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 
 <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
 <input type="text" name="ser_ppt_date" placeholder="발주일검색" value="<?php echo $ser_ppt_date ?>" readonly id="ser_ppt_date" class="frm_input readonly" style="width:90px;">
+<input type="text" name="ser_prj_idx" value="<?php echo $ser_prj_idx ?>" placeholder="프로젝트번호" id="ser_prj_idx" class="frm_input" style="width:100px;text-align:right;">
 <label for="sfl" class="sound_only">검색대상</label>
 <select name="sfl" id="sfl">
-	<option value="ppt_idx"<?php echo get_selected($_GET['sfl'], "ppt_idx"); ?>>개별발주번호</option>
-	<option value="ppt_subject"<?php echo get_selected($_GET['sfl'], "ppt_subject"); ?>>개별발주제목</option>
 	<option value="ppt.com_idx"<?php echo get_selected($_GET['sfl'], "ppt.com_idx"); ?>>공급업체번호</option>
 	<option value="com_name"<?php echo get_selected($_GET['sfl'], "com_name"); ?>>공급업체명</option>
-	<option value="ppt.prj_idx"<?php echo get_selected($_GET['sfl'], "ppt.prj_idx"); ?>>프로젝트번호</option>
+	<option value="ppt_idx"<?php echo get_selected($_GET['sfl'], "ppt_idx"); ?>>개별발주번호</option>
+	<option value="ppt_subject"<?php echo get_selected($_GET['sfl'], "ppt_subject"); ?>>개별발주제목</option>
 	<option value="prj_name"<?php echo get_selected($_GET['sfl'], "prj_name"); ?>>프로젝트명</option>
-	<option value="ppc_idx"<?php echo get_selected($_GET['sfl'], "ppc_idx"); ?>>정식발주번호</option>
+	<option value="ppc_idx"<?php echo get_selected($_GET['sfl'], "ppc_idx"); ?>>그룹발주번호</option>
 	<option value="mb_name"<?php echo get_selected($_GET['sfl'], "mb_name"); ?>>발주자명</option>
 </select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
+<select name="ser_ppc_has" id="ser_ppc_has">
+    <option value="">그룹발주상관없이</option>
+    <option value="no">그룹발주없음</option>
+    <option value="ok">그룹발주있음</option>
+</select>
 <input type="submit" class="btn_submit" value="검색">
 </form>
 <script>
+$('#ser_ppc_has').val('<?=$ser_ppc_has?>');
 //날짜입력
 $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99",closeText:'취소', onClose: function(){if($(window.event.srcElement).hasClass('ui-datepicker-close')){ $(this).val('');}} });
 </script>
@@ -174,10 +190,11 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
         <th scope="col" class="th_ppt_idx">개별발주번호</th>
+        <th scope="col" class="th_com_name">공급업체번호</th>
         <th scope="col" class="th_com_name">공급업체</th>
         <th scope="col" class="th_prj_idx">프로젝트번호</th>
         <th scope="col" class="th_prj_idx">프로젝트</th>
-        <th scope="col" class="th_ppc_idx">정식발주번호</th>
+        <th scope="col" class="th_ppc_idx">그룹발주번호</th>
         <th scope="col" class="th_mb_name">발주자</th>
         <th scope="col" class="th_ppt_subject">주요품목</th>
         <th scope="col" class="th_ppt_price">금액</th>
@@ -202,9 +219,10 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
         <td class="td_chk" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
 			<input type="hidden" name="ppt_idx[<?=$i?>]" value="<?=$row['ppt_idx']?>" id="ppt_idx_<?=$i?>">
 			<label for="chk_<?=$i?>" class="sound_only"><?=get_text($row['ppt_subject'])?></label>
-			<input type="checkbox" name="chk[]" com_idx="<?=$row['com_idx']?>" ppt_idx="<?=$row['ppt_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
+			<input type="checkbox" name="chk[]" ppc_idx="<?=$row['ppc_idx']?>" com_idx="<?=$row['com_idx']?>" ppt_idx="<?=$row['ppt_idx']?>" prj_idx="<?=$row['prj_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
 		</td>
         <td class="td_ppt_idx"><?=$row['ppt_idx']?></td>
+        <td class="td_com_idx"><?=$row['com_idx']?></td>
         <td class="td_com_name"><?=$row['com_name']?></td>
         <td class="td_prj_idx"><?=$row['prj_idx']?></td>
         <td class="td_prj_name"><?=$row['prj_name']?></td>
@@ -239,7 +257,7 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
     </tr>
     <?php } 
     if($i == 0){
-        echo '<tr><td colspan="13" class="empty_table">자료가 없습니다.</td></tr>';
+        echo '<tr><td colspan="14" class="empty_table">자료가 없습니다.</td></tr>';
     }
     ?>
     </tbody>
@@ -250,8 +268,8 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
         <a href="./pri_purchase_list_excel_down.php?<?=$qstr?>" id="btn_excel_down" class="btn btn_03">엑셀다운</a>
     <?php } ?>
     <?php if($super_admin){ ?>
-        <a href="javascript:" id="ppt_in_ppc" class="btn btn_03">정식발주연결</a>
-        <a href="javascript:" id="ppt_to_ppc" class="btn btn_04">정식발주등록</a>
+        <a href="javascript:" id="ppt_in_ppc" class="btn btn_03">그룹발주연결</a>
+        <a href="javascript:" id="ppt_to_ppc" class="btn btn_04">그룹발주등록</a>
     <?php } ?>
     <?php if($member['mb_manager_yn']) { ?>
         <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn">
@@ -295,9 +313,13 @@ $('#ppt_in_ppc').on('click',function(){
 $('#ppt_to_ppc').on('click', function(){
     // const f = document.getElementById('form01');
     const chks = document.querySelectorAll('input[name="chk[]"]:checked');
+    
     let com_idx = '';
-    let err_flag = 0;
+    let prj_idx = '';
     let ppt_idxs = '';
+    let ppc_msg = '';
+    let com_msg = '';
+    let prj_msg = '';
 
     if (!is_checked("chk[]")) {
         alert("정식발주 하실 항목을 하나 이상 선택하세요.");
@@ -305,22 +327,43 @@ $('#ppt_to_ppc').on('click', function(){
     }
 
     chks.forEach(function(chk){
+        let pc_idx = chk.getAttribute('ppc_idx');
         let c_idx = chk.getAttribute('com_idx');
         let p_idx = chk.getAttribute('ppt_idx');
-        if(com_idx != '' && com_idx !== c_idx){
-            alert('동일한 공급업체의 항목으로만 구성해서 등록해 주세요.');
-            err_flag = 1;
+        let pj_idx = chk.getAttribute('prj_idx');
+        
+        if(pc_idx != '0'){
+            ppc_msg = '이미 그룹발주에 등록된 항목이 있습니다.';
         }
+        if(com_idx != '' && com_idx !== c_idx){
+            com_msg = '동일한 공급업체의 항목으로만 구성해서 등록해 주세요.';
+        }
+        if(prj_idx != '' && prj_idx !== pj_idx){
+            prj_msg = '동일한 프로젝트의 항목으로만 구성해서 등록해 주세요.';
+        }
+        
         com_idx = c_idx;
+        prj_idx = pj_idx;
         ppt_idxs += (ppt_idxs == '') ? p_idx : ',' + p_idx;
     });
 
-    if(err_flag){
+    if(ppc_msg){
+        alert(ppc_msg);
+        return false;
+    }
+    if(com_msg){
+        alert(com_msg);
+        return false;
+    }
+    if(prj_msg){
+        alert(prj_msg);
         return false;
     }
     
     mdl_open();
     $('#prj_purchasetmp_list_modal').find('#ppt_idxs').val(ppt_idxs);
+    $('#prj_purchasetmp_list_modal').find('#com_idx').val(com_idx);
+    $('#prj_purchasetmp_list_modal').find('#prj_idx').val(prj_idx);
 });
 
 // 모달 닫는 이벤트
@@ -335,6 +378,13 @@ function mdl_open(){
 // 모달닫는 함수
 function mdl_close(){
     $('#prj_purchasetmp_list_modal').find('#ppt_idxs').val('');
+    $('#prj_purchasetmp_list_modal').find('#com_idx').val('');
+    $('#prj_purchasetmp_list_modal').find('#prj_idx').val('');
+    $('#prj_purchasetmp_list_modal').find('#ppc_date').val('');
+    $('#prj_purchasetmp_list_modal').find('#ppc_price').val('');
+    $('#prj_purchasetmp_list_modal').find('#ppc_subject').val('');
+    $('#prj_purchasetmp_list_modal').find('#ppc_content').val('');
+    $('#prj_purchasetmp_list_modal').find('#multi_file_ppc').MultiFile('reset');
     $('#prj_purchasetmp_list_modal').addClass('mdl_hide');
 }
 </script>
