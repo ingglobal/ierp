@@ -218,8 +218,9 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
     <tr class="<?=$bg?>">
         <td class="td_chk" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
 			<input type="hidden" name="ppt_idx[<?=$i?>]" value="<?=$row['ppt_idx']?>" id="ppt_idx_<?=$i?>">
+			<input type="hidden" name="ppc_idx[<?=$i?>]" value="<?=$row['ppc_idx']?>" id="ppc_idx_<?=$i?>">
 			<label for="chk_<?=$i?>" class="sound_only"><?=get_text($row['ppt_subject'])?></label>
-			<input type="checkbox" name="chk[]" ppc_idx="<?=$row['ppc_idx']?>" com_idx="<?=$row['com_idx']?>" ppt_idx="<?=$row['ppt_idx']?>" prj_idx="<?=$row['prj_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
+			<input type="checkbox" name="chk[]" ppc_idx="<?=$row['ppc_idx']?>" com_idx="<?=$row['com_idx']?>" ppt_idx="<?=$row['ppt_idx']?>" ppt_price="<?=$row['ppt_price']?>" prj_idx="<?=$row['prj_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
 		</td>
         <td class="td_ppt_idx"><?=$row['ppt_idx']?></td>
         <td class="td_com_idx"><?=$row['com_idx']?></td>
@@ -268,7 +269,7 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
         <a href="./pri_purchase_list_excel_down.php?<?=$qstr?>" id="btn_excel_down" class="btn btn_03">엑셀다운</a>
     <?php } ?>
     <?php if($super_admin){ ?>
-        <a href="javascript:" id="ppt_in_ppc" class="btn btn_03">그룹발주연결</a>
+        <a href="javascript:" link="./_win_purchase_select.php" id="ppt_in_ppc" class="btn btn_03">그룹발주연결</a>
         <a href="javascript:" id="ppt_to_ppc" class="btn btn_04">그룹발주등록</a>
     <?php } ?>
     <?php if($member['mb_manager_yn']) { ?>
@@ -282,6 +283,67 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;page='); ?>
 
 <script defer>
+// 프로젝트선택
+$('#ppt_in_ppc').on('click',function(){
+    if (!is_checked("chk[]")) {
+        alert("그룹발주에 연결하실 항목을 하나 이상 선택하세요.");
+        return false;
+    }
+
+    const chks = document.querySelectorAll('input[name="chk[]"]:checked');
+    let com_idx = '';
+    let prj_idx = '';
+    let ppt_idxs = '';
+    let ppt_prices = 0;
+    let ppc_msg = '';
+    let com_msg = '';
+    let prj_msg = '';
+
+    chks.forEach(function(chk){
+        let pc_idx = chk.getAttribute('ppc_idx');
+        let cm_idx = chk.getAttribute('com_idx');
+        let pj_idx = chk.getAttribute('prj_idx');
+        let pt_idx = chk.getAttribute('ppt_idx');
+        let pt_price = Number(chk.getAttribute('ppt_price'));
+        
+        if(pc_idx != '0'){
+            ppc_msg = '이미 그룹발주에 등록된 항목이 있습니다.';
+        }
+        if(com_idx != '' && com_idx !== cm_idx){
+            com_msg = '동일한 공급업체의 항목으로만 구성해서 등록해 주세요.';
+        }
+        if(prj_idx != '' && prj_idx !== pj_idx){
+            prj_msg = '동일한 프로젝트의 항목으로만 구성해서 등록해 주세요.';
+        }
+        
+        com_idx = cm_idx;
+        prj_idx = pj_idx;
+        ppt_idxs += (ppt_idxs == '') ? pt_idx : ',' + pt_idx;
+        ppt_prices += pt_price;
+    });
+    // ppt_prices = thousand_comma(ppt_prices);
+
+    if(ppc_msg){
+        alert(ppc_msg);
+        return false;
+    }
+    if(com_msg){
+        alert(com_msg);
+        return false;
+    }
+    if(prj_msg){
+        alert(prj_msg);
+        return false;
+    }
+
+    // alert(prj_idx+':'+com_idx+':'+ppt_idxs+':'+ppt_prices);
+
+    var href = $(this).attr('link')+'?prj_idx=' + prj_idx + '&com_idx=' + com_idx + '&ppt_prices=' + ppt_prices + '&ppt_idxs=' + ppt_idxs;
+    var win_ppc_select = window.open(href, "win_ppc_select", "left=10,top=10,width=700,height=800");
+    win_ppc_select.focus();
+    // return false;
+});
+
 // 가격 입력 쉼표 처리
 $(document).on( 'keyup','input[name*=_price]',function(e) {
     var price = thousand_comma($(this).val().replace(/[^0-9]/g,""));
@@ -317,12 +379,13 @@ $('#ppt_to_ppc').on('click', function(){
     let com_idx = '';
     let prj_idx = '';
     let ppt_idxs = '';
+    let ppt_prices = 0;
     let ppc_msg = '';
     let com_msg = '';
     let prj_msg = '';
 
     if (!is_checked("chk[]")) {
-        alert("정식발주 하실 항목을 하나 이상 선택하세요.");
+        alert("그룹발주 하실 항목을 하나 이상 선택하세요.");
         return false;
     }
 
@@ -330,6 +393,7 @@ $('#ppt_to_ppc').on('click', function(){
         let pc_idx = chk.getAttribute('ppc_idx');
         let c_idx = chk.getAttribute('com_idx');
         let p_idx = chk.getAttribute('ppt_idx');
+        let p_price = Number(chk.getAttribute('ppt_price'));
         let pj_idx = chk.getAttribute('prj_idx');
         
         if(pc_idx != '0'){
@@ -345,7 +409,9 @@ $('#ppt_to_ppc').on('click', function(){
         com_idx = c_idx;
         prj_idx = pj_idx;
         ppt_idxs += (ppt_idxs == '') ? p_idx : ',' + p_idx;
+        ppt_prices += p_price;
     });
+    ppt_prices = thousand_comma(ppt_prices);
 
     if(ppc_msg){
         alert(ppc_msg);
@@ -362,6 +428,7 @@ $('#ppt_to_ppc').on('click', function(){
     
     mdl_open();
     $('#prj_purchasetmp_list_modal').find('#ppt_idxs').val(ppt_idxs);
+    $('#prj_purchasetmp_list_modal').find('#ppc_price').val(ppt_prices);
     $('#prj_purchasetmp_list_modal').find('#com_idx').val(com_idx);
     $('#prj_purchasetmp_list_modal').find('#prj_idx').val(prj_idx);
 });

@@ -106,7 +106,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="ppt_idx" value="<?php echo $ppt["ppt_idx"] ?>">
 <?=$form_input?>
 <div class="local_desc01 local_desc" style="display:no ne;">
-    <p>발주관리 페이지입니다.</p>
+    <p>개별발주관리 페이지입니다.</p>
 </div>
 
 <div class="tbl_frm01 tbl_wrap">
@@ -141,15 +141,17 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
             <td>
                 <input type="hidden" name="com_idx" id="com_idx" value="<?=$ppt['com_idx']?>" class="frm_input" style="width:60px;">
                 <input type="text" id="com_name" value="<?=$com['com_name']?>" readonly class="frm_input readonly" style="width:120px;">
-                <a href="javascript:" link="./_win_company_select.php" class="btn btn_02 com_select">업체선택</a>
-                <script>
-                $('.com_select').on('click',function(){
-                    var href = $(this).attr('link');
-                    var win_com_name = window.open(href,"win_com_select","width=400,height=640");
-                    win_com_select.focus();
-                    return false;
-                });
-                </script>
+                <?php if($w == ''){ ?>
+                    <a href="javascript:" link="./_win_company_select.php" class="btn btn_02 com_select">업체선택</a>
+                    <script>
+                    $('.com_select').on('click',function(){
+                        var href = $(this).attr('link');
+                        var win_com_name = window.open(href,"win_com_select","width=400,height=640");
+                        win_com_select.focus();
+                        return false;
+                    });
+                    </script>
+                <?php } ?>
             </td>
         </tr>
         <tr>
@@ -159,7 +161,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
             </td>
             <th scope="row">발주금액</th>
             <td>
-                <input type="text" name="ppt_price" value="<?=$ppt['ppt_price']?>" class="frm_input" style="width:130px;text-align:right;">&nbsp;원
+                <input type="text" name="ppt_price" value="<?=number_format($ppt['ppt_price'])?>" class="frm_input" style="width:130px;text-align:right;">&nbsp;원
             </td>
         </tr>
         <tr>
@@ -254,7 +256,7 @@ function form01_submit(f) {
 
 	if(!f.ppt_status.value){
 		alert('상태값을 선택해 주세요');
-		f.prj_status.focus();
+		f.prt_status.focus();
 		return false;
 	}
 

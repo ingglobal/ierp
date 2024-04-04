@@ -14,9 +14,8 @@ $where[] = " prj.prj_percent < 100 ";   // 디폴트 검색조건
 
 if ($stx) {
     switch ($sfl) {
-		case 'prj_name' :
-            $where[] = " ( prj.prj_name LIKE '%{$stx}%' ) ";
-            break;
+		case 'prj_idx' :
+			$where[] = " prj_idx = '{$stx}' ";
         default :
             $where[] = " ({$sfl} LIKE '%{$stx}%') ";
             break;
@@ -87,6 +86,8 @@ html,body{overflow:hidden;}
 		<label for="sfl" class="sound_only">검색대상</label>
 		<select name="sfl" id="sfl" style="">
 			<option value="com_name"<?php echo get_selected($_GET['sfl'], "com_name"); ?>>업체명</option>
+			<option value="prj_idx"<?php echo get_selected($_GET['sfl'], "prj_idx"); ?>>프로젝트번호</option>
+			<option value="prj_name"<?php echo get_selected($_GET['sfl'], "prj_name"); ?>>프로젝트명</option>
 		</select>
 		<label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 		<input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input" style="width:130px;">
@@ -96,6 +97,7 @@ html,body{overflow:hidden;}
 			<table class="table table-bordered table-condensed">
 			<caption><?php echo $g5['title']; ?> 목록</caption>
 			<thead>
+				<th scope="col">프로젝트번호</th>
 				<th scope="col">프로젝트명</th>
 				<th scope="col">회사명</th>
 				<th scope="col">관리</th>
@@ -107,6 +109,7 @@ html,body{overflow:hidden;}
 				$choice = '<a href="javascript:" class="a_mag btn btn_02" prj_idx="'.$row['prj_idx'].'" prj_name="'.$row['prj_name'].'">선택</a>';
 			?>
 				<tr>
+				<td class="td_prj_idx"><?=$row['prj_idx']?></td>
 				<td class="td_com_name"><!-- 업체명 -->
 					<b><?php echo get_text($row['prj_name']); ?></b><br>
 					<?php echo substr($row['prj_reg_dt'],0,10); ?>
@@ -121,7 +124,7 @@ html,body{overflow:hidden;}
 			<?php
 			}
 			if ($i == 0)
-				echo "<tr><td class='td_empty' colspan='3'>자료가 없습니다.</td></tr>";
+				echo "<tr><td class='td_empty' colspan='4'>자료가 없습니다.</td></tr>";
 			?>
 			</tbody>
 			</table>

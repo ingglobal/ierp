@@ -11,6 +11,9 @@ $where[] = " com_type NOT IN ('buyer') ";   // 디폴트 검색조건
 
 if ($stx) {
     switch ($sfl) {
+		case 'com_idx' : 
+			$where[] = " com_idx = '{$stx}' ";
+			break;
 		case 'com_name' :
             $where[] = " ( com_name LIKE '%{$stx}%' OR com_names LIKE '%{$stx}%' ) ";
             break;
@@ -87,6 +90,7 @@ html,body{overflow:hidden;}
 		<label for="sfl" class="sound_only">검색대상</label>
 		<select name="sfl" id="sfl" style="">
 			<option value="com_name"<?php echo get_selected($_GET['sfl'], "com_name"); ?>>업체명</option>
+			<option value="com_idx"<?php echo get_selected($_GET['sfl'], "com_idx"); ?>>업체번호</option>
 		</select>
 		<label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 		<input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input" style="width:130px;">
@@ -97,7 +101,8 @@ html,body{overflow:hidden;}
 			<table class="table table-bordered table-condensed">
 			<caption><?php echo $g5['title']; ?> 목록</caption>
 			<thead>
-				<th scope="col">회사명</th>
+				<th scope="col">업체번호</th>
+				<th scope="col">업체명</th>
 				<th scope="col">대표</th>
 				<th scope="col">관리</th>
 			</thead>
@@ -108,6 +113,7 @@ html,body{overflow:hidden;}
 				$choice = '<a href="javascript:" class="a_mag btn btn_02" com_idx="'.$row['com_idx'].'" com_name="'.$row['com_name'].'">선택</a>';
 			?>
 				<tr>
+				<td class="td_com_idx"><?=$row['com_idx']?></td>
 				<td class="td_com_name"><!-- 업체명 -->
 					<b><?php echo get_text($row['com_name']); ?></b>
 				</td>
@@ -121,7 +127,7 @@ html,body{overflow:hidden;}
 			<?php
 			}
 			if ($rcnt == 0){
-				echo "<tr><td class='td_empty' colspan='3'>".PHP_EOL;
+				echo "<tr><td class='td_empty' colspan='4'>".PHP_EOL;
 				echo "자료가 없습니다.<br>".PHP_EOL;
 				echo '<a href="'.G5_USER_ADMIN_URL.'/company_form.php" target="_blank" class="ov_listall" style="margin-top:5px;">업체등록</a>'.PHP_EOL;
 				echo "</td></tr>".PHP_EOL;

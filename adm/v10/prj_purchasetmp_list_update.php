@@ -13,6 +13,7 @@ $fname = preg_replace("/_update/","",$g5['file_name']); // _update을 제외한 
 /*
 echo $act_button."<br>";
 print_r2($chk);
+print_r2($ppc_idx);
 print_r2($ppt_idx);
 print_r2($ppt_subject);
 print_r2($ppt_price);
@@ -66,9 +67,17 @@ else if($act_button == "선택삭제"){
             ";
             sql_query($dfsql,1);
         }
+
         // ppt_idx의 레코드를 삭제
         $dsql = " DELETE FROM {$g5_table_name} WHERE ppt_idx = '{$ppt_idx[$idx]}' ";
         sql_query($dsql,1);
+
+    }
+    // 만약 테이블에 아무 레코드도 없으면 AUTO_INCREMENT를 1로 초기화한다.
+    $cntres = sql_fetch(" SELECT COUNT(*) AS cnt FROM {$g5_table_name} ");
+    if(!$cntres['cnt']){
+        $resetsql = " ALTER TABLE {$g5_table_name} auto_increment=1 ";
+        sql_query($resetsql);
     }
 }
 // exit;
