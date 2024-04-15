@@ -271,6 +271,7 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
     <?php if($super_admin){ ?>
         <a href="javascript:" link="./_win_purchase_select.php" id="ppt_in_ppc" class="btn btn_03">그룹발주연결</a>
         <a href="javascript:" id="ppt_to_ppc" class="btn btn_04">그룹발주등록</a>
+        <input type="submit" name="act_button" value="선택그룹발주해제" onclick="document.pressed=this.value" class="btn_02 btn">
     <?php } ?>
     <?php if($member['mb_manager_yn']) { ?>
         <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn">
@@ -366,10 +367,6 @@ function form01_submit(f){
     return true;
 }
 
-// 정식발주연결 버튼을 누르면 기존등록된 정식발주목록이 표시되는 윈도우창이 열린다.
-$('#ppt_in_ppc').on('click',function(){
-
-});
 
 // 정식발주등록 버튼을 누르면 모달창이 열린다.
 $('#ppt_to_ppc').on('click', function(){

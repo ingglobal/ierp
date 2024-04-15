@@ -61,7 +61,7 @@ if ($stx) {
 		case 'com_name' :
             $where[] = " ( com_name LIKE '%{$stx}%' OR com_names LIKE '%{$stx}%' ) ";
             break;
-		case ( $sfl == 'mb_id' || $sfl == 'com_idx' ) :
+		case ( $sfl == 'mb_id' || $sfl == 'com.com_idx' ) :
             $where[] = " ({$sfl} = '{$stx}') ";
             break;
 		case ($sfl == 'mb_hp') :

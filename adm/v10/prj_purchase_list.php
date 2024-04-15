@@ -113,8 +113,8 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 .td_prj_idx{}
 .td_mb_name{}
 .td_ppc_subject{}
-.td_ppc_price{width:120px;}
-.td_ppc_price input{text-align:right;}
+.td_ppc_price{width:120px;text-align:right !important;}
+.td_ppc_price::after{content:' 원'}
 .td_ppc_date{width:90px;}
 .td_ppc_date input{text-align:center;}
 .td_ppc_status{width:120px;}
@@ -210,7 +210,7 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
             <input type="text" name="ppc_subject[<?=$i?>]" value="<?=$row['ppc_subject']?>" class="frm_input">
         </td>
         <td class="td_ppc_price">
-            <input type="text" name="ppc_price[<?=$i?>]" value="<?=number_format($row['ppc_price'])?>" class="frm_input">
+            <span><?=number_format($row['ppc_price'])?></span>
         </td>
         <td class="td_ppc_date">
             <input type="text" name="ppc_date[<?=$i?>]" readonly value="<?=$row['ppc_date']?>" class="frm_input readonly ppc_date_<?=$i?>">

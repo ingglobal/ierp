@@ -42,6 +42,21 @@ $sql = " INSERT into {$g5_table_name} SET
 sql_query($sql,1);
 $ppc_idx = sql_insert_id();
 
+// 지출분배 테이블에도 등록
+$sqlc = " INSERT into {$g5['project_purchase_divide_table']} SET
+    ppc_idx = '{$ppc_idx}'
+    , ppd_content = '{$ppc_subject}-지출'
+    , ppd_price = '{$ppc_price}'
+    , ppd_plan_date = '{$ppc_date}'
+    , ppd_done_date = '0000-00-00'
+    , ppd_bank = 'bank'
+    , ppd_type = 'all'
+    , ppd_status = 'ok'
+    , ppd_reg_dt = '".G5_TIME_YMDHIS."'
+    , ppd_update_dt = '".G5_TIME_YMDHIS."'
+";
+sql_query($sqlc,1);
+
 
 $ppt_arr = ($ppt_idxs) ? explode(',',$ppt_idxs) : array();
 $table_name2 = 'project_purchase_tmp';

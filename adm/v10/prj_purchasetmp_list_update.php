@@ -74,10 +74,20 @@ else if($act_button == "선택삭제"){
 
     }
     // 만약 테이블에 아무 레코드도 없으면 AUTO_INCREMENT를 1로 초기화한다.
-    $cntres = sql_fetch(" SELECT COUNT(*) AS cnt FROM {$g5_table_name} ");
+    $cntres = sql_fetch(" SELECT EXISTS( SELECT 1 FROM {$g5_table_name} ) AS cnt ");
     if(!$cntres['cnt']){
         $resetsql = " ALTER TABLE {$g5_table_name} auto_increment=1 ";
         sql_query($resetsql);
+    }
+}
+else if($act_button == "선택그룹발주해제"){
+    foreach($chk as $idx){
+        $sql = " UPDATE {$g5_table_name} SET
+                    ppc_idx = '0'
+                WHERE ppt_idx = '{$ppt_idx[$idx]}'
+        ";
+        // echo $sql."<br>";
+        sql_query($sql,1);
     }
 }
 // exit;

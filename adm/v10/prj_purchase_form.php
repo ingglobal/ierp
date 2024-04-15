@@ -70,6 +70,10 @@ else if($w == 'u'){
 
 	//견적서파일 idx배열에 요소가 1개이상 존재하면 그중에 첫번째 요소(fle_idx)를 변수에 담는다.
 	if(@count($ppc['ppc_fidxs'])) $ppc['ppc_lst_idx'] = $ppc['ppc_fidxs'][0];
+
+    //지출분배데이터 추출
+    $sqld = " SELECT * FROM {$g5['project_purchase_divide_table']} WHERE ppc_idx = '{$ppc_idx}' AND ppd_status IN ('ok','complete')  ORDER BY ppd_type, ppd_idx ";
+    $resd = sql_query($sqld,1);
 }
 
 
@@ -123,7 +127,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
             <th scope="row">관련프로젝트선택</th>
             <td>
                 <input type="hidden" name="prj_idx" id="prj_idx" value="<?=$ppc['prj_idx']?>">
-                <input type="text" id="prj_name" value="<?=$prj['prj_name']?>" readonly class="frm_input readonly" style="width:200px;">
+                <input type="text" id="prj_name" value="<?=$prj['prj_name']?>" readonly class="frm_input readonly" style="width:300px;">
                 <?php if($w == ''){ ?>
                     <a href="javascript:" link="./_win_project_select.php" class="btn btn_02 prj_select">프로젝트선택</a>
                     <script>
@@ -161,7 +165,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
             </td>
             <th scope="row">그룹발주금액</th>
             <td>
-                <input type="text" name="ppc_price" value="<?=number_format($ppc['ppc_price'])?>" class="frm_input" style="width:130px;text-align:right;">&nbsp;원
+                <input type="text" name="ppc_price" value="<?=number_format($ppc['ppc_price'])?>"<?=(($w != '')?' readonly':'')?> class="frm_input" style="width:130px;text-align:right;">&nbsp;원
             </td>
         </tr>
         <tr>
@@ -206,6 +210,176 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
     </tbody>
     </table>
 </div><!--//.tbl_frm01.tbl_wrap -->
+<?php if($w != '' && $resd->num_rows){ ?>
+<style>
+.ul_ppd{margin-bottom:20px;}
+.ul_ppd::after{display:block;visibility:hidden;clear:both;content:'';}
+.ul_ppd li{float:left;margin-right:10px;}
+.li_ppd_type{}
+.li_ppd_content input{width:200px;}
+.li_ppd_price input{width:100px;text-align:right;}
+.li_ppd_plan_date input{width:100px;text-align:center;}
+.li_ppd_done_date input{width:100px;text-align:center;}
+.li_ppd_bank{}
+.li_ppd_mng{padding-top:3px;}
+
+.th_ppd_type{width:110px;}
+.th_ppd_per{width:90px;}
+.th_ppd_price{width:120px;}
+.th_ppd_plan_date{width:100px;}
+.th_ppd_done_date{width:100px;}
+.th_ppd_bank{width:110px;}
+
+
+.td_ppd_per{text-align:right}
+.td_ppd_per::after{content:' %'}
+.td_ppd_price input{text-align:right;padding:0 5px;}
+</style>
+<div class="">
+    <h2>지출정보등록</h2>
+    <ul class="ul_ppd">
+        <li class="li_ppd_type">
+            <select id="ppd_type">
+                <?=$g5['set_ppd_type_value_options']?>
+            </select>
+        </li>
+        <li class="li_ppd_content">
+            <input type="text" id="ppd_content" placeholder="내용입력" class="frm_input">
+        </li>
+        <li class="li_ppd_price">
+            <input type="text" id="ppd_price" placeholder="금액입력" class="frm_input">
+        </li>
+        <li class="li_ppd_plan_date">
+            <input type="text" id="ppd_plan_date" placeholder="예정일" value="0000-00-00" readonly class="frm_input">
+        </li>
+        <li class="li_ppd_done_date">
+            <input type="text" id="ppd_done_date" placeholder="지출일" value="0000-00-00" readonly class="frm_input">
+        </li>
+        <li class="li_ppd_bank">
+            <select id="ppd_bank">
+                <?=$g5['set_ppd_bank_value_options']?>
+            </select>
+        </li>
+        <li class="li_ppd_mng">
+            <a href="javascript:" class="btn btn_02 ppd_reg">등록</a>
+        </li>
+    </ul>
+</div>
+<script>
+$("#ppd_plan_date").datepicker({changeMonth:true, changeYear:true, dateFormat:"yy-mm-dd", showButtonPanel:true, yearRange:"c-99:c+99"});
+$("#ppd_done_date").datepicker({changeMonth:true, changeYear:true, dateFormat:"yy-mm-dd", showButtonPanel:true, yearRange:"c-99:c+99"});
+
+$('.ppd_reg').on('click', function(){
+    let ppc_idx = <?=$ppc_idx?>;
+    let ppd_type = $('#ppd_type').val();
+    let ppd_content = $.trim($('#ppd_content').val());
+    let ppd_price = $('#ppd_price').val();
+    let ppd_plan_date = $('#ppd_plan_date').val();
+    let ppd_done_date = $('#ppd_done_date').val();
+    let ppd_bank = $('#ppd_bank').val();
+
+    if(!ppd_content){
+        alert('내용을 반드시 입력해 주세요.');
+        $('#ppd_content').focus();
+        return false;
+    }
+    if(!ppd_price){
+        alert('금액을 반드시 입력해 주세요.');
+        $('#ppd_price').focus();
+        return false;
+    }
+    if(!ppd_plan_date){
+        alert('예정일을 반드시 입력해 주세요.');
+        $('#ppd_plan_date').focus();
+        return false;
+    }
+
+    let ajxurl = '<?=G5_USER_ADMIN_AJAX_URL?>/ppd_reg.php';
+    $.ajax({
+		type: 'POST',
+		dataType: 'text',
+		url: ajxurl,
+		data: {'ppc_idx': ppc_idx,'ppd_type': ppd_type, 'ppd_content': ppd_content, 'ppd_price': ppd_price, 'ppd_plan_date': ppd_plan_date, 'ppd_done_date': ppd_done_date, 'ppd_bank': ppd_bank},
+		success: function(res){
+			if(res == 'ok'){
+				location.reload();
+			}
+		},
+		error: function(xmlReq){
+			alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
+		}
+	});
+});
+</script>
+<div class="tbl_head01 tbl_wrap">
+    <h2>지출상세내용</h2>
+    <table class="table table-bordered table-condensed">
+    <caption>상세내용</caption>
+    <thead>
+        <tr>
+            <th scope="col" class="th_ppd_type">타입</th>
+            <th scope="col" class="th_ppd_content">내용</th>
+            <th scope="col" class="th_ppd_per">비율</th>
+            <th scope="col" class="th_ppd_price">금액</th>
+            <th scope="col" class="th_ppd_plan_date">지출예정일</th>
+            <th scope="col" class="th_ppd_done_date">지출확정일</th>
+            <th scope="col" class="th_ppd_bank">지출방법</th>
+            <th scope="col" class="th_mng">삭제</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php for($i=0;$row=sql_fetch_array($resd);$i++){ ?>
+        <tr>
+        <td scope="col" class="td_ppd_type">
+            <input type="hidden" name="ppd_idx[<?=$i?>]" value="<?=$row['ppd_idx']?>">
+            <select name="ppd_type[<?=$row['ppd_idx']?>]" class="ppd_type<?=$i?>">
+                <?=$g5['set_ppd_type_value_options']?>
+            </select>
+            <script>
+            $('.ppd_type<?=$i?>').val('<?=$row['ppd_type']?>');
+            </script>
+        </td>
+        <td scope="col" class="td_ppd_content">
+            <input type="text" name="ppd_content[<?=$row['ppd_idx']?>]" value="<?=$row['ppd_content']?>" class="frm_input">
+        </td>
+        <td scope="col" class="td_ppd_per">
+            <?php
+            $per = $row['ppd_price'] / $ppc['ppc_price'] * 100;
+            echo number_format($per,1,'.','');
+            ?>
+        </td>
+        <td scope="col" class="td_ppd_price">
+            <input type="text" name="ppd_price[<?=$row['ppd_idx']?>]" value="<?=number_format($row['ppd_price'])?>" class="frm_input">
+        </td>
+        <td scope="col" class="td_ppd_plan_date">
+            <input type="text" name="ppd_plan_date[<?=$row['ppd_idx']?>]" value="<?=$row['ppd_plan_date']?>" class="frm_input plan_date<?=$i?>" style="text-align:center;">
+            <script>
+            $(".plan_date<?=$i?>").datepicker({changeMonth:true, changeYear:true, dateFormat:"yy-mm-dd", showButtonPanel:true, yearRange:"c-99:c+99"});
+            </script>
+        </td>
+        <td scope="col" class="td_ppd_done_date">
+            <input type="text" name="ppd_done_date[<?=$row['ppd_idx']?>]" value="<?=$row['ppd_done_date']?>" class="frm_input done_date<?=$i?>" style="text-align:center;">
+            <script>
+            $(".done_date<?=$i?>").datepicker({changeMonth:true, changeYear:true, dateFormat:"yy-mm-dd", showButtonPanel:true, yearRange:"c-99:c+99"});
+            </script>
+        </td>
+        <td scope="col" class="td_ppd_bank">
+            <select name="ppd_bank[<?=$row['ppd_idx']?>]" class="ppd_bank<?=$i?>">
+                <?=$g5['set_ppd_bank_value_options']?>
+            </select>
+            <script>
+            $('.ppd_bank<?=$i?>').val('<?=$row['ppd_bank']?>');
+            </script>
+        </td>
+        <td scope="col" class="td_mng">
+            <a href="javascript:" class="btn btn_01 ppd_del" ppd_idx="<?=$row['ppd_idx']?>">삭제</a>
+        </td>
+        </tr>
+        <?php } ?>
+    </tbody>
+    </table>
+</div><!--//.tbl_head01-->
+<?php } ?>
 <div class="btn_fixed_top">
     <a href="./<?=$fname?>_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
     <input type="submit" value="확인" class="btn_submit btn" accesskey='s'>
@@ -216,7 +390,7 @@ $(function(){
     //날짜입력
     $("#ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
     // 가격 입력 쉼표 처리
-	$(document).on( 'keyup','input[name*=_price]',function(e) {
+	$(document).on( 'keyup','input[name*=_price], #ppd_price',function(e) {
         var price = thousand_comma($(this).val().replace(/[^0-9]/g,""));
         price = (price == '0') ? '' : price;
         $(this).val(price);
@@ -225,6 +399,36 @@ $(function(){
 
     //개별발주서 멀티파일
 	$('#multi_file_ppc').MultiFile();
+});
+
+$('.ppd_del').on('click', function(){
+    let del_cnt = $('.ppd_del').length;
+    let ppd_idx = $(this).attr('ppd_idx');
+    if(del_cnt == 1){
+        alert('지출정보를 전부 삭제할 수는 없습니다.');
+        return false;
+    }
+
+    if(!confirm("복구는 불가능합니다.\n자료를 정말 삭제 하시겠습니까?")){
+        return false;
+    }
+
+    // alert(ppd_idx);
+    let ajxurl = '<?=G5_USER_ADMIN_AJAX_URL?>/ppd_del.php';
+    $.ajax({
+		type: 'POST',
+		dataType: 'text',
+		url: ajxurl,
+		data: {'ppd_idx': ppd_idx},
+		success: function(res){
+			if(res == 'ok'){
+				location.reload();
+			}
+		},
+		error: function(xmlReq){
+			alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
+		}
+	});
 });
 
 function form01_submit(f) {

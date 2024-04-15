@@ -477,7 +477,7 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 		<tr>
             <th scope="row">발주상태</th>
             <td colspan="3">
-                <?php echo help('ok=확정,pending=대기,trash=삭제'); ?>
+                <?php echo help('ok=확정,complete=완료,trash=삭제'); ?>
                 <input type="text" name="set_ppc_status" value="<?php echo $g5['setting']['set_ppc_status']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>
@@ -491,14 +491,14 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 		<tr>
             <th scope="row">지출분배상태</th>
             <td colspan="3">
-                <?php echo help('ok=확정,pending=대기,trash=삭제'); ?>
+                <?php echo help('ok=확정,complete=완료,trash=삭제'); ?>
                 <input type="text" name="set_ppd_status" value="<?php echo $g5['setting']['set_ppd_status']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>
 		<tr>
             <th scope="row">지출분배타입</th>
             <td colspan="3">
-                <?php echo help('all=전액,start=선금,middle=중도금,final=잔금,tax=부가세'); ?>
+                <?php echo help('all=전액,estt=선금,jmid=중도금,oend=잔금,tax=부가세'); ?>
                 <input type="text" name="set_ppd_type" value="<?php echo $g5['setting']['set_ppd_type']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>

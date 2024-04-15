@@ -3,7 +3,7 @@ $sub_menu = "960266";
 include_once("./_common.php");
 
 auth_check($auth[$sub_menu], 'w');
-
+// print_r2($_POST);exit;
 // 변수 설정, 필드 구조 및 prefix 추출
 $table_name = 'project_purchase';
 $g5_table_name = $g5[$table_name.'_table'];
@@ -38,20 +38,71 @@ if($w == '') {
     $sql = " INSERT into {$g5_table_name} SET 
                 {$sql_common} 
                 , mb_id = '{$member['mb_id']}'
-                , ".$pre."_reg_dt = '".G5_TIME_YMDHIS."'
-                , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
+                , ppc_reg_dt = '".G5_TIME_YMDHIS."'
+                , ppc_update_dt = '".G5_TIME_YMDHIS."'
 	";
     // echo $sql;exit;
     sql_query($sql,1);
-	${$pre."_idx"} = sql_insert_id();
+	$ppc_idx = sql_insert_id();
+
+    // 지출분배 테이블에도 등록
+    $sqlc = " INSERT into {$g5['project_purchase_divide_table']} SET
+        ppc_idx = '{$ppc_idx}'
+        , ppd_content = '{$ppc_subject}-지출'
+        , ppd_price = '{$ppc_price}'
+        , ppd_plan_date = '{$ppc_date}'
+        , ppd_done_date = '{$ppc_date}'
+        , ppd_bank = 'bank'
+        , ppd_type = 'all'
+        , ppd_status = 'ok'
+        , ppd_reg_dt = '".G5_TIME_YMDHIS."'
+        , ppd_update_dt = '".G5_TIME_YMDHIS."'
+    ";
+    sql_query($sqlc,1);
 }
 else if($w == 'u') {
+    $total_price = 0;
+    $complete_flag = 1;
+    foreach($ppd_idx as $pd_idx){
+        $ppd_price[$pd_idx] = preg_replace("/,/","",$ppd_price[$pd_idx]);
+
+        $total_price += $ppd_price[$pd_idx];
+        $ppd_status = ($ppd_done_date[$pd_idx] && $ppd_done_date[$pd_idx] != '0000-00-00') ? 'complete' : 'ok';
+        if($ppd_status == 'ok'){
+            $complete_flag = 0;
+        }
+
+        $sqld = " UPDATE {$g5['project_purchase_divide_table']} SET
+                    ppd_content = '{$ppd_content[$pd_idx]}'
+                    , ppd_price = '{$ppd_price[$pd_idx]}'
+                    , ppd_plan_date = '{$ppd_plan_date[$pd_idx]}'
+                    , ppd_done_date = '{$ppd_done_date[$pd_idx]}'
+                    , ppd_bank = '{$ppd_bank[$pd_idx]}'
+                    , ppd_type = '{$ppd_type[$pd_idx]}'
+                    , ppd_status = '{$ppd_status}'
+                    , ppd_update_dt = '".G5_TIME_YMDHIS."'
+                WHERE ppd_idx = '{$pd_idx}'
+        ";
+        sql_query($sqld,1);
+    }
+
+    $ppc_price = $total_price;
+
+    $ppc_status = ($complete_flag == 1) ? 'complete' : $ppc_status;
     $sql = " UPDATE {$g5_table_name} SET 
-					{$sql_common}
-					, ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
-			WHERE ".$pre."_idx = '".${$pre."_idx"}."' 
+					com_idx = '{$com_idx}'
+                    , prj_idx = '{$prj_idx}'
+                    , mb_id = '{$member['mb_id']}'
+                    , ppc_date = '{$ppc_date}'
+                    , ppc_subject = '{$ppc_subject}'
+                    , ppc_content = '{$ppc_content}'
+                    , ppc_price = '{$ppc_price}'
+                    , ppc_status = '{$ppc_status}'
+					, ppc_update_dt = '".G5_TIME_YMDHIS."'
+			WHERE ppc_idx = '".$ppc_idx."' 
 	";
     sql_query($sql,1);
+
 }
 else if($w == 'd') {
 

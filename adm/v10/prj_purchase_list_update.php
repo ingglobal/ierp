@@ -43,10 +43,9 @@ if (!count($chk)) {
 if ($act_button == "선택수정"){
     foreach($chk as $idx){
         $ppc_subject[$idx] = trim($ppc_subject[$idx]);
-        $ppc_price[$idx] = preg_replace("/,/","",$ppc_price[$idx]);
+        // $ppc_price[$idx] = preg_replace("/,/","",$ppc_price[$idx]);
         $sql = " UPDATE {$g5_table_name} SET
                     ppc_subject = '{$ppc_subject[$idx]}'
-                    , ppc_price = '{$ppc_price[$idx]}'
                     , ppc_date = '{$ppc_date[$idx]}'
                     , ppc_status = '{$ppc_status[$idx]}'
                 WHERE ppc_idx = '{$ppc_idx[$idx]}'
@@ -72,15 +71,25 @@ else if($act_button == "선택삭제"){
         // ppt테이블에서 ppc_idx를 가지고 있는것의 연결고리를 끊는다.
         $csql = " UPDATE {$g5_table_name2} SET ppc_idx = '0' WHERE ppc_idx = '$ppc_idx[$idx]' ";
         sql_query($csql,1);
-        // ppc_idx의 레코드를 삭제
-        $dsql = " DELETE FROM {$g5_table_name} WHERE ppc_idx = '{$ppc_idx[$idx]}' ";
+
+        // ppd_idx의 레코드 삭제
+        $dsql = " DELETE FROM {$g5['project_purchase_divide_table']} WHERE ppc_idx = '{$ppc_idx[$idx]}' ";
         sql_query($dsql,1);
+
+        // ppc_idx의 레코드를 삭제
+        $dsql2 = " DELETE FROM {$g5_table_name} WHERE ppc_idx = '{$ppc_idx[$idx]}' ";
+        sql_query($dsql2,1);
     }
     // 만약 테이블에 아무 레코드도 없으면 AUTO_INCREMENT를 1로 초기화한다.
-    $cntres = sql_fetch(" SELECT COUNT(*) AS cnt FROM {$g5_table_name} ");
+    $cntres = sql_fetch(" SELECT EXISTS( SELECT 1 FROM {$g5_table_name} ) AS cnt ");
+    $cntres2 = sql_fetch(" SELECT EXISTS( SELECT 1 FROM {$g5['project_purchase_divide_table']} ) AS cnt ");
     if(!$cntres['cnt']){
         $resetsql = " ALTER TABLE {$g5_table_name} auto_increment=1 ";
         sql_query($resetsql);
+    }
+    if(!$cntres2['cnt']){
+        $resetsql2 = " ALTER TABLE {$g5['project_purchase_divide_table']} auto_increment=1 ";
+        sql_query($resetsql2);
     }
 }
 // exit;
