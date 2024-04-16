@@ -127,6 +127,7 @@ if(count($merge_del)){
 }
 if(count($del_arr)) delete_idx_file($del_arr);
 
+
 //멀티파일처리
 upload_multi_file($_FILES['ppc_datas'],'ppc',$ppc_idx,'ppc');
 

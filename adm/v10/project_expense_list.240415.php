@@ -149,8 +149,8 @@ $cur_url = preg_replace('/frm_date=([0-9]{4})-([0-9]{2})-([0-9]{2})/i','',$cur_u
 $cur_url = str_replace('?&','?',$cur_url);
 $cur_url = str_replace('&&','&',$cur_url);
 
-if($super_admin) $colspan = 13;
-else $colspan = 8;
+if($super_admin) $colspan = 10;
+else $colspan = 5;
 //예정일알람일수 $g5['setting']['set_expplan_alarmdays']
 ?>
 <style>
@@ -178,6 +178,7 @@ else $colspan = 8;
 .td_alarm .sp_expire{position:absolute;bottom:5px;left:2px;font-size:0.7em;}
 .grp_box{display:block;position:absolute;bottom:2px;left:0px;width:100%;height:5px;background:#ccc;overflow:hidden;}
 .grp_box .grp_in{display:block;position:absolute;top:0px;left:0px;height:5px;background:orange;}
+.grp_box .grp_in_su{background:blue;}
 .grp_box .grp_in_mi{background:red;}
 </style>
 
@@ -225,16 +226,13 @@ else $colspan = 8;
         <th scope="col">의뢰기업</th>
         <th scope="col">공사프로젝트</th>
         <?php if($super_admin){ ?>
-        <th scope="col">미수금<br>(수주금액기준%)</th>
         <th scope="col">수주금액</th>
-        <th scope="col">기타수입금액</th>
-        <th scope="col">총수입금액</th>
+        <th scope="col">수금액<br>(수주금액기준%)</th>
+        <th scope="col">미수금<br>(수주금액기준%)</th>
+        <th scope="col">지출상태<br>(수금합계-지출합계)</th>
         <?php } ?>
         <th scope="col">총지출액<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
-        <th scope="col">기계지출액<br>(총지출액기준%)</th>
-        <th scope="col">전기지출액<br>(총지출액기준%)</th>
-        <th scope="col">기타지출액<br>(총지출액기준%)</th>
-        <?php if($super_admin){ ?><th scope="col">잔액<br>(총수입-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th><?php } ?>
+        <?php if($super_admin){ ?><th scope="col">영업이익<br>(총수입-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th><?php } ?>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
 	</thead>
@@ -263,8 +261,11 @@ else $colspan = 8;
         $sugeum = sql_fetch($ssql);
         $row['tot_income'] = $row['prp_order_price'] + $row['prn_tot_inprice'];
         $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
+        $row['prj_su_price'] = $sugeum['sum_price'];
+        $row['prj_stat_price'] = $sugeum['sum_price'] - $row['prx_sum_exprice'];//지출상태(수금-지출)
         $row['prp_dif_exprice'] = $row['tot_income'] - $row['prx_sum_exprice'];
         $bg = 'bg'.($i%2);
+        $sug_per = ($row['prp_order_price'])?round($row['prj_su_price']/$row['prp_order_price']*100,1):0;
         $mis_per = ($row['prp_order_price'])?round($row['prj_mi_price']/$row['prp_order_price']*100,1):0;
         $exp_per = ($row['prp_order_price'])?round($row['prx_sum_exprice']/$row['tot_income']*100,1):0;
         $dif_per = ($row['prp_order_price'])?round($row['prp_dif_exprice']/$row['tot_income']*100,1):0;
@@ -282,64 +283,25 @@ else $colspan = 8;
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
             <?php if($super_admin){ ?>
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td><!--수주금액-->
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
+                <span class="prc"><?=number_format($row['prj_su_price'])?></span>
+                <div class="grp_box"><div class="grp_in grp_in_su" style="width:<?=$sug_per?>%"></div></div>
+                <span class="per">(<?=$sug_per?>%)</span>
+            </td><!--수금금액-->
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prj_mi_price'])?></span>
                 <div class="grp_box"><div class="grp_in grp_in_mi" style="width:<?=$mis_per?>%"></div></div>
                 <span class="per">(<?=$mis_per?>%)</span>
-            </td>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prn_tot_inprice'])?></td>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['tot_income'])?></td>
+            </td><!--미수금-->
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;color:<?=(($row['prj_stat_price']<0)?'red':'')?>;">
+                <?=number_format($row['prj_stat_price'])?>
+            </td><!--지출상태-->
             <?php } ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prx_sum_exprice'])?></span>
                 <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
                 <?php if($super_admin){ ?><span class="per">(<?=$exp_per?>%)</span><?php } ?>
-            </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp td_alarm" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prx_mcn_exprice'])?></span>
-                <div class="grp_box"><div class="grp_in" style="width:<?=$mcn_per?>%"></div></div>
-                <span class="per">(<?=$mcn_per?>%)</span>
-                <?php
-                if($row['prx_alarm_machine_cnt']){
-                    $dt_plan_class = ' txt_blueblink';
-                    echo '<span class="sp_alarm'.$dt_plan_class.'">예정</span>';
-                }
-                if($row['prx_expire_machine_cnt']){
-                    $dt_expire_class = ' txt_redblink';
-                    echo '<span class="sp_expire'.$dt_expire_class.'">만기</span>';
-                }
-                ?>
-            </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp td_alarm" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prx_elt_exprice'])?></span>
-                <div class="grp_box"><div class="grp_in" style="width:<?=$elt_per?>%"></div></div>
-                <span class="per">(<?=$elt_per?>%)</span>
-                <?php
-                if($row['prx_alarm_electricity_cnt']){
-                    $dt_plan_class = ' txt_blueblink';
-                    echo '<span class="sp_alarm'.$dt_plan_class.'">예정</span>';
-                }
-                if($row['prx_expire_electricity_cnt']){
-                    $dt_expire_class = ' txt_redblink';
-                    echo '<span class="sp_expire'.$dt_expire_class.'">만기</span>';
-                }
-                ?>
-            </td>
-            <td rowspan="<?=$p_cnt?>" class="td_grp td_alarm" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prx_etc_exprice'])?></span>
-                <div class="grp_box"><div class="grp_in" style="width:<?=$etc_per?>%"></div></div>
-                <span class="per">(<?=$etc_per?>%)</span>
-                <?php
-                if($row['prx_alarm_etc_cnt']){
-                    $dt_plan_class = ' txt_blueblink';
-                    echo '<span class="sp_alarm'.$dt_plan_class.'">예정</span>';
-                }
-                if($row['prx_expire_etc_cnt']){
-                    $dt_expire_class = ' txt_redblink';
-                    echo '<span class="sp_expire'.$dt_expire_class.'">만기</span>';
-                }
-                ?>
             </td>
             <?php if($super_admin){ ?>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">

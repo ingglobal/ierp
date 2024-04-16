@@ -195,7 +195,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
             <th scope="row"><label for="multi_file_ppt">그룹발주 관련파일</label></th>
             <td colspan="3">
                 <?php echo help("그룹발주관련 파일들을 등록하고 관리해 주시면 됩니다."); ?>
-                <input type="file" id="multi_file_ppc" name="ppt_datas[]" multiple class="">
+                <input type="file" id="multi_file_ppc" name="ppc_datas[]" multiple class="">
                 <?php
                 if(@count($ppc['ppc_f_arr'])){
                     echo '<ul>'.PHP_EOL;

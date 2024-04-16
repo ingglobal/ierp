@@ -72,6 +72,9 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'electricity' AND prx_done_date != '0000-00-00' ) AS prx_elt_exprice
             , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'etc' AND prx_done_date != '0000-00-00' ) AS prx_etc_exprice
             , (SELECT SUM(prn_price) FROM {$g5['project_inprice_table']} WHERE prj_idx = prj.prj_idx AND prn_status = 'ok' AND prn_type = 'etc' AND prn_done_date != '0000-00-00' ) AS prn_tot_inprice
+            , (SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = prj.prj_idx AND ppc_status IN ('ok','complete')) AS pur_total_price
+            , (SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = prj.prj_idx AND ppc_status = 'ok') AS pur_ok_price
+            , (SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = prj.prj_idx AND ppc_status = 'complete') AS pur_complete_price
             , (
                 SELECT COUNT(*)
                     FROM {$g5['project_exprice_table']}
@@ -249,6 +252,7 @@ else $colspan = 5;
         // 관리 버튼
         $s_mod = '<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;prj_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'&amp;group=1">수정</a>';
 
+
         //수금완료 합계를 구한다
         $ssql = " SELECT SUM(prp_price) AS sum_price
                     FROM {$g5['project_price_table']}
@@ -259,6 +263,7 @@ else $colspan = 5;
         ";
         //echo $ssql;
         $sugeum = sql_fetch($ssql);
+        $row['prx_sum_exprice'] = $row['prx_sum_exprice'] + $row['pur_complete_price']; // 총지출정보 수정(240415)
         $row['tot_income'] = $row['prp_order_price'] + $row['prn_tot_inprice'];
         $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
         $row['prj_su_price'] = $sugeum['sum_price'];

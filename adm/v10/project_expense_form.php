@@ -7,6 +7,8 @@ auth_check($auth[$sub_menu],'w');
 $mcn = array();
 $elt = array();
 $etc = array();
+$ppc = array();//complete
+$ppcs = array();//complete
 $prx = array();
 $exp_sql = " SELECT
 				(
@@ -21,12 +23,41 @@ $exp_sql = " SELECT
 				,(
 					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'etc' AND prx_done_date != '0000-00-00'
 				) AS etc_total
+				, (
+					SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = '{$prj_idx}' AND ppc_status IN ('ok','complete')
+				) AS pur_total_price
+            	, (
+					SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = '{$prj_idx}' AND ppc_status = 'ok'
+				) AS pur_ok_price
+				, (
+					SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = '{$prj_idx}' AND ppc_status = 'complete'
+				) AS pur_complete_price
 			FROM {$g5['project_exprice_table']}
 			WHERE prj_idx = '{$prj_idx}' AND prx_status = 'ok'
 
 ";
 // print_r3($exp_sql);
 $exp = sql_fetch($exp_sql); //$exp['total'],$exp['mcn_total'],$exp['elt_total'],$exp['etc_total']
+
+$ppc_sql = " SELECT
+				(
+					SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = '{$prj_idx}' AND ppc_status IN ('ok','complete')
+				) AS pur_total_price
+            	, (
+					SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = '{$prj_idx}' AND ppc_status = 'ok'
+				) AS pur_ok_price
+				, (
+					SELECT SUM(ppc_price) FROM {$g5['project_purchase_table']} WHERE prj_idx = '{$prj_idx}' AND ppc_status = 'complete'
+				) AS pur_complete_price
+			FROM {$g5['project_purchase_table']}
+			WHERE prj_idx = '{$prj_idx}' AND ppc_status IN ('ok','complete')
+
+";
+// print_r3($ppc_sql);
+$puc = sql_fetch($ppc_sql); //$puc['total'],$puc['mcn_total'],$puc['elt_total'],$puc['etc_total']
+
+
+
 
 $inp_sql = " SELECT SUM(prn_price) AS prn_tot_price
 				FROM {$g5['project_inprice_table']}
@@ -54,6 +85,18 @@ for($i=0;$row=sql_fetch_array($res);$i++){
 		$etc[$row['prx_idx']] = $row;
 }
 
+$csql = " SELECT ppc.*, com.com_name FROM {$g5['project_purchase_table']} ppc
+			LEFT JOIN {$g5['company_table']} com ON ppc.com_idx = com.com_idx
+			WHERE prj_idx = '{$prj_idx}' AND ppc_status = 'complete'
+";
+$cres = sql_query($csql, 1);
+
+for($i=0;$row=sql_fetch_array($cres);$i++){
+	$row['ppc2_price'] = number_format($row['ppc_price']);
+	array_push($ppcs,$row['ppc_idx']);
+	$ppc[$row['ppc_idx']] = $row;
+}
+
 $sqlf = "SELECT * FROM {$g5['file_table']}
 			WHERE fle_db_table = 'project_exprice'
 				AND fle_type IN ('machine','electricity','etc')
@@ -76,6 +119,24 @@ for($i=0;$row2=sql_fetch_array($rs);$i++){
 	if(!is_array(${$row2['fle_type'].'_fidxs'}[$row2['fle_db_id']])) ${$row2['fle_type'].'_fidxs'}[$row2['fle_db_id']] = array();
 	@array_push(${$row2['fle_type'].'_fidxs'}[$row2['fle_db_id']],$row2['fle_idx']);
 }
+
+$sqlf2 = "SELECT * FROM {$g5['file_table']}
+			WHERE fle_db_table = 'ppc'
+				AND fle_type = 'ppc'
+				AND fle_db_id IN (".((count($ppcs))?implode(',',$ppcs):0).")
+			ORDER BY fle_reg_dt DESC ";
+$rs2 = sql_query($sqlf2,1);
+$ppc_fles = array();
+$ppc_idxs = array();
+for($i=0;$row3=sql_fetch_array($rs2);$i++){
+	// print_r2($row3);
+	$file_down_del2 = (is_file(G5_PATH.$row3['fle_path'].'/'.$row3['fle_name'])) ? $row3['fle_name_orig'].'&nbsp;&nbsp;<a href="'.G5_USER_ADMIN_URL.'/lib/download.php?file_fullpath='.urlencode(G5_PATH.$row3['fle_path'].'/'.$row3['fle_name']).'&file_name_orig='.$row3['fle_name_orig'].'" file_path="'.$row3['fle_path'].'">[파일다운로드]</a>&nbsp;&nbsp;'.$row3['fle_reg_dt']:''.PHP_EOL;
+	if(!is_array(${$row3['fle_type'].'_fles'}[$row3['fle_db_id']])) ${$row3['fle_type'].'_fles'}[$row3['fle_db_id']] = array();
+	@array_push(${$row3['fle_type'].'_fles'}[$row3['fle_db_id']],array('file'=>$file_down_del2));
+	if(!is_array(${$row3['fle_type'].'_fidxs'}[$row3['fle_db_id']])) ${$row3['fle_type'].'_fidxs'}[$row3['fle_db_id']] = array();
+	@array_push(${$row3['fle_type'].'_fidxs'}[$row3['fle_db_id']],$row3['fle_idx']);
+}
+
 /*
 print_r3($machine_fles);
 print_r3($exp);
@@ -125,6 +186,7 @@ $sugm_price = $sugeum['sum_price'];
 $sugm_per = ($prs1['prp_price'])?round($sugm_price / $prs1['prp_price'] * 100,2):0;
 
 //지출상태
+$exp['total'] = $exp['total'] + $puc['pur_total_price']; //추가(240415)
 $stat_price = $sugm_price - $exp['total'];
 
 //계약금에 대한 총지출금액 비율
@@ -134,6 +196,7 @@ $dif_price = ($prs1['prp_price'] + $inp['prn_tot_price']) - $exp['total'];
 $dif_per = ($prs1['prp_price'])?round($dif_price / ($prs1['prp_price'] + $inp['prn_tot_price']) * 100,2):0;
 $mcn_per = ($exp['total'])?round($exp['mcn_total']/$exp['total']*100,2):0;
 $elt_per = ($exp['total'])?round($exp['elt_total']/$exp['total']*100,2):0;
+$ppc_per = ($exp['total'])?round($puc['pur_complete_price']/$exp['total']*100,2):0;
 $etc_per = ($exp['total'])?round($exp['etc_total']/$exp['total']*100,2):0;
 
 
@@ -164,7 +227,20 @@ $super_admin
 .prx_plan_date{width:90px;}
 .prx_done_date{width:90px;}
 
-.lst_up{background:#f1f1f1;padding:10px;}
+.lst_ppc .lst_up{background:#f1f1f1;padding:10px;}
+.lst_ppc .lst_up::after{display:block;visibility:hidden;clear:both;content:'';}
+.lst_ppc .lst_up span{float:left;margin-right:10px;border:1px solid #ddd;height:35px;line-height:35px;padding:0 5px;}
+.lst_ppc .lst_up span.ppc_idx{width:60px;}
+.lst_ppc .lst_up span.com_name2{width:150px;background:#ccc;}
+.lst_ppc .lst_up span.ppc_subject{width:300px;}
+.lst_ppc .lst_up span.ppc2_price{width:140px;text-align:right;}
+.lst_ppc .lst_up span.ppc2_price::after{content:' 원'}
+.lst_ppc .lst_up span.ppc_date{}
+.lst_ppc .lst_up span.ppc_content{display:none;}
+.lst_ppc .lst_up span.ppc_file{border:0px;}
+.lst_ppc .lst_up span.ppc_file button{position:relative;top:-3px;}
+.lst_ppc .lst_up span.file_cnt{}
+
 .lst_fle i{font-size:1.3em;margin-left:5px;}
 .lst_down{padding:0px 20px 20px;display:none;background:#f1f1f1;position:relative;}
 .lst_down.focus{padding-bottom:20px;display:block;}
@@ -206,6 +282,8 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .sm_tbl .td_mcn{}
 .sm_tbl .th_elt{}
 .sm_tbl .td_elt{}
+.sm_tbl .th_cmp{}
+.sm_tbl .td_cmp{}
 .sm_tbl .th_etc{}
 .sm_tbl .td_etc{}
 
@@ -308,6 +386,15 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						</td>
 					</tr>
 					<?php } ?>
+					<?php if($puc['pur_complete_price']){ ?>
+					<tr>
+						<th class="th_cmp">매입지출(<?=$ppc_per?>%)<br><span>(총지출기준%)</span></th>
+						<td class="td_cmp">
+							<div class="grp_box"><div class="grp_in" style="width:<?=$ppc_per?>%"></div></div>
+							<?=number_format($puc['pur_complete_price'])?>원
+						</td>
+					</tr>
+					<?php } ?>
 					<?php if($exp['etc_total']){ ?>
 					<tr>
 						<th class="th_etc">기타지출(<?=$etc_per?>%)<br><span>(총지출기준%)</span></th>
@@ -331,90 +418,50 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 		</td>
     </tr>
 	<tr>
-		<th scope="row" class="th_exprice" id="th_machine"><label for="machine_exprice">기계지출</label><i id="i_machine" typ="machine" class="fa fa-plus-square-o i_exp" aria-hidden="true"></i></th>
+		<th scope="row" class="th_exprice" id="th_purchase"><label for="purchase_exprice">매입지출</label></th>
 		<td colspan="3">
-			<?php echo help("기계관련 지출을 관리하는 영역입니다."); ?>
-			<div class="exp_box" id="exp_machine">
-				<?php
-				if(count($mcn)){
-				$i=0;
-				foreach($mcn as $k=>$v){
-					$i++;
-				?>
-				<div class="lst_exp lst_<?=$v['prx_type']?> lst_<?=$v['prx_type']?>_<?=$i?>">
-					<div class="lst_up">
-						<span><input type="hidden" name="prx_idx" value="<?=$k?>"><strong class="">[<?=$i?>]</strong></span>
-						<span>
-							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
-							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
-						</span>
-						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
-						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
-						<span><input type="text" name="prx_plan_date" placeholder="지출예정일" value="<?=$v['prx_plan_date']?>" readonly class="frm_input prx_plan_date"></span>
-						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
-						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
-						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
-						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
-						<?php if(@count(${$v['prx_type'].'_fles'}[$k])){ ?>
-						<span>(<?=@count(${$v['prx_type'].'_fles'}[$k])?>)</span>
-						<?php } ?>
-					</div>
-					<div class="lst_down">
-						<?php
-						if(@count(${$v['prx_type'].'_fles'}[$k])){
-							echo '<ul style="margin-top:10px;">'.PHP_EOL;
-							for($j=0;$j<count(${$v['prx_type'].'_fles'}[$k]);$j++) {
-								echo "<li>[".($j+1).']'.${$v['prx_type'].'_fles'}[$k][$j]['file']."</li>".PHP_EOL;
-							}
-							echo '</ul>'.PHP_EOL;
-						}
-						?>
-					</div>
-				</div>
-				<?php
-				}
-				}
-				?>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<th scope="row" class="th_exprice" id="th_electricity"><label for="electricity_exprice">전기지출</label><i id="i_electricity" typ="electricity" class="fa fa-plus-square-o i_exp" aria-hidden="true"></i></th>
-		<td colspan="3">
-			<?php echo help("전기관련 지출을 관리하는 영역입니다."); ?>
+			<?php echo help("매입관련 지출정보를 표시합니다."); ?>
 			<div class="exp_box" id="exp_electricity">
 				<?php
-				if(count($elt)){
+				if(count($ppc)){
 				$i=0;
-				foreach($elt as $k=>$v){
+				foreach($ppc as $k=>$v){
+					/*
+					[ppc_idx] => 5
+					[com_idx] => 307
+					[prj_idx] => 736
+					[mb_id] => super
+					[ppc_date] => 2024-04-15
+					[ppc_subject] => 등록
+					[ppc_content] => 
+					[ppc_price] => 30
+					[ppc_status] => complete
+					[ppc_reg_dt] => 2024-04-15 08:19:29
+					[ppc_update_dt] => 2024-04-15 17:26:18
+					[com_name] => DH
+					[ppc2_price] => 30
+					*/
 					$i++;
 				?>
-				<div class="lst_exp lst_<?=$v['prx_type']?> lst_<?=$v['prx_type']?>_<?=$i?>">
+				<div class="lst_exp lst_ppc lst_ppc_<?=$i?>">
 					<div class="lst_up">
-						<span><input type="hidden" name="prx_idx" value="<?=$k?>"><strong class="">[<?=$i?>]</strong></span>
-						<span>
-							<input type="hidden" name="com_idx" value="<?=$v['com_idx']?>">
-							<input type="text" name="com_name" placeholder="업체명" value="<?=$v['com_name']?>" link="./_win_company_provider_select.php?file_name=${file_name}" readonly class="frm_input com_name">
-						</span>
-						<span><input type="text" name="prx_name" placeholder="지출제목" value="<?=$v['prx_name']?>" class="frm_input prx_name"></span>
-						<span><input type="text" name="prx_price" placeholder="지출금액" value="<?=$v['prx_price']?>" class="frm_input prx_price" onclick="javascript:only_number_comma(this)"></span>
-						<span><input type="text" name="prx_plan_date" placeholder="지출예정일" value="<?=$v['prx_plan_date']?>" readonly class="frm_input prx_plan_date"></span>
-						<span><input type="text" name="prx_done_date" placeholder="지출완료일" value="<?=$v['prx_done_date']?>" readonly class="frm_input prx_done_date"></span>
-						<span><input type="text" name="prx_content" placeholder="메모" value="<?=$v['prx_content']?>" class="frm_input prx_content"></span>
-						<span><button type="button" class="btn btn_02 lst_mod" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">수정</button></span>
-						<span><button type="button" class="btn btn_00 lst_del" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">삭제</button></span>
-						<span><button type="button" class="btn btn_03 lst_fle" prx_idx="<?=$k?>" typ="<?=$v['prx_type']?>">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
-						<?php if(@count(${$v['prx_type'].'_fles'}[$k])){ ?>
-						<span>(<?=@count(${$v['prx_type'].'_fles'}[$k])?>)</span>
+						<span class="ppc_idx" ppc_idx="<?=$v['ppc_idx']?>">[<?=$i?>]</strong></span>
+						<span class="com_name2"><?=cut_str($v['com_name'],12,'...')?></span>
+						<span class="ppc_subject"><?=cut_str($v['ppc_subject'],46,'...')?></span>
+						<span class="ppc2_price"><?=$v['ppc2_price']?></span>
+						<span class="ppc_date"><?=$v['ppc_date']?></span>
+						<span class="ppc_content"><?=$v['ppc_content']?></span>
+						<?php if(@count($ppc_fles[$k])){ ?>
+						<span class="ppc_file"><button type="button" class="btn btn_03 lst_fle" ppc_idx="<?=$k?>" typ="ppc">파일<i class="fa fa-angle-down" aria-hidden="true"></i></button></span>
+						<span class="file_cnt">(<?=@count($ppc_fles[$k])?>)</span>
 						<?php } ?>
 					</div>
 					<div class="lst_down">
 						<?php
-						if(@count(${$v['prx_type'].'_fles'}[$k])){
+						if(@count($ppc_fles[$k])){
 							echo '<ul>'.PHP_EOL;
-							for($j=0;$j<count(${$v['prx_type'].'_fles'}[$k]);$j++) {
-								echo "<li>[".($j+1).']'.${$v['prx_type'].'_fles'}[$k][$j]['file']."</li>".PHP_EOL;
+							for($j=0;$j<count($ppc_fles[$k]);$j++) {
+								echo "<li>[".($j+1).']'.$ppc_fles[$k][$j]['file']."</li>".PHP_EOL;
 							}
 							echo '</ul>'.PHP_EOL;
 						}
@@ -710,8 +757,10 @@ function multifile_insert(btn){
 	<button type="button" class="btn_file" prx_idx="${prx_idx}" typ="${type}">파일등록/삭제</button>
 	<input type="file" name="prx_files[]" multiple class="multi_files" id="prx_files">
 	</form>`;
-	$(form_obj).prependTo(lst_down);
-	$('#prx_files').MultiFile();
+	if(btn.attr('typ') != 'ppc'){
+		$(form_obj).prependTo(lst_down);
+		$('#prx_files').MultiFile();
+	}
 	$('.btn_file').on('click',function(){
 		btn_file_click($(this));
 	});
