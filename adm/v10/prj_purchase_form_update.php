@@ -145,5 +145,5 @@ foreach($_REQUEST as $key => $value ) {
     }
 }
 
-goto_url('./'.$fname.'_list.php?'.$qstr, false);
+goto_url('./'.(($order)?'prj_order':$fname).'_list.php?'.$qstr, false);
 ?>

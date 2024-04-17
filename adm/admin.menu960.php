@@ -47,7 +47,7 @@ $menu["menu960"] = array (
 	array('960210', '프로젝트견적', ''.G5_USER_ADMIN_URL.'/quot_list.php', 'quot_list'),
 	array('960240', '수입관리', ''.G5_USER_ADMIN_URL.'/project_group_price_list.php', 'project_group_price_list'),
 	// array('960248', '기타수입관리', ''.G5_USER_ADMIN_URL.'/project_income_list.php', 'project_income_list'),,
-	// array('960244', '매입관리', ''.G5_USER_ADMIN_URL.'/prj_order_list.php', 'prj_order_list'),
+	array('960244', '매입관리', ''.G5_USER_ADMIN_URL.'/prj_order_list.php', 'prj_order_list'),
 	array('960245', '실행가관리', ''.G5_USER_ADMIN_URL.'/project_expense_list.php', 'project_expense_list'),
 	// array('960255', '기타지출관리', ''.G5_USER_ADMIN_URL.'/etc_expense_list.php', 'etc_expense_list'),
 	array('960266', '그룹발주관리', ''.G5_USER_ADMIN_URL.'/prj_purchase_list.php', 'prj_purchase_list'),

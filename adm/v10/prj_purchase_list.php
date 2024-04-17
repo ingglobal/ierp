@@ -170,7 +170,7 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
         <th scope="col" class="th_ppc_idx">그룹발주번호</th>
-        <th scope="col" class="th_com_name">공급업체번호</th>
+        <!-- <th scope="col" class="th_com_name">공급업체번호</th> -->
         <th scope="col" class="th_com_name">공급업체</th>
         <th scope="col" class="th_prj_idx">프로젝트번호</th>
         <th scope="col" class="th_prj_idx">프로젝트</th>
@@ -200,7 +200,7 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
 			<label for="chk_<?=$i?>" class="sound_only"><?=get_text($row['ppt_subject'])?></label>
 			<input type="checkbox" name="chk[]" ppc_idx="<?=$row['ppc_idx']?>" com_idx="<?=$row['com_idx']?>" prj_idx="<?=$row['prj_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
 		</td>
-        <td class="td_ppc_idx"><?=$row['ppc_idx']?></td>
+        <!-- <td class="td_ppc_idx"><?=$row['ppc_idx']?></td> -->
         <td class="td_com_idx"><?=$row['com_idx']?></td>
         <td class="td_com_name"><?=$row['com_name']?></td>
         <td class="td_prj_idx"><?=$row['prj_idx']?></td>

@@ -108,6 +108,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
 <input type="hidden" name="ppc_idx" value="<?php echo $ppc["ppc_idx"] ?>">
+<input type="hidden" name="order" value="<?=$order?>">
 <?=$form_input?>
 <div class="local_desc01 local_desc" style="display:no ne;">
     <p>발주관리 페이지입니다.</p>
@@ -381,7 +382,7 @@ $('.ppd_reg').on('click', function(){
 </div><!--//.tbl_head01-->
 <?php } ?>
 <div class="btn_fixed_top">
-    <a href="./<?=$fname?>_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
+    <a href="./<?=(($order)?'prj_order':$fname)?>_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
     <input type="submit" value="확인" class="btn_submit btn" accesskey='s'>
 </div>
 </form><!--//#form01-->
