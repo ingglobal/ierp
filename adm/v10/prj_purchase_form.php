@@ -54,7 +54,7 @@ else if($w == 'u'){
         alert('해당 개별발주항목이 존재하지 않습니다.','./project_purchase_list.php?'.$qstr);
     }
 
-    //관련파일 추출
+    //ppc관련파일 추출
 	$sql = "SELECT * FROM {$g5['file_table']}
         WHERE fle_db_table = 'ppc' AND fle_type = 'ppc' AND fle_db_id = '".$ppc['ppc_idx']."' ORDER BY fle_reg_dt DESC ";
     $rs = sql_query($sql,1);
@@ -70,6 +70,28 @@ else if($w == 'u'){
 
 	//견적서파일 idx배열에 요소가 1개이상 존재하면 그중에 첫번째 요소(fle_idx)를 변수에 담는다.
 	if(@count($ppc['ppc_fidxs'])) $ppc['ppc_lst_idx'] = $ppc['ppc_fidxs'][0];
+
+
+    // ppt관련 파일 추출을 위한 준비
+    $tsql = " SELECT GROUP_CONCAT(ppt_idx) AS ppt_idxs FROM {$g5['project_purchase_tmp_table']} WHERE ppc_idx = '{$ppc_idx}' ";
+    // echo $tsql;exit;
+    $tres = sql_fetch($tsql);
+    $tfsql = "SELECT * FROM {$g5['file_table']}
+        WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id IN (".$tres['ppt_idxs'].") ORDER BY fle_db_id, fle_reg_dt DESC ";
+    // echo $tfsql;exit;
+    $tfrs = sql_query($tfsql,1);
+    $ppc['ppt_f_arr'] = array();
+    $ppc['ppt_fidxs'] = array();//개별발주서 파일번호(fle_idx) 목록이 담긴 배열
+    $ppc['ppt_lst_idx'] = 0;//개별발주서 파일중에 가장 최신버전의 파일번호
+    for($i=0;$row2=sql_fetch_array($tfrs);$i++) {
+		$file_down_del = (is_file(G5_PATH.$row2['fle_path'].'/'.$row2['fle_name'])) ? $row2['fle_name_orig'].'&nbsp;&nbsp;<a href="'.G5_USER_ADMIN_URL.'/lib/download.php?file_fullpath='.urlencode(G5_PATH.$row2['fle_path'].'/'.$row2['fle_name']).'&file_name_orig='.$row2['fle_name_orig'].'" file_path="'.$row2['fle_path'].'">[파일다운로드]</a>&nbsp;&nbsp;'.$row2['fle_reg_dt']:''.PHP_EOL;
+		@array_push($ppc['ppt_f_arr'],array('file'=>$file_down_del));
+		@array_push($ppc['ppt_fidxs'],$row2['fle_idx']);
+	}
+    //견적서파일 idx배열에 요소가 1개이상 존재하면 그중에 첫번째 요소(fle_idx)를 변수에 담는다.
+	if(@count($ppc['ppt_fidxs'])) $ppc['ppt_lst_idx'] = $ppc['ppt_fidxs'][0];
+
+
 
     //지출분배데이터 추출
     $sqld = " SELECT * FROM {$g5['project_purchase_divide_table']} WHERE ppc_idx = '{$ppc_idx}' AND ppd_status IN ('ok','complete')  ORDER BY ppd_type, ppd_idx ";
@@ -202,6 +224,15 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                     echo '<ul>'.PHP_EOL;
                     for($i=0;$i<count($ppc['ppc_f_arr']);$i++) {
                         echo "<li>[".($i+1).']'.$ppc['ppc_f_arr'][$i]['file']."</li>".PHP_EOL;
+                    }
+                    echo '</ul>'.PHP_EOL;
+                }
+                if(@count($ppc['ppt_f_arr'])){
+                    echo '<br><br>';
+                    echo help("아래 목록은 개별발주관련 파일들의 목록입니다.");
+                    echo '<ul>'.PHP_EOL;
+                    for($i=0;$i<count($ppc['ppt_f_arr']);$i++) {
+                        echo "<li>[".($i+1).']'.$ppc['ppt_f_arr'][$i]['file']."</li>".PHP_EOL;
                     }
                     echo '</ul>'.PHP_EOL;
                 }

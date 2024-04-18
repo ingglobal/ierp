@@ -220,7 +220,7 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
 			<input type="hidden" name="ppt_idx[<?=$i?>]" value="<?=$row['ppt_idx']?>" id="ppt_idx_<?=$i?>">
 			<input type="hidden" name="ppc_idx[<?=$i?>]" value="<?=$row['ppc_idx']?>" id="ppc_idx_<?=$i?>">
 			<label for="chk_<?=$i?>" class="sound_only"><?=get_text($row['ppt_subject'])?></label>
-			<input type="checkbox" name="chk[]" ppc_idx="<?=$row['ppc_idx']?>" com_idx="<?=$row['com_idx']?>" ppt_idx="<?=$row['ppt_idx']?>" ppt_price="<?=$row['ppt_price']?>" prj_idx="<?=$row['prj_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
+			<input type="checkbox" name="chk[]" ppc_idx="<?=$row['ppc_idx']?>" com_idx="<?=$row['com_idx']?>" ppt_idx="<?=$row['ppt_idx']?>" ppt_price="<?=$row['ppt_price']?>" ppt_subject="<?=$row['ppt_subject']?>" prj_idx="<?=$row['prj_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
 		</td>
         <td class="td_ppt_idx"><?=$row['ppt_idx']?></td>
         <!-- <td class="td_com_idx"><?=$row['com_idx']?></td> -->
@@ -377,6 +377,7 @@ $('#ppt_to_ppc').on('click', function(){
     let prj_idx = '';
     let ppt_idxs = '';
     let ppt_prices = 0;
+    let ppt_subjects = '';
     let ppc_msg = '';
     let com_msg = '';
     let prj_msg = '';
@@ -391,6 +392,7 @@ $('#ppt_to_ppc').on('click', function(){
         let c_idx = chk.getAttribute('com_idx');
         let p_idx = chk.getAttribute('ppt_idx');
         let p_price = Number(chk.getAttribute('ppt_price'));
+        let p_subject = chk.getAttribute('ppt_subject');
         let pj_idx = chk.getAttribute('prj_idx');
         
         if(pc_idx != '0'){
@@ -407,6 +409,7 @@ $('#ppt_to_ppc').on('click', function(){
         prj_idx = pj_idx;
         ppt_idxs += (ppt_idxs == '') ? p_idx : ',' + p_idx;
         ppt_prices += p_price;
+        ppt_subjects += (ppt_subjects == '') ? p_subject : ',' + p_subject;
     });
     ppt_prices = thousand_comma(ppt_prices);
 
@@ -426,6 +429,7 @@ $('#ppt_to_ppc').on('click', function(){
     mdl_open();
     $('#prj_purchasetmp_list_modal').find('#ppt_idxs').val(ppt_idxs);
     $('#prj_purchasetmp_list_modal').find('#ppc_price').val(ppt_prices);
+    $('#prj_purchasetmp_list_modal').find('#ppc_subject').val(ppt_subjects);
     $('#prj_purchasetmp_list_modal').find('#com_idx').val(com_idx);
     $('#prj_purchasetmp_list_modal').find('#prj_idx').val(prj_idx);
 });

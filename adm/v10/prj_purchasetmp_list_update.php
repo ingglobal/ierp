@@ -42,6 +42,22 @@ if ($act_button == "선택수정"){
     foreach($chk as $idx){
         $ppt_subject[$idx] = trim($ppt_subject[$idx]);
         $ppt_price[$idx] = preg_replace("/,/","",$ppt_price[$idx]);
+
+        if($ppc_idx[$idx]){
+            $old = sql_fetch(" SELECT ppt_price FROM {$g5_table_name} WHERE ppt_idx = '{$ppt_idx[$idx]}' ");
+            $dif_price = $ppt_price[$idx] - $old['ppt_price'];
+            // echo $dif_price;exit;
+            // 기존보다 금액이 늘었다면 ppc_price에서 dif_price를 더한다.
+            if($dif_price > 0){
+                sql_query(" UPDATE {$g5['project_purchase_table']} SET ppc_price = (ppc_price + {$dif_price}) WHERE ppc_idx = '{$ppc_idx[$idx]}' ");
+            }
+            // 기존보다 금액이 줄었다면 ppc_price에서 dif_price를 뺀다.
+            else if($dif_price < 0){
+                $abs_price = abs($dif_price);
+                sql_query(" UPDATE {$g5['project_purchase_table']} SET ppc_price = (ppc_price - {$abs_price}) WHERE ppc_idx = '{$ppc_idx[$idx]}' ");
+            }
+        }
+
         $sql = " UPDATE {$g5_table_name} SET
                     ppt_subject = '{$ppt_subject[$idx]}'
                     , ppt_price = '{$ppt_price[$idx]}'
@@ -68,6 +84,10 @@ else if($act_button == "선택삭제"){
             sql_query($dfsql,1);
         }
 
+        // ppt_idx의 삭제되는 금액만큼 ppc_price에서도 차감해준다.
+        $csql = " UPDATE {$g5['project_purchase_table']} SET ppc_price = (ppc_price - {$ppt_price[$idx]}) WHERE ppc_idx = '{$ppc_idx[$idx]}' ";
+        sql_query($csql,1);
+
         // ppt_idx의 레코드를 삭제
         $dsql = " DELETE FROM {$g5_table_name} WHERE ppt_idx = '{$ppt_idx[$idx]}' ";
         sql_query($dsql,1);
@@ -82,6 +102,10 @@ else if($act_button == "선택삭제"){
 }
 else if($act_button == "선택그룹발주해제"){
     foreach($chk as $idx){
+        // ppt_idx의 삭제되는 금액만큼 ppc_price에서도 차감해준다.
+        $csql = " UPDATE {$g5['project_purchase_table']} SET ppc_price = (ppc_price - {$ppt_price[$idx]}) WHERE ppc_idx = '{$ppc_idx[$idx]}' ";
+        sql_query($csql,1);
+
         $sql = " UPDATE {$g5_table_name} SET
                     ppc_idx = '0'
                 WHERE ppt_idx = '{$ppt_idx[$idx]}'

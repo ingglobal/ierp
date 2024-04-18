@@ -22,7 +22,7 @@ for($i=0;$i<sizeof($fields);$i++) {
 }
 
 // 공통쿼리
-$skips = array($pre.'_idx','ppc_idx','mb_id',$pre.'_reg_dt',$pre.'_update_dt');
+$skips = array($pre.'_idx','ppc_idx',$pre.'_price','mb_id',$pre.'_reg_dt',$pre.'_update_dt');
 for($i=0;$i<sizeof($fields);$i++) {
     if(in_array($fields[$i],$skips)) {continue;}
     $sql_commons[] = " ".$fields[$i]." = '".$_POST[$fields[$i]]."' ";
@@ -37,6 +37,7 @@ $sql_common = (is_array($sql_commons)) ? implode(",",$sql_commons) : '';
 if($w == '') {
     $sql = " INSERT into {$g5_table_name} SET 
                 {$sql_common} 
+                , ".$pre."_price = '{$ppt_price}'
                 , mb_id = '{$member['mb_id']}'
                 , ".$pre."_reg_dt = '".G5_TIME_YMDHIS."'
                 , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
@@ -46,8 +47,26 @@ if($w == '') {
 	${$pre."_idx"} = sql_insert_id();
 }
 else if($w == 'u') {
+
+    if($ppc_idx){
+        $old = sql_fetch(" SELECT ppt_price FROM {$g5_table_name} WHERE ppt_idx = '{$ppt_idx}' ");
+        $dif_price = $ppt_price - $old['ppt_price'];
+        // echo $dif_price;exit;
+        // 기존보다 금액이 늘었다면 ppc_price에서 dif_price를 더한다.
+        if($dif_price > 0){
+            sql_query(" UPDATE {$g5['project_purchase_table']} SET ppc_price = (ppc_price + {$dif_price}) WHERE ppc_idx = '{$ppc_idx}' ");
+        }
+        // 기존보다 금액이 줄었다면 ppc_price에서 dif_price를 뺀다.
+        else if($dif_price < 0){
+            $abs_price = abs($dif_price);
+            sql_query(" UPDATE {$g5['project_purchase_table']} SET ppc_price = (ppc_price - {$abs_price}) WHERE ppc_idx = '{$ppc_idx}' ");
+        }
+    }
+
+
     $sql = " UPDATE {$g5_table_name} SET 
 					{$sql_common}
+                    , ppt_price = '{$ppt_price}'
 					, ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
 			WHERE ".$pre."_idx = '".${$pre."_idx"}."' 
 	";

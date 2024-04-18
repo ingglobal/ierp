@@ -104,6 +104,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
 <input type="hidden" name="ppt_idx" value="<?php echo $ppt["ppt_idx"] ?>">
+<input type="hidden" name="ppc_idx" value="<?php echo $ppt["ppc_idx"] ?>">
 <?=$form_input?>
 <div class="local_desc01 local_desc" style="display:no ne;">
     <p>개별발주관리 페이지입니다.</p>

@@ -32,6 +32,7 @@ $sql_common = " FROM {$g5['project_purchase_table']} AS ppc
 
 $where = array();
 $where[] = " prj_status IN ('ok','complete') ";   // 디폴트 검색조건
+// $where[] = " prj_status IN ('empty') ";   // 디폴트 검색조건
 
 if ($stx) {
     switch ($sfl) {
@@ -97,6 +98,9 @@ $cur_url = str_replace('&&','&',$cur_url);
 .td_per .p_per{position:absolute;width:100%;height:16px;padding:4px 2px;left:0;bottom:0;background:none;}
 .td_per .p_per .t_per{display:block;width:100%;height:8px;background:gray;border-radius:4px;overflow:hidden;}
 .td_per .p_per .t_per .s_per{display:block;width:0%;height:100%;background:red;border-radius:4px;}
+.td_last{padding:20px 0 !important;font-size:1.2em;}
+.td_total_price{font-size:1.2em;color:red;}
+.td_total_per{font-size:1.1em;color:red;}
 </style>
 
 <div class="local_ov01 local_ov">
@@ -155,6 +159,8 @@ $cur_url = str_replace('&&','&',$cur_url);
     </thead>
     <tbody>
     <?php
+    $ppc_total_price = 0;
+    $mi_total_price = 0;
     for ($i=0; $row=sql_fetch_array($result); $i++){
         $s_mod = '<a href="./prj_purchase_form.php?'.$qstr.'&amp;w=u&amp;ppc_idx='.$row['ppc_idx'].'&amp;order=1">수정</a>';
         // $s_add = '<a href="./prj_purchase_form.php?'.$qstr.'&amp;g=1&amp;ppc_idx='.$row['ppc_idx'].'">추가</a>';
@@ -166,6 +172,8 @@ $cur_url = str_replace('&&','&',$cur_url);
         $d_res = sql_query($dsql,1);
         $d_cnt = $d_res->num_rows;
 
+        $ppc_total_price += $row['ppc_price'];
+        $mi_total_price += $row['mp_price'];
         $bg = 'bg'.($i%2);
     ?>
     <tr class="<?=$bg?>">
@@ -181,7 +189,7 @@ $cur_url = str_replace('&&','&',$cur_url);
         <td rowspan="<?=$d_cnt?>" class="td_right"><?=number_format($row['mp_price'])?></td><!-- 미지급금 -->
         <td rowspan="<?=$d_cnt?>" class="td_per">
             <?php 
-                $mp_per = ($row['mp_price']/$row['ppc_price'])*100;
+                $mp_per = number_format(($row['mp_price']/$row['ppc_price'])*100,1,'.','');
                 echo $mp_per;
             ?> % 
             <p class="p_per"><strong class="t_per"><span class="s_per" style="width:<?=$mp_per?>%;"></span></strong></p>
@@ -198,6 +206,25 @@ $cur_url = str_replace('&&','&',$cur_url);
         <td class=""><?=$s_mod?></td>
     </tr>
     <?php } ?>
+    <?php
+    }
+    if($i == 0){
+        echo '<tr><td colspan="13" class="empty_table">데이터가 없습니다.</td></tr>'.PHP_EOL;
+    }
+    else{
+    ?>
+    <tr>
+        <td class="td_last" colspan="5">미지급금 총합계</td>
+        <td class="td_last td_right td_total_price"><?=number_format($mi_total_price)?></td>
+        <td class="td_last td_per td_total_per">
+            <?php 
+                $mpt_per = number_format(($mi_total_price/$ppc_total_price)*100,1,'.','');
+                echo $mpt_per;
+            ?> % 
+            <p class="p_per"><strong class="t_per" style="background:#cccccc;"><span class="s_per" style="width:<?=$mpt_per?>%;background:darkred;"></span></strong></p>
+        </td>
+        <td class="td_last" colspan="6"></td>
+    </tr>
     <?php
     }
     ?>

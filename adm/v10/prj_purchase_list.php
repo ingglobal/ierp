@@ -89,6 +89,7 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , ppc_status
             , ppc_reg_dt
             , ppc_update_dt
+            , ( SELECT SUM(ppd_price) FROM {$g5['project_purchase_divide_table']} WHERE ppc_idx = ppc.ppc_idx AND ppd_status IN ('ok','complete') ) AS ppd_sum_price
         {$sql_common}
 		{$sql_search}
         {$sql_order}
@@ -115,6 +116,8 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 .td_ppc_subject{}
 .td_ppc_price{width:120px;text-align:right !important;}
 .td_ppc_price::after{content:' 원'}
+.td_ppc_price .sp_red{color:red;}
+.td_ppc_price .sp_blue{color:blue;}
 .td_ppc_date{width:90px;}
 .td_ppc_date input{text-align:center;}
 .td_ppc_status{width:120px;}
@@ -200,8 +203,8 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
 			<label for="chk_<?=$i?>" class="sound_only"><?=get_text($row['ppt_subject'])?></label>
 			<input type="checkbox" name="chk[]" ppc_idx="<?=$row['ppc_idx']?>" com_idx="<?=$row['com_idx']?>" prj_idx="<?=$row['prj_idx']?>" value="<?=$i?>" id="chk_<?=$i?>">
 		</td>
-        <!-- <td class="td_ppc_idx"><?=$row['ppc_idx']?></td> -->
-        <td class="td_com_idx"><?=$row['com_idx']?></td>
+        <td class="td_ppc_idx"><?=$row['ppc_idx']?></td>
+        <!-- <td class="td_com_idx"><?=$row['com_idx']?></td> -->
         <td class="td_com_name"><?=$row['com_name']?></td>
         <td class="td_prj_idx"><?=$row['prj_idx']?></td>
         <td class="td_prj_name"><?=$row['prj_name']?></td>
@@ -210,7 +213,15 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
             <input type="text" name="ppc_subject[<?=$i?>]" value="<?=$row['ppc_subject']?>" class="frm_input">
         </td>
         <td class="td_ppc_price">
-            <span><?=number_format($row['ppc_price'])?></span>
+            <?php
+            $price_class = '';
+            if($row['ppc_price'] - $row['ppd_sum_price'] < 0){
+                $price_class = 'sp_red';
+            } else if($row['ppc_price'] - $row['ppd_sum_price'] > 0){
+                $price_class = 'sp_blue';
+            }
+            ?>
+            <span class="<?=$price_class?>"><?=number_format($row['ppc_price'])?></span>
         </td>
         <td class="td_ppc_date">
             <input type="text" name="ppc_date[<?=$i?>]" readonly value="<?=$row['ppc_date']?>" class="frm_input readonly ppc_date_<?=$i?>">
