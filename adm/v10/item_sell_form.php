@@ -1,5 +1,5 @@
 <?php
-$sub_menu = '960220';
+$sub_menu = '960226';
 include_once('./_common.php');
 include_once(G5_EDITOR_LIB);
 include_once(G5_LIB_PATH.'/iteminfo.lib.php');
@@ -19,7 +19,7 @@ if ($w == "")
     $it['ca_id3'] = get_cookie("ck_ca_id3");
     if (!$it['ca_id'])
     {
-        $sql = " select ca_id from {$g5['g5_shop_category_table']} WHERE ca_id NOT LIKE '7m%' order by ca_order, ca_id limit 1 ";
+        $sql = " select ca_id from {$g5['g5_shop_category_table']} WHERE ca_id LIKE '7m%' order by ca_order, ca_id limit 1 ";
         $row = sql_fetch($sql);
         if (!$row['ca_id'])
             alert("등록된 분류가 없습니다. 우선 분류를 등록하여 주십시오.", './categorylist.php');
@@ -72,7 +72,7 @@ $script = '';
 $sql = " select * from {$g5['g5_shop_category_table']} ";
 if ($is_admin != 'super')
     $sql .= " where ca_mb_id = '{$member['mb_id']}' ";
-$sql .= ($is_admin != 'super') ? " ca_id NOT LIKE '7m%' " : " where ca_id NOT LIKE '7m%' ";
+$sql .= ($is_admin != 'super') ? " ca_id LIKE '7m%' " : " where ca_id LIKE '7m%' ";
 $sql .= " order by ca_order, ca_id ";
 $result = sql_query($sql);
 for ($i=0; $row=sql_fetch_array($result); $i++)
@@ -100,7 +100,7 @@ if(G5_IS_MOBILE){
 }
 ?>
 
-<form name="fitemform" action="./itemformupdate.php" method="post" enctype="MULTIPART/FORM-DATA" autocomplete="off" onsubmit="return fitemformcheck(this)">
+<form name="fitemform" action="./item_sell_form_update.php" method="post" enctype="MULTIPART/FORM-DATA" autocomplete="off" onsubmit="return fitemformcheck(this)">
 
 <input type="hidden" name="codedup" value="<?php echo $default['de_code_dup_use']; ?>">
 <input type="hidden" name="w" value="<?php echo $w; ?>">
@@ -294,7 +294,7 @@ if(G5_IS_MOBILE){
 
 
 <div class="btn_fixed_top">
-    <a href="./itemlist.php?<?php echo $qstr; ?>" class="btn btn_02">목록</a>
+    <a href="./item_sell_list.php?<?php echo $qstr; ?>" class="btn btn_02">목록</a>
     <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
 </div>
 </form>

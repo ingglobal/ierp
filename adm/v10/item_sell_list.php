@@ -1,19 +1,43 @@
 <?php
-$sub_menu = '960220';
+$sub_menu = '960226';
 include_once('./_common.php');
 
 auth_check($auth[$sub_menu], "r");
 
-$g5['title'] = '부품관리';
-include_once('./_top_menu_item.php');
+$g5['title'] = '판매제품관리';
+include_once('./_top_menu_reseller.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
+// 변수 설정, 필드 구조 및 prefix 추출
+$table_name = 'g5_shop_item';
+$g5_table_name = $g5[$table_name.'_table'];
+$fields = sql_field_names($g5_table_name);
+$pre = substr($fields[0],0,strpos($fields[0],'_'));
+$fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파일명
+
+// 아래 foreach블록은 XXX_form.php파일에 제일 상단에도 서술하자
+foreach($_REQUEST as $key => $value ) {
+    if(substr($key,0,4)=='ser_') {
+        if(is_array($value)) {
+            foreach($value as $k2 => $v2 ) {
+                $qstr .= '&'.$key.'[]='.$v2;
+                $form_input .= '<input type="hidden" name="'.$key.'[]" value="'.$v2.'" class="frm_input">'.PHP_EOL;
+            }
+        }
+        else {
+            $qstr .= '&'.$key.'='.(($key == 'ser_stx')?urlencode(cut_str($value, 40, '')):$value);
+            $form_input .= '<input type="hidden" name="'.$key.'" value="'.(($key == 'ser_stx')?urlencode(cut_str($value, 40, '')):$value).'" class="frm_input">'.PHP_EOL;
+        }
+    }
+}
+
 // 분류
 $ca_list  = '<option value="">선택</option>'.PHP_EOL;
-$sql = " select * from {$g5['g5_shop_category_table']} ";
+$sql = " SELECT * FROM {$g5['g5_shop_category_table']} ";
 // if ($is_admin != 'super')
-$sql .= " where ca_id NOT LIKE '7m%' ";
+// $sql .= " where ca_mb_id = '{$member['mb_id']}' ";
+$sql .= " where ca_id LIKE '7m%' ";
 $sql .= " order by ca_order, ca_id ";
 $result = sql_query($sql);
 for ($i=0; $row=sql_fetch_array($result); $i++)
@@ -34,16 +58,35 @@ for ($i=0; $row=sql_fetch_array($result); $i++)
     $ca_list .= '<option value="'.$row['ca_id'].'">'.$row['ca_p_name'].$nbsp.$row['ca_name'].'</option>'.PHP_EOL;
 }
 
-$where = " and ";
-$sql_search = "";
-if ($stx != "") {
-    if ($sfl != "") {
-        $sql_search .= " $where $sfl like '%$stx%' ";
-        $where = " and ";
+
+$sql_common = " FROM {$g5_table_name} a
+                LEFT JOIN {$g5['g5_shop_category_table']} b ON a.ca_id = b.ca_id
+
+";
+// echo $sql_common;exit;
+$where = array();
+$where[] = " a.ca_id LIKE '7m%' ";   // 디폴트 검색조건
+
+if ($stx) {
+    switch($sfl){
+        case ( $sfl == 'ppc.com_idx' || $sfl == 'ppc.prj_idx' || $sfl == 'ppc_idx' || $sfl == 'ppc.mb_id' ):
+            $where[] = " {$sfl} = '{$stx}' ";
+            break;
+        default:
+            $where[] = " {$sfl} LIKE '%{$stx}%' ";
+            break;
     }
+
     if ($save_stx != $stx)
         $page = 1;
 }
+
+
+
+// 최종 WHERE 생성
+if ($where)
+$sql_search = ' WHERE '.implode(' AND ', $where);
+
 
 if ($sca != "") {
     $sql_search .= " $where (a.ca_id like '$sca%' or a.ca_id2 like '$sca%' or a.ca_id3 like '$sca%') ";
@@ -51,16 +94,8 @@ if ($sca != "") {
 
 if ($sfl == "")  $sfl = "it_name";
 
-$sql_common = " from {$g5['g5_shop_item_table']} a ,
-                     {$g5['g5_shop_category_table']} b
-               where (a.ca_id = b.ca_id";
-// if ($is_admin != 'super')
-$sql_common .= " and b.ca_id NOT LIKE '7m%'";
-$sql_common .= ") ";
-$sql_common .= $sql_search;
-
 // 테이블의 전체 레코드수만 얻음
-$sql = " select count(*) as cnt " . $sql_common;
+$sql = " SELECT COUNT(*) as cnt ".$sql_common." ".$sql_search;
 $row = sql_fetch($sql);
 $total_count = $row['cnt'];
 
@@ -73,13 +108,16 @@ if (!$sst) {
     $sst  = "it_id";
     $sod = "desc";
 }
-$sql_order = "order by $sst $sod";
+
+$sql_order = " ORDER BY {$sst} {$sod} ";
 
 
-$sql  = " select *, ( select com_name from {$g5['company_table']} where com_idx = a.com_idx ) as com_name
-           $sql_common
-           $sql_order
-           limit $from_record, $rows ";
+$sql  = " SELECT *
+                , ( SELECT com_name FROM {$g5['company_table']} where com_idx = a.com_idx ) as com_name
+           {$sql_common}
+           {$sql_search}
+           {$sql_order}
+           LIMIT $from_record, $rows ";
 $result = sql_query($sql);
 // echo $sql.'<br>';
 
@@ -127,7 +165,7 @@ if(G5_IS_MOBILE){
 <select name="sca" id="sca">
     <option value="">전체분류</option>
     <?php
-    $sql1 = " select ca_id, ca_name from {$g5['g5_shop_category_table']} WHERE ca_id NOT LIKE '7m%' order by ca_order, ca_id ";
+    $sql1 = " select ca_id, ca_name from {$g5['g5_shop_category_table']} WHERE ca_id LIKE '7m%' order by ca_order, ca_id ";
     $result1 = sql_query($sql1);
     for ($i=0; $row1=sql_fetch_array($result1); $i++) {
         $len = strlen($row1['ca_id']) / 2 - 1;
@@ -147,14 +185,14 @@ if(G5_IS_MOBILE){
 <label for="stx" class="sound_only">검색어</label>
 <input type="text" name="stx" value="<?php echo $stx; ?>" id="stx" class="frm_input">
 <input type="submit" value="검색" class="btn_submit">
-<a href="./order_cart.php" class="btn btn_s_cart">견적목록보기</a>
+<a href="./item_order_cart.php" class="btn btn_s_cart">견적목록보기</a>
 </form>
 
 <div class="local_desc01 local_desc">
     <p>[담기] 버튼을 클릭하면 부품이 장바구니에 담깁니다. <a href="./order_cart.php">[장바구니 바로가기]</a> 장바구니에 담긴 부품들을 가격 조정하거나 혹은 수량을 조절한 후 견적을 따로 진행할 수 있습니다.</p>
 </div>
 
-<form name="fitemlistupdate" method="post" action="./itemlistupdate.php" onsubmit="return fitemlist_submit(this);" autocomplete="off" id="fitemlistupdate">
+<form name="fitemlistupdate" method="post" action="./item_sell_list_update.php" onsubmit="return fitemlist_submit(this);" autocomplete="off" id="fitemlistupdate">
 <input type="hidden" name="sca" value="<?php echo $sca; ?>">
 <input type="hidden" name="sst" value="<?php echo $sst; ?>">
 <input type="hidden" name="sod" value="<?php echo $sod; ?>">
@@ -227,8 +265,8 @@ if(G5_IS_MOBILE){
             <input type="text" name="it_stock_qty[<?php echo $i; ?>]" value="<?php echo $row['it_stock_qty']; ?>" id="stock_qty_<?php echo $i; ?>" class="tbl_input sit_qty" size="7">
         </td>
         <td class="td_mng">
-            <a href="./itemform.php?w=u&amp;it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>&amp;<?php echo $qstr; ?>" class="btn btn_03"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>수정</a>
-            <a href="./itemcopy.php?it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>" class="itemcopy btn btn_02" target="_blank"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>복사</a>
+            <a href="./item_sell_form.php?w=u&amp;it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>&amp;<?php echo $qstr; ?>" class="btn btn_03"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>수정</a>
+            <a href="./item_sell_copy.php?it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>" class="itemcopy btn btn_02" target="_blank"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>복사</a>
             <a href="javascript:" it_id="<?php echo $row['it_id']; ?>" class="itemcart btn btn_01">담기</a>
         </td>
     </tr>
@@ -242,16 +280,11 @@ if(G5_IS_MOBILE){
 </div>
 
 <div class="btn_fixed_top">
-    <?php if($member['mb_manager_yn']) { ?>
-    <a href="./itemlist_excel_down.php?<?=$qstr?>" id="btn_excel_down" class="btn btn_03">엑셀다운</a>
-    <a href="javascript:" id="btn_excel_upload2" class="btn btn_03" style="display:none;">엑셀등록(비표준)</a>
-    <a href="javascript:" id="btn_excel_upload" class="btn btn_03" style="margin-right:20px;display:no ne;">엑셀등록</a>
-    <?php } ?>
     <input type="submit" name="act_button" value="선택담기" onclick="document.pressed=this.value" class="btn btn_02" style="margin-right:20px;">
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
     <?php if ($is_admin == 'super') { ?>
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
-    <a href="./itemform.php" class="btn btn_01">부품등록</a>
+    <a href="./item_sell_form.php" class="btn btn_01">제품등록</a>
     <?php } ?>
 </div>
 <!-- <div class="btn_confirm01 btn_confirm">
@@ -261,58 +294,6 @@ if(G5_IS_MOBILE){
 
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, "{$_SERVER['SCRIPT_NAME']}?$qstr&amp;page="); ?>
 
-<div id="modal01" title="엑셀 파일 업로드" style="display:none;">
-    <form name="form02" id="form02" action="./itemlist_excel_upload.php" onsubmit="return form02_submit(this);" method="post" enctype="multipart/form-data">
-        <table>
-        <tbody>
-        <tr>
-            <td style="line-height:130%;padding:10px 15px 10px 0;">
-                <ol>
-                    <li>엑셀은 97-2003통합문서만 등록가능합니다. (*.xls파일로 저장)</li>
-                    <li>엑셀은 하단에 탭으로 여러개 있으면 등록 안 됩니다. (한개의 독립 문서이어야 합니다.)</li>
-                </ol>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:15px 0;">
-                <input type="file" name="file_excel" onfocus="this.blur()">
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:15px 0;">
-                <button type="submit" class="btn btn_01">확인</button>
-            </td>
-        </tr>
-        </tbody>
-        </table>
-    </form>
-</div>
-<div id="modal02" title="엑셀 파일 업로드" style="display:none;">
-    <form name="form02" id="form02" action="./itemlist_excel_upload2.php" onsubmit="return form02_submit(this);" method="post" enctype="multipart/form-data">
-        <table>
-        <tbody>
-        <tr>
-            <td style="line-height:130%;padding:10px 15px 10px 0;">
-                <ol>
-                    <li>엑셀은 97-2003통합문서만 등록가능합니다. (*.xls파일로 저장)</li>
-                    <li>엑셀은 하단에 탭으로 여러개 있으면 등록 안 됩니다. (한개의 독립 문서이어야 합니다.)</li>
-                </ol>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:15px 0;">
-                <input type="file" name="file_excel" onfocus="this.blur()">
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:15px 0;">
-                <button type="submit" class="btn btn_01">확인</button>
-            </td>
-        </tr>
-        </tbody>
-        </table>
-    </form>
-</div>
 
 <script>
 function fitemlist_submit(f)
@@ -331,37 +312,8 @@ function fitemlist_submit(f)
     return true;
 }
 
-// 엑셀등록 실행
-function form02_submit(f) {
-    if (!f.file_excel.value) {
-        alert('엑셀 파일(.xls)을 입력하세요.');
-        return false;
-    }
-    else if (!f.file_excel.value.match(/\.xls$|\.xlsx$/i) && f.file_excel.value) {
-        alert('엑셀 파일만 업로드 가능합니다.');
-        return false;
-    }
-
-    return true;
-}
 
 $(function() {
-    // 엑셀등록 버튼
-    $( "#modal01" ).dialog({
-        autoOpen: false
-        , position: { my: "right-40 top-10", of: "#btn_excel_upload"}
-    });
-    $( "#modal02" ).dialog({
-        autoOpen: false
-        , position: { my: "right-40 top-10", of: "#btn_excel_upload2"}
-    });
-    $( "#btn_excel_upload" ).on( "click", function() {
-        $( "#modal01" ).dialog( "open" );
-    });
-    $( "#btn_excel_upload2" ).on( "click", function() {
-        $( "#modal02" ).dialog( "open" );
-    });
-
     $(".itemcopy").click(function() {
         var href = $(this).attr("href");
         window.open(href, "copywin", "left=100, top=100, width=300, height=200, scrollbars=0");
@@ -400,15 +352,7 @@ $(function() {
     });
 
 });
-
-function excelform(url)
-{
-    var opt = "width=600,height=450,left=10,top=10";
-    window.open(url, "win_excel", opt);
-    return false;
-}
 </script>
-
 <?php
-include_once (G5_ADMIN_PATH.'/admin.tail.php');
+include_once ('./_tail.php');
 ?>
