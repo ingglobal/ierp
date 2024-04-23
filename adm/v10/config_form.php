@@ -509,6 +509,20 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                 <input type="text" name="set_ppd_bank" value="<?php echo $g5['setting']['set_ppd_bank']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>
+		<tr>
+            <th scope="row">판매업체등급</th>
+            <td colspan="3">
+                <?php echo help('1=최종고객,2=SI기업,3=SI우수,4=SI최우수,5=대리점기본,6=대리점우수,7=대리점최우수'); ?>
+                <input type="text" name="set_com_level" value="<?php echo $g5['setting']['set_com_level']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">판매업체등급별할인률</th>
+            <td colspan="3">
+                <?php echo help('1=0,2=3,3=5,4=8,5=10,6=12,7=15'); ?>
+                <input type="text" name="set_com_dc_rate" value="<?php echo $g5['setting']['set_com_dc_rate']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
 		</tbody>
 		</table>
 	</div>

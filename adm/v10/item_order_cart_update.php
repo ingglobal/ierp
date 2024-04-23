@@ -533,7 +533,7 @@ if ($sw_direct)
 else {
 	// 장바구니에서 옵션 수정인 경우는 바로 장바구니로 이동!
 	if($act == 'optionmod' || $act == 'seldelete' | $act == 'alldelete') {
-		goto_url("./order_cart.php");
+		goto_url("./item_order_cart.php");
 	}
 	else {
 		$qstr .= "&amp;sca=".$sca;

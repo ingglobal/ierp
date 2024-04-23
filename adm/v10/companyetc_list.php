@@ -19,6 +19,7 @@ $sql_common = " FROM {$g5['companyetc_table']} AS com
 $sql_com_type = ($ser_com_type) ? " AND com_type IN ('".$ser_com_type."') " : "";
 
 $where = array();
+$where[] = " com_type NOT IN ('reseller') ";   // 디폴트 검색조건
 $where[] = " com_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
 
 

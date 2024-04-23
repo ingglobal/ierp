@@ -8,6 +8,7 @@ $g5['container_sub_title'] = '
 	<a href="./company_list.php" class="btn_top_menu '.$active_company_list.'">업체관리(과제업체)</a>
 	<a href="./member_list.php" class="btn_top_menu '.$active_member_list.'">담당자관리(과제업체)</a>
 	<a href="./companyetc_list.php" class="btn_top_menu '.$active_companyetc_list.'">비과제업체관리</a>
+	<a href="./companyreseller_list.php" class="btn_top_menu '.$active_companyreseller_list.'">판매업체관리</a>
 </h2>
 ';
 ?>

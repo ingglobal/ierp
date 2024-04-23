@@ -64,7 +64,8 @@ sql_query($sql,1);
 					LEFT JOIN {$g5['g5_shop_item_table']} b ON ( a.it_id = b.it_id )
 					LEFT JOIN {$g5['company_table']} d ON ( d.com_idx = b.com_idx )
 					LEFT JOIN {$g5['g5_shop_category_table']} c ON ( c.ca_id = b.ca_id )
-				WHERE a.od_id = '$s_cart_id' ";
+				WHERE a.od_id = '$s_cart_id' 
+					AND c.ca_id LIKE '7m%'  ";
 		$sql .= " GROUP BY a.it_id ";
 		$sql .= " ORDER BY a.ct_id ";
         //echo $sql.'<br>';
@@ -201,7 +202,7 @@ sql_query($sql,1);
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<!--button type="button" onclick="return form_check('modify');" class="btn btn_02">선택수정</button-->
 		<button type="button" onclick="return form_check('seldelete');" class="btn btn_02">선택삭제</button>
-		<button type="button" onclick="return form_check('alldelete');" class="btn btn_02">비우기</button>
+		<!-- <button type="button" onclick="return form_check('alldelete');" class="btn btn_02">비우기</button> -->
 		<?php } ?>
 	</div>
 	
@@ -266,7 +267,7 @@ $(function() {
 		
 
         $.post(
-            "./cartoption.php",
+            "./item_order_cartoption.php",
             { it_id: it_id },
             function(data) {
                 $("#mod_option_frm").remove();

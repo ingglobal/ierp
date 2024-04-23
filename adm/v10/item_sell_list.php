@@ -133,6 +133,13 @@ if(G5_IS_MOBILE){
         return;
     }
 }
+
+$seller_opt = '';
+$ssql = " SELECT com_idx, com_name, com_level FROM {$g5['companyreseller_table']} WHERE com_status = 'ok' ORDER BY com_name, com_idx ";
+$sres = sql_query($ssql,1);
+for($j=0;$srow=sql_fetch_array($sres);$j++){
+    $seller_opt .= '<option value="'.$srow['com_idx'].'">'.$srow['com_name'].'('.$g5['set_com_dc_rate_value'][$srow['com_level']].'%)</option>'.PHP_EOL;
+}
 ?>
 <style>
 .td_mng {width:150px;}
@@ -185,11 +192,11 @@ if(G5_IS_MOBILE){
 <label for="stx" class="sound_only">검색어</label>
 <input type="text" name="stx" value="<?php echo $stx; ?>" id="stx" class="frm_input">
 <input type="submit" value="검색" class="btn_submit">
-<a href="./item_order_cart.php" class="btn btn_s_cart">견적목록보기</a>
+<a href="./item_order_cart.php" class="btn btn_s_cart">주문바구니 보기</a>
 </form>
 
 <div class="local_desc01 local_desc">
-    <p>[담기] 버튼을 클릭하면 부품이 장바구니에 담깁니다. <a href="./order_cart.php">[장바구니 바로가기]</a> 장바구니에 담긴 부품들을 가격 조정하거나 혹은 수량을 조절한 후 견적을 따로 진행할 수 있습니다.</p>
+    <p>[담기] 버튼을 클릭하면 부품이 주문바구니에 담깁니다. <a href="./item_order_cart.php">[주문바구니 바로가기]</a> 주문바구니에 담긴 제품들을 가격 조정하거나 혹은 수량을 조절할 수 있습니다.</p>
 </div>
 
 <form name="fitemlistupdate" method="post" action="./item_sell_list_update.php" onsubmit="return fitemlist_submit(this);" autocomplete="off" id="fitemlistupdate">
@@ -216,6 +223,8 @@ if(G5_IS_MOBILE){
         <th scope="col">매입가</th>
         <th scope="col">매입처</th>
         <th scope="col">재고</th>
+        <th scope="col">판매처</th>
+        <th scope="col">수량</th>
         <th scope="col">관리</th>
     </tr>
     </thead>
@@ -263,6 +272,15 @@ if(G5_IS_MOBILE){
         </td>
         <td headers="th_stock" class="td_numbig td_input"><!-- 재고 -->
             <input type="text" name="it_stock_qty[<?php echo $i; ?>]" value="<?php echo $row['it_stock_qty']; ?>" id="stock_qty_<?php echo $i; ?>" class="tbl_input sit_qty" size="7">
+        </td>
+        <td class="td_seller"><!--판매처-->
+            <select id="seller_id_<?php echo $i; ?>" style="width:100px;">
+                <option value="">::판매처선택::</option>
+                <?=$seller_opt?>
+            </select>
+        </td>
+        <td headers="th_cnt" class="td_numbig td_input"><!-- 수량 -->
+            <input type="text" value="" id="it_qty_<?php echo $i; ?>" class="tbl_input it_qty" size="7">
         </td>
         <td class="td_mng">
             <a href="./item_sell_form.php?w=u&amp;it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>&amp;<?php echo $qstr; ?>" class="btn btn_03"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>수정</a>
@@ -336,7 +354,7 @@ $(function() {
         e.preventDefault();
         var it_id = $(this).attr('it_id');
         $.ajax({
-        	url:g5_user_admin_url+'/ajax/cart.json.php',
+        	url:g5_user_admin_url+'/ajax/item_sell_cart.json.php',
         	type:'get', data:{"aj":"put","it_id":it_id},
         	dataType:'json', timeout:10000, beforeSend:function(){}, success:function(res) {
                 //alert(res.sql);
