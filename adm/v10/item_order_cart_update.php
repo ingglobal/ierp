@@ -286,7 +286,8 @@ else // 장바구니에 담기
     $count = count($_POST['it_id']);
     if ($count < 1)
         alert('장바구니에 담을 상품을 선택하여 주십시오.');
-
+    print_r2($_POST);
+    exit;
     $ct_count = 0;
     for($i=0; $i<$count; $i++) {
         // 보관함의 상품을 담을 때 체크되지 않은 상품 건너뜀

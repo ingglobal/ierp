@@ -109,12 +109,12 @@ if($option_2) {
 			<span class="sit_opt_prc"><?php echo $io_price; ?></span>
 			<div>
 				<div style="float:left;margin-top: 0px;">
-					단가: <input type="text" name="ct_price[<?php echo $it['it_id']; ?>][]" <?=$row2['ct_price_readonly']?> value="<?php echo $row2['ct_price']; ?>" class="frm_input" style="width:75px;<?=$row2['ct_price_background']?>"> 원
+					단가: <input type="text" name="ct_price[<?php echo $it['it_id']; ?>][]" <?=$row2['ct_price_readonly']?> value="<?php echo $row2['ct_price']; ?>" class="frm_input" style="width:75px;text-align:right;<?=$row2['ct_price_background']?>"> 원
 				</div>
-				<label for="ct_qty_<?php echo $i; ?>" class="sound_only">수량</label>
-				<input type="text" name="ct_qty[<?php echo $it['it_id']; ?>][]" value="<?php echo $row['ct_qty']; ?>" id="ct_qty_<?php echo $i; ?>" class="frm_input" style="width:40px;">
-				<button type="button" class="sit_qty_plus btn_frmline">증가</button>
 				<button type="button" class="sit_qty_minus btn_frmline">감소</button>
+				<label for="ct_qty_<?php echo $i; ?>" class="sound_only">수량</label>
+				<input type="text" name="ct_qty[<?php echo $it['it_id']; ?>][]" value="<?php echo $row['ct_qty']; ?>" id="ct_qty_<?php echo $i; ?>" class="frm_input" style="width:40px;text-align:right;">
+				<button type="button" class="sit_qty_plus btn_frmline">증가</button>
 				<button type="button" class="btn_frmline">삭제</button>
 			</div>
 		</li>

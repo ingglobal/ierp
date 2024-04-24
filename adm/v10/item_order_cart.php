@@ -17,11 +17,15 @@ $s_cart_id = get_session('ss_cart_id');
 // 선택필드 초기화
 $sql = " UPDATE {$g5['g5_shop_cart_table']} SET ct_select = '0' WHERE od_id = '$s_cart_id' ";
 sql_query($sql,1);
+
+// $cart_com_idx = 0;
+$cart_com_name = '';
+$cart_com_dc_rate = 0;
 ?>
 
 <div class="local_desc01 local_desc">
 	<p>제품의 수량 및 갯수를 수정하시려면 리스트 내부에 있는 [선택사항수정] 버튼을 클릭하여 내용을 수정하세요.</p>
-	<p>수량 및 갯수 조정이 끝났으면 오른편 위 [견적완료] 버튼을 클릭하세요.</p>
+	<p>수량 및 갯수 조정이 끝났으면 오른편 위 [주문완료] 버튼을 클릭하세요.</p>
 </div>
 
 <!-- 장바구니 시작 { -->
@@ -33,7 +37,7 @@ sql_query($sql,1);
 		<div class="top_inf">
 			<div class="top_c top_no">접수번호: <b><?=$s_cart_id?></b></div>
 			<div class="top_c top_mag">
-				<a href="./companylist.win.php" class="mag_com">견적처마진율선택</a>
+				<a href="javascript:" class="mag_com" rate="0">마진율셋팅</a>
 				<input type="text" id="mag_act_txt" class="frm_input"><span>%</span>
 				<a href="javascript:" class="mag_act">일괄마진율적용</a>
 			</div>
@@ -58,22 +62,28 @@ sql_query($sql,1);
 	
 		// $s_cart_id 로 현재 장바구니 자료 쿼리
 		$sql = " SELECT a.ct_id, a.it_id, a.it_name, a.ct_price, a.ct_point, a.ct_qty, a.ct_status, a.ct_send_cost, a.it_sc_type,
-						b.ca_id, b.ca_id2, b.ca_id3, b.it_tel_inq, c.ca_name, d.com_name
+						b.ca_id, b.ca_id2, b.ca_id3, b.it_tel_inq, d.com_name
+						, e.com_idx, e.com_level, e.com_name as seller_name
 						,( SELECT ca_name FROM {$g5['g5_shop_category_table']} WHERE ca_id = SUBSTRING(c.ca_id,1,2) ) as ca_p_name
 				FROM {$g5['g5_shop_cart_table']} a 
 					LEFT JOIN {$g5['g5_shop_item_table']} b ON ( a.it_id = b.it_id )
 					LEFT JOIN {$g5['company_table']} d ON ( d.com_idx = b.com_idx )
 					LEFT JOIN {$g5['g5_shop_category_table']} c ON ( c.ca_id = b.ca_id )
+					LEFT JOIN {$g5['companyreseller_table']} e ON a.com_idx = e.com_idx
 				WHERE a.od_id = '$s_cart_id' 
 					AND c.ca_id LIKE '7m%'  ";
 		$sql .= " GROUP BY a.it_id ";
 		$sql .= " ORDER BY a.ct_id ";
-        //echo $sql.'<br>';
+        // echo $sql.'<br>';
 		$result = sql_query($sql);
 	
 		$it_send_cost = 0;
 		for ($i=0; $row=sql_fetch_array($result); $i++) {
-			//print_r2($row);
+			if($i == 0){
+				$cart_com_name = $row['seller_name'];
+				$cart_com_dc_rate = $g5['set_com_dc_rate_value'][$row['com_level']];
+			}
+			// print_r2($row);
 			// 합계금액
 			$sql = " select SUM(IF(io_type = 1, (io_price * ct_qty), ((ct_price + io_price) * ct_qty))) as price,
 							SUM(ct_point * ct_qty) as point,
@@ -93,7 +103,8 @@ sql_query($sql,1);
 			$a2 = '';
 			$image = get_it_image($row['it_id'], 70, 70);
 	
-			$it_name = $a1 .'('.(($row['com_name']) ? $row['com_name'] : 'INGGLOBAL').')&nbsp;&nbsp;'. stripslashes($row['it_name']).'&nbsp;&nbsp;<span style="color:#0000ff;">['.(($row['ca_p_name'] == $row['ca_name']) ? '' : $row['ca_p_name'].'&nbsp;&nbsp;>&nbsp;&nbsp;'.$row['ca_name']).']</span>'. $a2;
+			// $it_name = $a1 .'('.(($row['com_name']) ? $row['com_name'] : 'INGGLOBAL').')&nbsp;&nbsp;'. stripslashes($row['it_name']).'&nbsp;&nbsp;<span style="color:#0000ff;">['.(($row['ca_p_name'] == $row['ca_name']) ? '' : $row['ca_p_name'].'&nbsp;&nbsp;>&nbsp;&nbsp;'.$row['ca_name']).']</span>'. $a2;
+			$it_name = $a1 .'('.(($row['com_name']) ? $row['com_name'] : 'INGGLOBAL').')&nbsp;&nbsp;'. stripslashes($row['it_name']).'&nbsp;&nbsp;<span style="color:#0000ff;">['.(($row['ca_p_name'] == $row['ca_name']) ? '' : $row['ca_p_name'].''.$row['ca_name']).']</span>'. $a2;
 			$it_options = print_item_options2($row['it_id'], $s_cart_id);	// 함수위치 extend/u.project.php, 원본 lib/shop.lib.php
 			if($it_options) {
 				$mod_options = '<div class="sod_option_btn"><button type="button" class="mod_options btns btn_02">선택사항수정</button></div>';
@@ -124,7 +135,6 @@ sql_query($sql,1);
 			}
 			
 			// 판매가
-			$row['ct_buy_price'] = $row['ct_price'];
 			$row['ct_price'] = ($row['ct_price']==0 && $row['it_tel_inq']==1) ? '<span class="color_red">입력대기</span>' : number_format($row['ct_price']) ;
 	
 			$point      = $sum['point'];
@@ -147,11 +157,11 @@ sql_query($sql,1);
 				<span id="ct_qty_<?php echo $i; ?>" class="ct_qty"><?php echo number_format($sum['qty']); ?></span>
 			</td><!-- 총수량 -->
 			<td class="td_price">
-				<input type="hidden" name="it_buy_price[<?php echo $i; ?>]" value="<?php echo $row['ct_buy_price']; ?>">
+				<input type="hidden" name="it_price[<?php echo $i; ?>]" value="<?php echo $row['ct_price']; ?>">
 				<span id="buy_price_<?php echo $i; ?>" class="buy_price"><?php echo $row['ct_price']?></span>
 			</td><!-- 판매가 -->
 			<td class="td_subtotal">
-				<input type="hidden" value="<?php echo ($row['ct_buy_price'] * $row['ct_qty']); ?>">
+				<input type="hidden" value="<?php echo ($row['ct_price'] * $row['ct_qty']); ?>">
 				<span id="sell_price_<?php echo $i; ?>" class="sell_price"><?php echo number_format($sell_price); ?></span>
 			</td><!-- 소계 -->
 		</tr>
@@ -193,12 +203,12 @@ sql_query($sql,1);
 	
     <div class="btn_fixed_top btn_confirm">
 		<?php if ($i > 0) { ?>
-		<input type="hidden" name="url" value="./orderform.php">
+		<input type="hidden" name="url" value="./item_order_form.php">
 		<input type="hidden" name="records" value="<?php echo $i; ?>">
 		<input type="hidden" name="mb_id" value="<?=$member['mb_id']?>">
 		<input type="hidden" name="od_name" value="<?=$member['mb_name']?>">
 		<input type="hidden" name="act" value="">
-		<button type="button" onclick="return form_check('order');" class="btn btn_01">견적완료</button>
+		<button type="button" onclick="return form_check('order');" class="btn btn_01">주문완료</button>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<!--button type="button" onclick="return form_check('modify');" class="btn btn_02">선택수정</button-->
 		<button type="button" onclick="return form_check('seldelete');" class="btn btn_02">선택삭제</button>
@@ -210,6 +220,11 @@ sql_query($sql,1);
 </div>
 
 <script>
+let cart_com_name = '<?=$cart_com_name?>';
+let cart_com_dc_rate = '<?=$cart_com_dc_rate?>';
+let mag_btn_name = (cart_com_name != '') ? '[' + cart_com_name + '] 마진율셋팅' : '마진율셋팅';
+$('.mag_com').text(mag_btn_name);
+$('.mag_com').attr('rate', cart_com_dc_rate);
 /*
 // 가격 입력 쉼표 처리
 $(document).on( 'keyup','input[name*=_price]',function(e) {
@@ -221,13 +236,12 @@ $(function() {
     var close_btn_idx;
 	var num_reg = /^(\s|\d)+$/;
 	$('.mag_com').on('click',function(){
-		var win_com_list = window.open(this.href, "win_com_list", "left=10,top=10,width=400,height=500");
-		win_com_list.focus();
-		return false;
+		let rate = $(this).attr('rate');
+		$('#mag_act_txt').val(rate);
 	});
 	
 	$('.mag_act').on('click',function(){
-		if($('#mag_act_txt').val() == ''){
+		if($('#mag_act_txt').val() == '' || $('#mag_act_txt').val() == '0'){
 			alert('마진율정보가 없습니다.');
 			return false;
 		}
@@ -264,7 +278,6 @@ $(function() {
         var it_id = $(this).closest("tr").find("input[name^=it_id]").val();
         var $this = $(this);
         close_btn_idx = $(".mod_options").index($(this));
-		
 
         $.post(
             "./item_order_cartoption.php",

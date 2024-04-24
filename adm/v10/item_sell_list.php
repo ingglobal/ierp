@@ -9,6 +9,19 @@ include_once('./_top_menu_reseller.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
+$com_idx_res = sql_fetch(" SELECT EXISTS (
+    SELECT 1
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = '{$g5['g5_shop_cart_table']}'
+    AND COLUMN_NAME = 'com_idx'
+) AS column_exists ");
+
+if(!$com_idx_res['column_exists']){
+    sql_query(" ALTER TABLE {$g5['g5_shop_cart_table']}
+                    ADD `com_idx` bigint(20) NOT NULL DEFAUlT '0' 
+                    AFTER `od_id` ", true);
+}
+
 // 변수 설정, 필드 구조 및 prefix 추출
 $table_name = 'g5_shop_item';
 $g5_table_name = $g5[$table_name.'_table'];
@@ -224,7 +237,7 @@ if(G5_IS_MOBILE){
         <th scope="col">매입처</th>
         <th scope="col">재고</th>
         <th scope="col">판매처</th>
-        <th scope="col">수량</th>
+        <!-- <th scope="col">수량</th> -->
         <th scope="col">관리</th>
     </tr>
     </thead>
@@ -259,10 +272,10 @@ if(G5_IS_MOBILE){
             <?php echo $row['it_id']; ?>
         </td>
         <td headers="th_amt" class="td_numbig td_input"><!-- 판매가격 -->
-            <input type="text" name="it_price[<?php echo $i; ?>]" value="<?php echo $row['it_price']; ?>" id="price_<?php echo $i; ?>" class="tbl_input sit_amt" size="7">
+            <input type="text" name="it_price[<?php echo $i; ?>]" value="<?php echo number_format($row['it_price']); ?>" id="price_<?php echo $i; ?>" class="tbl_input sit_amt" size="7">
         </td>
         <td headers="th_camt" class="td_numbig td_input"><!-- 매입가 -->
-            <input type="text" name="it_buy_price[<?php echo $i; ?>]" value="<?php echo $row['it_buy_price']; ?>" id="cust_price_<?php echo $i; ?>" class="tbl_input sit_camt" size="7">
+            <input type="text" name="it_buy_price[<?php echo $i; ?>]" value="<?php echo number_format($row['it_buy_price']); ?>" id="cust_price_<?php echo $i; ?>" class="tbl_input sit_camt" size="7">
         </td>
         <td class="td_com">
             <select name="com_id[<?php echo $i; ?>]" id="com_id_<?php echo $i; ?>" style="width:100px;">
@@ -271,17 +284,17 @@ if(G5_IS_MOBILE){
             <script>$('select[name="com_id[<?php echo $i; ?>]"]').val('<?=$row['com_idx']?>');</script>
         </td>
         <td headers="th_stock" class="td_numbig td_input"><!-- 재고 -->
-            <input type="text" name="it_stock_qty[<?php echo $i; ?>]" value="<?php echo $row['it_stock_qty']; ?>" id="stock_qty_<?php echo $i; ?>" class="tbl_input sit_qty" size="7">
+            <input type="text" name="it_stock_qty[<?php echo $i; ?>]" value="<?php echo number_format($row['it_stock_qty']); ?>" id="stock_qty_<?php echo $i; ?>" class="tbl_input sit_qty" size="7">
         </td>
         <td class="td_seller"><!--판매처-->
-            <select id="seller_id_<?php echo $i; ?>" style="width:100px;">
+            <select name="seller_idx[<?php echo $i; ?>]" id="seller_id_<?php echo $i; ?>" class="seller_idx" style="width:100px;">
                 <option value="">::판매처선택::</option>
                 <?=$seller_opt?>
             </select>
         </td>
-        <td headers="th_cnt" class="td_numbig td_input"><!-- 수량 -->
-            <input type="text" value="" id="it_qty_<?php echo $i; ?>" class="tbl_input it_qty" size="7">
-        </td>
+        <!--td headers="th_cnt" class="td_numbig td_input">
+            <input type="text" name="sell_qty[<?php echo $i; ?>]" value="" id="sell_qty_<?php echo $i; ?>" class="tbl_input sell_qty" size="7" style="text-align:right;">
+        </td--><!-- 수량 -->
         <td class="td_mng">
             <a href="./item_sell_form.php?w=u&amp;it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>&amp;<?php echo $qstr; ?>" class="btn btn_03"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>수정</a>
             <a href="./item_sell_copy.php?it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>" class="itemcopy btn btn_02" target="_blank"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>복사</a>
@@ -314,11 +327,52 @@ if(G5_IS_MOBILE){
 
 
 <script>
+// 가격 입력 쉼표 처리
+$(document).on( 'keyup','input[name*=_price], input[name*=_qty], .sell_qty',function(e) {
+    var price = thousand_comma($(this).val().replace(/[^0-9]/g,""));
+    price = (price == '0') ? '' : price;
+    $(this).val(price);
+});
+
 function fitemlist_submit(f)
 {
     if (!is_checked("chk[]")) {
         alert(document.pressed+" 하실 항목을 하나 이상 선택하세요.");
         return false;
+    }
+
+    if(document.pressed == "선택담기") {
+        const chks = document.querySelectorAll('input[name="chk[]"]:checked');
+        let scom_idx = '';
+        let scom_msg = '';
+        // let sqty_msg = '';
+        chks.forEach(function(chk){
+            var seller_idx = $(chk).closest('tr').find('.seller_idx').val();
+            // var sell_qty = $(chk).closest('tr').find('.sell_qty').val();
+            if(!seller_idx) {
+                scom_msg = '판매처를 선택해 주세요.';
+            }
+            else {
+                if(scom_idx != '' && scom_idx !== seller_idx){
+                    scom_msg = '동일한 판매처의 항목으로만 구성해서 담아주세요.';
+                }
+            }
+
+            // if(!sell_qty){
+            //     sqty_msg = '수량을 입력해 주세요.';
+            // }
+
+            scom_idx = seller_idx;
+        });
+
+        if(scom_msg){
+            alert(scom_msg);
+            return false;
+        }
+        // if(sqty_msg){
+        //     alert(sqty_msg);
+        //     return false;
+        // }
     }
 
     if(document.pressed == "선택삭제") {
