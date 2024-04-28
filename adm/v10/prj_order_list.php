@@ -25,6 +25,14 @@ $g5['title'] = '매입관리';
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 
+// 미지급 항목 ppc_idx 목록들 추출하기
+$mi_arr = array();
+$misql = " SELECT GROUP_CONCAT(DISTINCT ppc_idx) AS ppc_idxs FROM {$g5['project_purchase_divide_table']} WHERE ppd_done_date = '0000-00-00' ";
+$mires = sql_fetch($misql,1);
+$mistr = $mires['ppc_idxs'];
+
+// echo $mires['ppc_idxs'];
+
 $sql_common = " FROM {$g5['project_purchase_table']} AS ppc
                     LEFT JOIN {$g5['project_table']} AS prj ON ppc.prj_idx = prj.prj_idx
                     LEFT JOIN {$g5['company_table']} AS com ON com.com_idx = ppc.com_idx
@@ -42,6 +50,15 @@ if ($stx) {
         default :
             $where[] = " ({$sfl} LIKE '%{$stx}%') ";
             break;
+    }
+
+    if($misu){
+        $where[] = " ppc_idx IN ( ".$mistr." ) ";
+    }
+}
+else {
+    if($sfl == 'misu') {
+        $where[] = " ppc_idx IN ( ".$mistr." ) ";
     }
 }
 
@@ -101,6 +118,10 @@ $cur_url = str_replace('&&','&',$cur_url);
 .td_last{padding:20px 0 !important;font-size:1.2em;}
 .td_total_price{font-size:1.2em;color:red;}
 .td_total_per{font-size:1.1em;color:red;}
+
+#fsearch:after{display:block;visibility:hidden;clear:both;content:'';}
+#misu_btn{float:right;}
+#misu_btn.btn_02{background:#ccc;}
 </style>
 
 <div class="local_ov01 local_ov">
@@ -119,7 +140,24 @@ $cur_url = str_replace('&&','&',$cur_url);
     <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
     <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
     <input type="submit" class="btn_submit" value="검색">
+    <a href="javascript:misu_sch($('#fsearch'));" class="btn <?=(($sfl == 'misu') ? 'btn_03':'btn_02')?>" id="misu_btn">미지급항목만보기</a>
 </form>
+<script>
+function misu_sch(f){
+    if(f.find('#stx').val()){
+        $('<input type="hidden" name="misu" value="1">').appendTo('#fsearch');
+        f.find('.btn_submit').trigger('click');
+    }
+    else{
+        f.find('#sfl').find('option').attr('selected',false);
+        $('<option value="misu" selected="selected">미지급</option>').appendTo('#sfl');
+        f.find('#sfl').val('misu');
+        //console.log(f.find('#sfl').val());
+        f.find('.btn_submit').trigger('click');
+        //return false;
+    }
+}
+</script>
 <div class="local_desc01 local_desc" style="display:none;">
     <p>견적관리 페이지입니다.</p>
 </div>
@@ -232,6 +270,7 @@ $cur_url = str_replace('&&','&',$cur_url);
     </table>
 </div><!--//.tbl_head01 .tbl_wrap-->
 </form>
+<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, "{$_SERVER['SCRIPT_NAME']}?$qstr&amp;page="); ?>
 
 <script>
 

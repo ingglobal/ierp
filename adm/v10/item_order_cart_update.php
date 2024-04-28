@@ -32,6 +32,7 @@ exit;
 */
 //echo $sw_direct;exit;
 if($act == 'order'){
+    // print_r2($_POST);exit;
     /*
     print_r2($ct_chk);
     $records = 2;
@@ -45,10 +46,10 @@ if($act == 'order'){
     else
         $tmp_cart_id = get_session('ss_cart_id');
     if (get_cart_count($tmp_cart_id) == 0)// 장바구니에 담기
-        alert('장바구니가 비어 있습니다.\\n\\n이미 주문하셨거나 장바구니에 담긴 상품이 없는 경우입니다.', G5_SHOP_URL.'/cart.php');
+        alert('주문바구니가 비어 있습니다.\\n\\n이미 주문하셨거나 주문바구니에 담긴 상품이 없는 경우입니다.', G5_USER_ADMIN_URL.'/item_order_cart.php');
     
     //echo $tmp_cart_id;
-    $sql = " UPDATE {$g5['g5_shop_cart_table']} SET ct_status = '견적', ct_select = '1' WHERE od_id = '$tmp_cart_id' ";
+    $sql = " UPDATE {$g5['g5_shop_cart_table']} SET ct_status = '주문', ct_select = '1' WHERE od_id = '$tmp_cart_id' ";
     sql_query($sql,1);
     
     $error = "";
@@ -76,7 +77,7 @@ if($act == 'order'){
     }
     
     if($i == 0)
-        alert('장바구니가 비어 있습니다.\\n\\n이미 주문하셨거나 장바구니에 담긴 상품이 없는 경우입니다.', G5_SHOP_URL.'/cart.php');
+        alert('주문바구니가 비어 있습니다.\\n\\n이미 주문하셨거나 주문바구니에 담긴 제품이 없는 경우입니다.', G5_USER_ADMIN_URL.'/item_order_cart.php');
 
     if ($error != ""){
         $error .= "다른 고객님께서 {$od_name}님 보다 먼저 주문하신 경우입니다. 불편을 끼쳐 죄송합니다.";
@@ -107,7 +108,7 @@ if($act == 'order'){
     
     $od_email         = get_email_address($od_email);
     $od_name          = clean_xss_tags($od_name);
-    $od_status        = '견적';
+    $od_status        = '주문';
     
     // 주문서에 입력
     $sql = " insert {$g5['g5_shop_order_table']}
@@ -155,7 +156,7 @@ if($act == 'order'){
                     od_tax_mny        = '',
                     od_vat_mny        = '',
                     od_free_mny       = '',
-                    od_status         = '견적',
+                    od_status         = '주문',
                     od_shop_memo      = '',
                     od_hope_date      = '',
                     od_time           = '".G5_TIME_YMDHIS."',
@@ -163,7 +164,7 @@ if($act == 'order'){
                     od_settle_case    = '',
                     od_test           = '',
                     mb_id_saler       = '{$member['mb_id']}',
-                    com_idx           = ''
+                    com_idx           = '{$scom_idx}'
                     ";
     $result = sql_query($sql, false);
     
@@ -281,13 +282,25 @@ else if ($act == "modify"){
         sql_query($mdf_sql,1);
    }
 }
+else if ($act == "reset"){
+   //print_r2($ct_chk);
+   //print_r2($_POST);
+   foreach($ct_chk as $k => $v){
+        $mdf_sql = " update {$g5['g5_shop_cart_table']}
+                            set ct_price = '{$it_buy_price[$k]}'
+                            where ct_id = '{$ct_id[$k]}' ";
+        echo $mdf_sql."<br>";
+        sql_query($mdf_sql,1);
+   }
+//    exit;
+}
 else // 장바구니에 담기
 {
     $count = count($_POST['it_id']);
     if ($count < 1)
         alert('장바구니에 담을 상품을 선택하여 주십시오.');
-    print_r2($_POST);
-    exit;
+    // print_r2($_POST);
+    // exit;
     $ct_count = 0;
     for($i=0; $i<$count; $i++) {
         // 보관함의 상품을 담을 때 체크되지 않은 상품 건너뜀
@@ -423,7 +436,7 @@ else // 장바구니에 담기
         // 장바구니에 Insert
         $comma = '';
 		$sql = " INSERT INTO {$g5['g5_shop_cart_table']}
-					( od_id, mb_id, it_id, it_name, it_sc_type, it_sc_method, it_sc_price, it_sc_minimum, it_sc_qty
+					( od_id, com_idx, mb_id, it_id, it_name, it_sc_type, it_sc_method, it_sc_price, it_sc_minimum, it_sc_qty
 					, ct_status, ct_price, ct_point, ct_point_use, ct_stock_use, ct_option, ct_qty
 					, ct_notax, io_id, io_type, io_price, ct_time, ct_ip, ct_send_cost, ct_direct, ct_select, ct_select_time )
 				VALUES ";
@@ -508,6 +521,7 @@ else // 장바구니에 담기
                 $ct_send_cost = 1; // 착불
 
             $sql .= $comma."( '$tmp_cart_id'
+                , '{$com_idx}'
 				, '{$member['mb_id']}', '{$it['it_id']}', '".addslashes($it['it_name'])."', '{$it['it_sc_type']}'
 				, '{$it['it_sc_method']}', '{$it['it_sc_price']}', '{$it['it_sc_minimum']}', '{$it['it_sc_qty']}'
 				, '쇼핑', '{$it['it_price']}', '$point', '0', '0', '$io_value', '$ct_qty', '{$it['it_notax']}', '$io_id', '$io_type', '$io_price'

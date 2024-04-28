@@ -20,7 +20,9 @@ for($i=0;$i<sizeof($fields);$i++) {
     if(preg_match("/_price$/",$fields[$i]))
         $_POST[$fields[$i]] = preg_replace("/,/","",$_POST[$fields[$i]]);
 }
-
+$ppt_price = preg_replace("/,/","",$ppt_price);
+// echo $ppt_price."<br>";
+// print_r2($_POST);exit;
 // 공통쿼리
 $skips = array($pre.'_idx','ppc_idx',$pre.'_price','mb_id',$pre.'_reg_dt',$pre.'_update_dt');
 for($i=0;$i<sizeof($fields);$i++) {
@@ -70,6 +72,7 @@ else if($w == 'u') {
 					, ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
 			WHERE ".$pre."_idx = '".${$pre."_idx"}."' 
 	";
+    // echo $sql;exit;
     sql_query($sql,1);
 }
 else if($w == 'd') {

@@ -415,6 +415,7 @@ if ($w == "")
     $sql = " insert {$g5['g5_shop_item_table']}
                 set it_id = '$it_id',
 					$sql_common	";
+    // echo $sql;exit;
     sql_query($sql);
 }
 else if ($w == "u")
@@ -423,6 +424,7 @@ else if ($w == "u")
     $sql = " update {$g5['g5_shop_item_table']}
                 set $sql_common
               where it_id = '$it_id' ";
+    // echo $sql;exit;
     sql_query($sql);
 }
 /*

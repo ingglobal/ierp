@@ -71,6 +71,7 @@ if ($act_button == "선택수정"){
 }
 else if($act_button == "선택삭제"){
     foreach($chk as $idx){
+        $ppt_price[$idx] = preg_replace("/,/","",$ppt_price[$idx]);
         // 먼저 해당 ppt_idx와 관련된 모든파일을 삭제
         $dfres = sql_fetch("SELECT GROUP_CONCAT(DISTINCT fle_idx) AS fle_idxs FROM {$g5['file_table']}
             WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id = '{$ppt_idx[$idx]}' ");
@@ -102,6 +103,7 @@ else if($act_button == "선택삭제"){
 }
 else if($act_button == "선택그룹발주해제"){
     foreach($chk as $idx){
+        $ppt_price[$idx] = preg_replace("/,/","",$ppt_price[$idx]);
         // ppt_idx의 삭제되는 금액만큼 ppc_price에서도 차감해준다.
         $csql = " UPDATE {$g5['project_purchase_table']} SET ppc_price = (ppc_price - {$ppt_price[$idx]}) WHERE ppc_idx = '{$ppc_idx[$idx]}' ";
         sql_query($csql,1);

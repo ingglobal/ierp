@@ -4,8 +4,8 @@ include_once('./_common.php');
 $pattern = '#[/\'\"%=*\#\(\)\|\+\&\!\$~\{\}\[\]`;:\?\^\,]#';
 $it_id  = preg_replace($pattern, '', $_POST['it_id']);
 
-$sql = " select * from {$g5['g5_shop_item_table']} where it_id = '$it_id' and it_use = '1' ";
-$it = sql_fetch($sql);
+$sql0 = " select * from {$g5['g5_shop_item_table']} where it_id = '$it_id' and it_use = '1' ";
+$it = sql_fetch($sql0);
 
 $it_point = get_item_point($it);
 //
@@ -28,10 +28,12 @@ if(!sql_num_rows($result))
 <!-- 장바구니 옵션 시작 { -->
 <form name="foption" method="post" action="./item_order_cart_update.php" onsubmit="return formcheck(this);">
 <input type="hidden" name="act" value="optionmod">
+<input type="hidden" name="com_idx" value="<?=$com_idx?>">
 <input type="hidden" name="it_id[]" value="<?php echo $it['it_id']; ?>">
 <input type="hidden" name="ct_send_cost" value="<?php echo $row2['ct_send_cost']; ?>">
 <input type="hidden" name="sw_direct">
 <?php
+// print_r2($sql0);
 $option_1 = get_item_options($it['it_id'], $it['it_option_subject']);
 if($option_1) {
 ?>

@@ -69,7 +69,7 @@ if ($_POST['act_button'] == "선택수정") {
 } else if ($_POST['act_button'] == "선택삭제") {
 
     if ($is_admin != 'super')
-        alert('상품 삭제는 최고관리자만 가능합니다.');
+        alert('제품 삭제는 최고관리자만 가능합니다.');
 
     auth_check($auth[$sub_menu], 'd');
 
@@ -163,7 +163,7 @@ if ($_POST['act_button'] == "선택수정") {
         }
     }
     
-    alert('견적목록에 담기 완료, 담긴 부품은 견적목록보기에서 확인하세요.',"./item_sell_list.php?sca=$sca&amp;sst=$sst&amp;sod=$sod&amp;sfl=$sfl&amp;stx=$stx&amp;page=$page");
+    alert('주문목록에 담기 완료, 담긴 제품은 주문바구니보기에서 확인하세요.',"./item_sell_list.php?sca=$sca&amp;sst=$sst&amp;sod=$sod&amp;sfl=$sfl&amp;stx=$stx&amp;page=$page");
 }
 
 // exit;

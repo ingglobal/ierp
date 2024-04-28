@@ -80,7 +80,7 @@ $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 
 
 // 등록 대기수
-$sql = " SELECT count(*) AS cnt FROM {$g5['companyetc_table']} AS com {$sql_join} WHERE com_status = 'pending' ";
+$sql = " SELECT count(*) AS cnt FROM {$g5['companyreseller_table']} AS com {$sql_join} WHERE com_status = 'pending' ";
 $row = sql_fetch($sql);
 $pending_count = $row['cnt'];
 
@@ -115,6 +115,8 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
 <script>$('select[name=ser_com_type]').val('<?=$_GET['ser_com_type']?>').attr('selected','selected');</script>
 <select name="sfl" id="sfl">
 	<option value="com_name"<?php echo get_selected($_GET['sfl'], "com_name"); ?>>업체명</option>
+    <option value="mb_name"<?php echo get_selected($_GET['sfl'], "mb_name"); ?>>담당자</option>
+    <option value="mb_hp"<?php echo get_selected($_GET['sfl'], "mb_hp"); ?>>담당자휴대폰</option>
     <option value="com_president"<?php echo get_selected($_GET['sfl'], "com_president"); ?>>대표자</option>
 	<option value="com.com_idx"<?php echo get_selected($_GET['sfl'], "com.com_idx"); ?>>업체고유번호</option>
     <option value="com_status"<?php echo get_selected($_GET['sfl'], "com_status"); ?>>상태</option>
@@ -125,7 +127,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
 </form>
 
 <div class="local_desc01 local_desc">
-    <p>판매업체를 관리하는 페이지입니다.</p>
+<p>업체측 담당자를 관리하시려면 업체담당자 항목의 <i class="fa fa-edit"></i> 편집아이콘을 클릭하세요. 담당자는 여러명일 수 있고 이직을 하는 경우 다른 업체에 소속될 수도 있습니다. </p>
 </div>
 
 <form name="form01" id="form01" action="./companyreseller_list_update.php" onsubmit="return form01_submit(this);" method="post">
@@ -157,6 +159,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
         <th scope="col" style="width:120px;">대표전화</th>
         <th scope="col" style="width:120px;">팩스</th>
 		<th scope="col">이메일</th>
+        <th scope="col">업체담당자</th>
         <th scope="col"><?php echo subject_sort_link('com_status','ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea) ?>상태</a></th>
 		<th scope="col"><?php echo subject_sort_link('com_reg_dt','ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea) ?>등록일</a></th>
 		<th scope="col" id="mb_list_mng">수정</th>
@@ -265,6 +268,10 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
         </td>
 		<td class="td_com_email font_size_8"><!-- 이메일 -->
 			<?php echo cut_str($row['com_email'],21,'..'); ?>
+		</td>
+		<td class="td_com_manager td_left" style="position:relative;padding-left:25px;font-size:1em;vertical-align:top;"><!-- 업체담당자 -->
+			<?php echo $row['com_managers_text']; ?>
+            <div style="display:<?=($is_admin=='super')?:'no ne'?>"><a href="javascript:" com_idx="<?=$row['com_idx']?>" class="btn_manager" style="position:absolute;top:5px;left:5px;font-size:1.1rem;"><i class="fa fa-edit"></i></a></div>
 		</td>
         <td class="td_com_status"><!-- 상태 -->
             <?php echo $g5['set_com_status_value'][$row['com_status']] ?>

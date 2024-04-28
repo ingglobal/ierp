@@ -413,7 +413,7 @@ $(function() {
         	dataType:'json', timeout:10000, beforeSend:function(){}, success:function(res) {
                 //alert(res.sql);
                 if(res.result == true) {
-                    alert("견적목록에 담기 완료, 담긴 부품은 견적목록보기에서 확인하세요.");
+                    alert("주문목록에 담기 완료, 담긴 제품은 주문바구니보기에서 확인하세요.");
                 }
                 else {
                     alert(res.msg);

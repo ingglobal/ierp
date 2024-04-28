@@ -112,8 +112,7 @@ $sql_common = " FROM {$g5['g5_shop_cart_table']} ct
                     $sql_search
 ";
 
-$sql = " select count(od.od_id) as cnt " . $sql_common;
-// echo $sql;
+$sql = " select count(od_id) as cnt " . $sql_common;
 $row = sql_fetch($sql);
 $total_count = $row['cnt'];
 
@@ -215,11 +214,6 @@ if(G5_IS_MOBILE){
 .span_ct_id {color:#a9a9a9;}
 .span_sales_date {font-size:0.6rem;}
 .btn_del_md_id_saler {display:none;}
-
-#form02{margin-bottom:10px;}
-
-.td_od_id{position:relative;}
-.td_od_id i{position:absolute;cursor:pointer;font-size:1.2em;top:2px;right:2px;}
 </style>
 
 <div class="local_ov01 local_ov">
@@ -293,18 +287,13 @@ if(G5_IS_MOBILE){
 </div>
 </form>
 
-<form name="form02" method="post" action="./item_order_add_update.php" onsubmit="return form02_submit(this);" autocomplete="off" id="form02">
-<input type="text" id="a_od_id"  name="a_od_id" placeholder="목록에서 주문번호 선택" value="" readonly class="frm_input readonly">
-<input type="text" id="a_it_id"  name="a_it_id" placeholder="제품선택" value="" readonly class="frm_input readonly">
-</form>
-
 <div class="local_desc01 local_desc" style="display:none;">
     <p><span style="color:red;">상품변경은 불가</span>합니다. 상변인 경우 전체 신청을 취소하고 다시 신청해 주세요.</p>
     <p></p>
 </div>
 
 
-<form name="form01" method="post" action="./item_order_list_update.php" onsubmit="return form01_submit(this);" autocomplete="off" id="form01">
+<form name="form01" method="post" action="./order_list_update.php" onsubmit="return form01_submit(this);" autocomplete="off" id="form01">
 <!-- 없는 변수들을 선언해 줘야 함 -->
 <input type="hidden" name="od_status" value="<?php echo $od_status; ?>">
 <input type="hidden" name="od_settle_case" value="<?php echo $od_settle_case; ?>">
@@ -332,7 +321,7 @@ if(G5_IS_MOBILE){
             <label for="chkall" class="sound_only">주문 전체</label>
             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
         </th>
-        <th scope="col" id="th_od_id"><a href="<?php echo title_sort("od_id", 1)."&amp;$qstr1"; ?>">주문번호</a></th>
+        <th scope="col" id="th_ordnum"><a href="<?php echo title_sort("od_id", 1)."&amp;$qstr1"; ?>">주문번호</a></th>
         <th scope="col" id="th_saler">영업자</th>
         <th scope="col" id="th_com">판매처</th>
         <th scope="col" id="th_com_level">판매처등급</th>
@@ -341,6 +330,10 @@ if(G5_IS_MOBILE){
         <th scope="col" id="th_odrcnt">판매품목건수</th>
         <th scope="col" id="th_sum_price">주문합계</th>
         <th scope="col" id="th_od_time">접수일자</th>
+        <th scope="col">
+            <label for="chkall2" class="sound_only">제품 전체</label>
+            <input type="checkbox" name="chkall2" value="1" id="chkall2" onclick="check_all(this.form)">
+        </th>
         <th scope="col" id="th_item_name">제품명</th>
         <th scope="col" id="th_item_price">기준단가</th>
         <th scope="col" id="th_rate">할인률</th>
@@ -364,9 +357,8 @@ if(G5_IS_MOBILE){
             <label for="chk_<?=$i?>" class="sound_only">접수번호 <?=$od_id?></label>
             <input type="checkbox" name="chk[]" value="<?=$i?>" id="chk_<?=$i?>">
         </td>
-        <td headers="th_od_id" class="td_od_id"<?=$rowspan?>><!-- 주문번호 -->
-            <span><?php echo $od_id; ?></span>
-            <i class="fa fa-plus-circle ct_add" aria-hidden="true"></i>
+        <td headers="th_ordnum" class="td_odrnum2"<?=$rowspan?>><!-- 주문번호 -->
+            <?php echo $od_id; ?>
         </td>
         <td class="td_mb_id_saler"<?=$rowspan?>><!-- 영업자 -->
             <?=$row['mb_name_saler']?>
@@ -387,6 +379,11 @@ if(G5_IS_MOBILE){
             $row2 = $row['ct_arr'][$k];
             if($k >= 1) echo '<tr class="'.$bg.'">'.PHP_EOL;
         ?>
+        <td class="td_chk2">
+            <input type="hidden" name="ct_id[<?=$j?>]" value="<?=$row2['ct_id']?>" id="ct_id_<?=$j?>">
+            <label for="chk2_<?=$j?>" class="sound_only">카트번호 <?=$row2['ct_id']?></label>
+            <input type="checkbox" name="chk2[]" value="<?=$j?>" id="chk2_<?=$i?>">
+        </td>
         <td headers="th_item_name"><?=$row2['it_name']?></td><!-- 제품명 -->
         <td headers="th_item_price" style="text-align:right;"><?=number_format($row2['it_price'])?></td><!--기준단가 -->
         <td headers="th_rate">
@@ -426,8 +423,6 @@ if(G5_IS_MOBILE){
 
 <script>
 $(function(){
-    $(document).on('click', function(){})
-
     // ct_history 정보 수정 (날짜 변경)
     $(document).on('click','.ct_edit_btn',function(){
         var this_ct_id = $(this).attr('ct_id');
