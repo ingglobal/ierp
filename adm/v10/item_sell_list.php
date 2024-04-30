@@ -50,7 +50,7 @@ $ca_list  = '<option value="">선택</option>'.PHP_EOL;
 $sql = " SELECT * FROM {$g5['g5_shop_category_table']} ";
 // if ($is_admin != 'super')
 // $sql .= " where ca_mb_id = '{$member['mb_id']}' ";
-$sql .= " where ca_id LIKE '7m%' ";
+$sql .= " where ca_id IN ('7m','8m') ";
 $sql .= " order by ca_order, ca_id ";
 $result = sql_query($sql);
 for ($i=0; $row=sql_fetch_array($result); $i++)
@@ -78,7 +78,7 @@ $sql_common = " FROM {$g5_table_name} a
 ";
 // echo $sql_common;exit;
 $where = array();
-$where[] = " a.ca_id LIKE '7m%' ";   // 디폴트 검색조건
+$where[] = " a.ca_id IN ('7m','8m') ";   // 디폴트 검색조건
 
 if ($stx) {
     switch($sfl){
@@ -185,7 +185,7 @@ if(G5_IS_MOBILE){
 <select name="sca" id="sca">
     <option value="">전체분류</option>
     <?php
-    $sql1 = " select ca_id, ca_name from {$g5['g5_shop_category_table']} WHERE ca_id LIKE '7m%' order by ca_order, ca_id ";
+    $sql1 = " select ca_id, ca_name from {$g5['g5_shop_category_table']} WHERE ca_id IN ('7m','8m') order by ca_order, ca_id ";
     $result1 = sql_query($sql1);
     for ($i=0; $row1=sql_fetch_array($result1); $i++) {
         $len = strlen($row1['ca_id']) / 2 - 1;
@@ -198,17 +198,17 @@ if(G5_IS_MOBILE){
 
 <label for="sfl" class="sound_only">검색대상</label>
 <select name="sfl" id="sfl">
-    <option value="it_name" <?php echo get_selected($sfl, 'it_name'); ?>>부품명</option>
-    <option value="it_id" <?php echo get_selected($sfl, 'it_id'); ?>>부품코드</option>
+    <option value="it_name" <?php echo get_selected($sfl, 'it_name'); ?>>상품명</option>
+    <option value="it_id" <?php echo get_selected($sfl, 'it_id'); ?>>상품코드</option>
 </select>
 
 <label for="stx" class="sound_only">검색어</label>
 <input type="text" name="stx" value="<?php echo $stx; ?>" id="stx" class="frm_input">
 <input type="submit" value="검색" class="btn_submit">
-<a href="./item_order_cart.php" class="btn btn_s_cart">주문바구니 보기</a>
+<!-- <a href="./item_order_cart.php" class="btn btn_s_cart">주문바구니 보기</a> -->
 </form>
 
-<div class="local_desc01 local_desc">
+<div class="local_desc01 local_desc" style="display:none;">
     <p>[담기] 버튼을 클릭하면 부품이 주문바구니에 담깁니다. <a href="./item_order_cart.php">[주문바구니 바로가기]</a> 주문바구니에 담긴 제품들을 가격 조정하거나 혹은 수량을 조절할 수 있습니다.</p>
 </div>
 
@@ -226,17 +226,17 @@ if(G5_IS_MOBILE){
     <thead>
     <tr>
         <th scope="col">
-            <label for="chkall" class="sound_only">부품 전체</label>
+            <label for="chkall" class="sound_only">상품 전체</label>
             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
         </th>
         <th scope="col">분류</th>
-        <th scope="col" id="th_pc_title"><?php echo subject_sort_link('it_name', 'sca='.$sca); ?>부품명</a></th>
-        <th scope="col"><?php echo subject_sort_link('it_id', 'sca='.$sca); ?>부품코드</a></th>
+        <th scope="col" id="th_pc_title"><?php echo subject_sort_link('it_name', 'sca='.$sca); ?>상품명</a></th>
+        <th scope="col"><?php echo subject_sort_link('it_id', 'sca='.$sca); ?>상품코드</a></th>
         <th scope="col" id="th_amt"><?php echo subject_sort_link('it_price', 'sca='.$sca); ?>판매가격</a></th>
         <th scope="col">매입가</th>
+        <!-- <th scope="col">매입처</th> -->
         <th scope="col">매입처</th>
         <th scope="col">재고</th>
-        <th scope="col">판매처</th>
         <!-- <th scope="col">수량</th> -->
         <th scope="col">관리</th>
     </tr>
@@ -279,6 +279,7 @@ if(G5_IS_MOBILE){
         </td>
         <td class="td_com">
             <select name="com_id[<?php echo $i; ?>]" id="com_id_<?php echo $i; ?>" style="width:100px;">
+                <option value="0">::종합::</option>
                 <?=$g5['set_buyer_value_options']?>
             </select>
             <script>$('select[name="com_id[<?php echo $i; ?>]"]').val('<?=$row['com_idx']?>');</script>
@@ -286,12 +287,12 @@ if(G5_IS_MOBILE){
         <td headers="th_stock" class="td_numbig td_input"><!-- 재고 -->
             <input type="text" name="it_stock_qty[<?php echo $i; ?>]" value="<?php echo number_format($row['it_stock_qty']); ?>" id="stock_qty_<?php echo $i; ?>" class="tbl_input sit_qty" size="7">
         </td>
-        <td class="td_seller"><!--판매처-->
+        <!--td class="td_seller">
             <select name="seller_idx[<?php echo $i; ?>]" id="seller_id_<?php echo $i; ?>" class="seller_idx" style="width:100px;">
                 <option value="">::판매처선택::</option>
                 <?=$seller_opt?>
             </select>
-        </td>
+        </td-->
         <!--td headers="th_cnt" class="td_numbig td_input">
             <input type="text" name="sell_qty[<?php echo $i; ?>]" value="" id="sell_qty_<?php echo $i; ?>" class="tbl_input sell_qty" size="7" style="text-align:right;">
         </td--><!-- 수량 -->
@@ -311,7 +312,7 @@ if(G5_IS_MOBILE){
 </div>
 
 <div class="btn_fixed_top">
-    <input type="submit" name="act_button" value="선택담기" onclick="document.pressed=this.value" class="btn btn_02" style="margin-right:20px;">
+    <!-- <input type="submit" name="act_button" value="선택담기" onclick="document.pressed=this.value" class="btn btn_02" style="margin-right:20px;"> -->
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
     <a href="./item_sell_form.php" class="btn btn_01">제품등록</a>

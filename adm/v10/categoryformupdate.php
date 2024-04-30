@@ -68,7 +68,7 @@ auth_check($auth[$sub_menu], "d");
 
 check_admin_token();
 
-if ($w == 'd' && $is_admin != 'super')
+if ($w == 'd' && !$super_admin)
     alert("최고관리자만 분류를 삭제할 수 있습니다.");
 
 if ($w == "" || $w == "u")

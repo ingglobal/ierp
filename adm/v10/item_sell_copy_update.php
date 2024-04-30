@@ -6,7 +6,7 @@ auth_check($auth[$sub_menu], "w");
 
 check_admin_token();
 
-if ($is_admin != "super")
+if (!$super_admin)
     alert("최고관리자만 접근 가능합니다.");
 
 if (!trim($it_id))
@@ -37,6 +37,7 @@ foreach($fields as $fld) {
 $sql = " insert {$g5['g5_shop_item_table']}
 			set it_id = '$new_it_id'
                 $sql_common ";
+// echo $sql;exit;
 sql_query($sql);
 
 // 선택/추가 옵션 copy

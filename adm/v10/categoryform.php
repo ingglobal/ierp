@@ -1,5 +1,5 @@
 <?php
-$sub_menu = '950900';
+$sub_menu = '960225';
 include_once('./_common.php');
 include_once(G5_EDITOR_LIB);
 
@@ -8,12 +8,12 @@ auth_check($auth[$sub_menu], "w");
 $ca_id = isset($ca_id) ? preg_replace('/[^0-9a-z]/i', '', $ca_id) : '';
 
 $sql_common = " from {$g5['g5_shop_category_table']} ";
-if ($is_admin != 'super')
+if (!$super_admin)
     $sql_common .= " where ca_mb_id = '{$member['mb_id']}' ";
 
 if ($w == "")
 {
-    if ($is_admin != 'super' && !$ca_id)
+    if (!$super_admin && !$ca_id)
         alert("최고관리자만 1단계 분류를 추가할 수 있습니다.");
 
     $len = strlen($ca_id);
@@ -131,7 +131,7 @@ else {
         $g5_mshop_skin_path = G5_MOBILE_PATH.'/'.G5_SKIN_DIR.'/shop/'.$ca['ca_mobile_skin_dir'];
 }
 
-include_once('./_top_menu_setting.php');
+// include_once('./_top_menu_setting.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 ?>

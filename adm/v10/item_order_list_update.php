@@ -17,21 +17,25 @@ foreach($_REQUEST as $key => $value ) {
     }
 }
 
-// print_r2($_POST);exit;
+// print_r2($od_end_com);exit;
 
 if($act_button == '일괄수정'){ //############################################# 일괄수정 #######################
 
     foreach($od_id as $i=>$odid){
+        $end_com = trim(strip_tags($od_end_com[$i]));
         $od_price = preg_replace("/,/","", $od_cart_price[$i]);
         $od_time = $od_date[$i].' '.$od_times[$i];
         $osql = " UPDATE {$g5['g5_shop_order_table']} SET
                     od_cart_price = '{$od_price}'
+                    , mb_id_com = '{$mb_id_com[$i]}'
+                    , od_end_com = '{$end_com}'
                     , od_time = '{$od_time}'
                 WHERE od_id = '{$odid}'
         ";
+        // echo $osql."<br>";
         sql_query($osql,1);
     }
-
+    // exit;
     foreach($ct_id as $j=>$ctid){
         $ctprice = preg_replace("/,/","", $ct_price[$j]);
         $ctqty = $ct_qty[$j];

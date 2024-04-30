@@ -19,7 +19,7 @@ if ($w == "")
     $it['ca_id3'] = get_cookie("ck_ca_id3");
     if (!$it['ca_id'])
     {
-        $sql = " select ca_id from {$g5['g5_shop_category_table']} WHERE ca_id LIKE '7m%' order by ca_order, ca_id limit 1 ";
+        $sql = " select ca_id from {$g5['g5_shop_category_table']} WHERE ca_id IN ('7m','8m') order by ca_order, ca_id limit 1 ";
         $row = sql_fetch($sql);
         if (!$row['ca_id'])
             alert("등록된 분류가 없습니다. 우선 분류를 등록하여 주십시오.", './categorylist.php');
@@ -72,7 +72,7 @@ $script = '';
 $sql = " select * from {$g5['g5_shop_category_table']} ";
 if (!$super_admin)
     $sql .= " where ca_mb_id = '{$member['mb_id']}' ";
-$sql .= (!$super_admin) ? " ca_id LIKE '7m%' " : " where ca_id LIKE '7m%' ";
+$sql .= (!$super_admin) ? " ca_id IN ('7m','8m') " : " where ca_id IN ('7m','8m') ";
 $sql .= " order by ca_order, ca_id ";
 $result = sql_query($sql);
 for ($i=0; $row=sql_fetch_array($result); $i++)
@@ -163,6 +163,7 @@ if(G5_IS_MOBILE){
                 <td colspan="2">
                     <?php echo help("입력하지 않으면 상품상세페이지에 출력하지 않습니다."); ?>
                     <select name="com_idx" id="com_idx">
+                        <option value="0">::종합::</option>
                         <?=$g5['set_buyer_value_options']?>
                     </select>
                     <script>$('select[name="com_idx"]').val('<?=$it['com_idx']?>');</script>
@@ -199,7 +200,7 @@ if(G5_IS_MOBILE){
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="it_buy_price">매입가</label></th>
+                <th scope="row"><label for="it_buy_price">원가</label></th>
                 <td>
                     <input type="text" name="it_buy_price" value="<?php echo $it['it_buy_price']; ?>" id="it_buy_price" class="frm_input" size="8"> 원
                 </td>

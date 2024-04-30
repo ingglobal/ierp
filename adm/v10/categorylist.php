@@ -1,5 +1,5 @@
 <?php
-$sub_menu = '950225';
+$sub_menu = '960225';
 
 include_once('./_common.php');
 
@@ -20,7 +20,7 @@ if ($stx != "") {
 }
 
 $sql_common = " from {$g5['g5_shop_category_table']} ";
-if ($is_admin != 'super')
+if (!$super_admin)
     $sql_search .= " $where ca_mb_id = '{$member['mb_id']}' ";
 $sql_common .= $sql_search;
 
@@ -51,7 +51,7 @@ $result = sql_query($sql);
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
 
-include_once('./_top_menu_setting.php');
+// include_once('./_top_menu_setting.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
 ?>

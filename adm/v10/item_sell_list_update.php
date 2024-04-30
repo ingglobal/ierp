@@ -67,11 +67,11 @@ if ($_POST['act_button'] == "선택수정") {
     // exit;
     goto_url("./item_sell_list.php?sca=$sca&amp;sst=$sst&amp;sod=$sod&amp;sfl=$sfl&amp;stx=$stx&amp;page=$page");
 } else if ($_POST['act_button'] == "선택삭제") {
-
-    if ($is_admin != 'super')
+    // alert($super_admin.'입니다.');
+    if (!$super_admin)
         alert('제품 삭제는 최고관리자만 가능합니다.');
 
-    auth_check($auth[$sub_menu], 'd');
+    auth_check($auth[$sub_menu], 'w');
 
     // _ITEM_DELETE_ 상수를 선언해야 itemdelete.inc.php 가 정상 작동함
     define('_ITEM_DELETE_', true);

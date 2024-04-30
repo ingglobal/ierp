@@ -180,6 +180,7 @@ if(!$leave_flag){
         if($_POST['mb_6'] == 1) {
             $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
                 ('{$mb_id}', '200100', 'r,w'),
+                ('{$mb_id}', '960225', 'r,w,d'),
                 ('{$mb_id}', '960100', 'r,w'),
                 ('{$mb_id}', '960120', 'r,w'),
                 ('{$mb_id}', '960130', 'r,w'),
