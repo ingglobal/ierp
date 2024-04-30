@@ -298,7 +298,7 @@ if(G5_IS_MOBILE){
         <td class="td_mng">
             <a href="./item_sell_form.php?w=u&amp;it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>&amp;<?php echo $qstr; ?>" class="btn btn_03"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>수정</a>
             <a href="./item_sell_copy.php?it_id=<?php echo $row['it_id']; ?>&amp;ca_id=<?php echo $row['ca_id']; ?>" class="itemcopy btn btn_02" target="_blank"><span class="sound_only"><?php echo htmlspecialchars2(cut_str($row['it_name'],250, "")); ?> </span>복사</a>
-            <a href="javascript:" it_id="<?php echo $row['it_id']; ?>" class="itemcart btn btn_01">담기</a>
+            <!--a href="javascript:" it_id="<?php //echo $row['it_id']; ?>" class="itemcart btn btn_01">담기</a-->
         </td>
     </tr>
     <?php
@@ -313,10 +313,8 @@ if(G5_IS_MOBILE){
 <div class="btn_fixed_top">
     <input type="submit" name="act_button" value="선택담기" onclick="document.pressed=this.value" class="btn btn_02" style="margin-right:20px;">
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
-    <?php if ($is_admin == 'super') { ?>
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
     <a href="./item_sell_form.php" class="btn btn_01">제품등록</a>
-    <?php } ?>
 </div>
 <!-- <div class="btn_confirm01 btn_confirm">
     <input type="submit" value="일괄수정" class="btn_submit" accesskey="s">

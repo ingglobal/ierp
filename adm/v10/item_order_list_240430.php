@@ -122,7 +122,7 @@ $sql_common = " FROM {$g5['g5_shop_order_table']} od
                     LEFT JOIN {$g5['companyreseller_table']} com ON com.com_idx = od.com_idx
                     LEFT JOIN {$g5['companyreseller_member_table']} cmm ON com.com_idx = cmm.com_idx
                     LEFT JOIN {$g5['member_table']} mb ON cmm.mb_id = mb.mb_id
-                    LEFT JOIN {$g5['member_table']} mb2 ON od.mb_id_saler = mb2.mb_id
+                    LEFT JOIN {$g5['member_table']} mb2 ON od.mb_id_saler = mb.mb_id
                     $sql_search
 ";
 
@@ -163,7 +163,7 @@ for($j=0;$row=sql_fetch_array($result);$j++){
     $od_arr[$row['od_id']]['com_idx'] = $row['com_idx'];
     $od_arr[$row['od_id']]['com_name'] = $row['com_name'];
     $od_arr[$row['od_id']]['mb_id_saler'] = $row['mb_id_saler'];
-    $od_arr[$row['od_id']]['mb_name_saler'] = $row['od_name'];
+    $od_arr[$row['od_id']]['mb_name_saler'] = $row['mb_name'];
     $od_arr[$row['od_id']]['com_rate'] = $g5['set_com_dc_rate_value'][$row['com_level']];
     $od_arr[$row['od_id']]['com_level'] = $g5['set_com_level_value'][$row['com_level']].'('.$g5['set_com_dc_rate_value'][$row['com_level']].' %)';
     $od_arr[$row['od_id']]['com_mb_id'] = $row['com_mb_id'];
@@ -485,11 +485,12 @@ function form02_submit(f){
 }
 </script>
 <div class="local_desc01 local_desc" style="display:no ne;">
-    <p><span style="color:blue;">입력박스 이외의</span> <span style="color:red;">정보변경은 불가</span>합니다. 입력박스 이외의 정보를 변경할 경우 해당정보를 삭제하고 다시 주문바구니에서 부터 등록해 주세요.</p>
+    <p><span style="color:red;">상품변경은 불가</span>합니다. 상품변경인 경우 해당정보를 삭제하고 다시 주문바구니에서 부터 등록해 주세요.</p>
     <p>제품정보를 삭제하려면 해당 제품정보의 "삭제"버튼으로 삭제해 주세요. </p>
     <p>주문정보를 삭제하려면 해당 주문의 체크박스에 체크한 후 "선택삭제"를 해 주세요. </p>
     <p>"일괄수정은" 첵크박스와 상관없이 표시된 목록 전체가 일괄 수정됩니다. </p>
 </div>
+
 
 <form name="form01" method="post" action="./item_order_list_update.php" onsubmit="return form01_submit(this);" autocomplete="off" id="form01">
 <!-- 없는 변수들을 선언해 줘야 함 -->
@@ -527,6 +528,10 @@ function form02_submit(f){
         <th scope="col" id="th_odrcnt">판매품목건수</th>
         <th scope="col" id="th_sum_price">주문합계</th>
         <th scope="col" id="th_od_time">판매일자</th>
+        <th scope="col">
+            <label for="chkall2" class="sound_only">제품 전체</label>
+            <input type="checkbox" name="chkall2" value="1" id="chkall2" onclick="check_all3(this.form)">
+        </th>
         <th scope="col" id="th_item_name">제품명</th>
         <th scope="col" id="th_item_price">기준단가</th>
         <th scope="col" id="th_rate">할인률</th>
@@ -587,11 +592,15 @@ function form02_submit(f){
             $row2 = $row['ct_arr'][$k];
             if($k >= 1) echo '<tr class="'.$bg.'">'.PHP_EOL;
         ?>
+        <td class="td_chk2">
+            <input type="hidden" name="ct_id[<?=$k?>]" value="<?=$row2['ct_id']?>" id="ct_id_<?=$k?>">
+            <input type="hidden" name="ct_od_id[<?=$k?>]" value="<?=$od_id?>" id="ct_od_id_<?=$k?>">
+            <label for="chk2_<?=$k?>" class="sound_only">주문제품번호 <?=$row2['ct_id']?></label>
+            <input type="checkbox" name="chk2[]" value="<?=$k?>" id="chk2_<?=$k?>">
+        </td>
         <td headers="th_item_name"><?=$row2['it_name']?></td><!-- 제품명 -->
         <td headers="th_item_price" style="text-align:right;"><?=number_format($row2['it_price'])?></td><!--기준단가 -->
         <td headers="th_rate">
-            <input type="hidden" name="ct_id[<?=$j?>]" value="<?=$row2['ct_id']?>">
-            <input type="hidden" name="ct_od_id[<?=$j?>]" value="<?=$od_id?>">
             <?php
             $rt = (($row2['it_price'] - $row2['ct_price']) / $row2['it_price']) * 100;
             $rate = number_format($rt,0,'','');
@@ -781,19 +790,20 @@ function set_date(today)
 
 function form01_submit(f)
 {
-    if(document.pressed == "선택삭제") {
-        if (!is_checked("chk[]")) {
-            alert(document.pressed+" 하실 항목을 하나 이상 선택하세요.");
-            return false;
-        }
-
-        if(!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
-            // f.action = "./order_list_delete.php";
-            return false;
-        }
+    if (!is_checked("chk[]") && !is_checked("chk2[]")) {
+        alert(document.pressed+" 하실 항목을 하나 이상 선택하세요.");
+        return false;
     }
 
-    // f.action = "./item_order_list_update.php";
+    if(document.pressed == "선택삭제") {
+        if(confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
+            f.action = "./order_list_delete.php";
+            return true;
+        }
+        return false;
+    }
+
+    f.action = "./order_list_update.php";
     return true;
 }
 </script>

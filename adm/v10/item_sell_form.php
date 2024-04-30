@@ -34,7 +34,7 @@ else if ($w == "u")
 {
     $html_title .= "수정";
 
-    if ($is_admin != 'super')
+    if (!$super_admin)
     {
         $sql = " select it_id from {$g5['g5_shop_item_table']} a, {$g5['g5_shop_category_table']} b
                   where a.it_id = '$it_id'
@@ -70,9 +70,9 @@ include_once ('./_head.php');
 $category_select = '';
 $script = '';
 $sql = " select * from {$g5['g5_shop_category_table']} ";
-if ($is_admin != 'super')
+if (!$super_admin)
     $sql .= " where ca_mb_id = '{$member['mb_id']}' ";
-$sql .= ($is_admin != 'super') ? " ca_id LIKE '7m%' " : " where ca_id LIKE '7m%' ";
+$sql .= (!$super_admin) ? " ca_id LIKE '7m%' " : " where ca_id LIKE '7m%' ";
 $sql .= " order by ca_order, ca_id ";
 $result = sql_query($sql);
 for ($i=0; $row=sql_fetch_array($result); $i++)

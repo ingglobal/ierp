@@ -248,3 +248,14 @@ function check_all2(f)
     }
 }
 }
+
+if(typeof(check_all3)!='function') {
+function check_all3(f)
+{
+    var chk = document.getElementsByName("chk2[]");
+    
+    for (i=0; i<chk.length; i++){
+        chk[i].checked = f.chkall2.checked;
+    }
+}
+}

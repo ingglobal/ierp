@@ -187,7 +187,7 @@ if($act == 'order'){
     if (get_session('ss_direct'))
         set_session('ss_cart_direct', '');
 
-    goto_url('./item_order_form.php?od_id='.$od_id.'&amp;uid='.$uid);
+    goto_url('./item_order_list.php?od_id='.$od_id.'&amp;uid='.$uid);
 }
 else if($act == "buy")
 {
@@ -246,7 +246,7 @@ else if($act == "buy")
     }
 
     if ($is_member) // 회원인 경우
-        goto_url('./item_order_cart_form.php');
+        goto_url('./item_order_list.php');//goto_url('./item_order_cart_form.php');
     else
         goto_url(G5_BBS_URL.'/login.php?url='.urlencode(G5_USER_ADMIN_URL.'/item_order_cart_form.php'));
 }
@@ -544,7 +544,7 @@ else // 장바구니에 담기
 // exit;
 // 바로 구매일 경우
 if ($sw_direct)
-	goto_url("./item_order_cart_form.php?sw_direct=$sw_direct");
+	goto_url("./item_order_list.php?sw_direct=$sw_direct");
 else {
 	// 장바구니에서 옵션 수정인 경우는 바로 장바구니로 이동!
 	if($act == 'optionmod' || $act == 'seldelete' | $act == 'alldelete') {

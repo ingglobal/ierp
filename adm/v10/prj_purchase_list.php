@@ -89,12 +89,14 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , ppc_status
             , ppc_reg_dt
             , ppc_update_dt
-            , ( SELECT SUM(ppd_price) FROM {$g5['project_purchase_divide_table']} WHERE ppc_idx = ppc.ppc_idx AND ppd_status IN ('ok','complete') ) AS ppd_sum_price
+            , ( SELECT SUM(ppd_price) FROM {$g5['project_purchase_divide_table']} WHERE ppc_idx = ppc.ppc_idx AND ppd_status IN ('ok','complete') ) AS ppd_sum_price 
+            , ( SELECT GROUP_CONCAT(ppt_idx) FROM {$g5['project_purchase_tmp_table']} WHERE ppc_idx = ppc.ppc_idx AND ppt_status = 'ok' ) AS ppt_idxs
         {$sql_common}
 		{$sql_search}
         {$sql_order}
 		LIMIT {$from_record}, {$rows}
 ";
+// echo $sql;exit;
 $result = sql_query($sql,1);
 $count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") ); 
 $total_count = $count['total'];
@@ -195,6 +197,12 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
         $fsql = " SELECT COUNT(*) AS cnt FROM {$g5['file_table']}
                 WHERE fle_db_table = 'ppc' AND fle_type = 'ppc' AND fle_db_id = '".$row['ppc_idx']."' ORDER BY fle_reg_dt DESC ";
 	    $fres = sql_fetch($fsql,1);
+        
+        //관련파일 추출2
+        $fsql2 = " SELECT COUNT(*) AS cnt FROM {$g5['file_table']}
+                WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id IN (".$row['ppt_idxs'].") ORDER BY fle_reg_dt DESC ";
+        // echo $fsql2;
+	    $fres2 = sql_fetch($fsql2,1);
         $bg = 'bg'.($i%2);
     ?>
     <tr class="<?=$bg?>">
@@ -230,7 +238,7 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
             </script>
         </td>
         <td class="td_has_files">
-            <?php if($fres['cnt']){ ?>
+            <?php if($fres['cnt'] || $fres2['cnt']){ ?>
             <i class="fa fa-file" aria-hidden="true"></i>
             <?php } else { ?>
             -
