@@ -31,7 +31,8 @@ $menu["menu960"] = array (
 	array('960640', '개인지출내역', ''.G5_USER_ADMIN_URL.'/personal_expenses_list.php', 'personal_expenses_list'),
 	array('960650', '사내물품관리', ''.G5_USER_ADMIN_URL.'/assets_list.php', 'assets_list'),
 	array('960700', '공지사항', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=notice1', 'notice1'),
-	array('960800', '자료실', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=erpdata', 'bbs_board')
+	array('960800', '자료실', ''.G5_USER_ADMIN_URL.'/bbs_board.php?bo_table=erpdata', 'bbs_board'),
+	array('960900', '환경설정관리', ''.G5_USER_ADMIN_URL.'/mng_config_form.php', 'mng_config_form')
 	// array('960248', '기타수입관리(과제별)', ''.G5_USER_ADMIN_URL.'/project_income_list.php', 'project_income_list'),
 	// array('960255', '기타지출관리', ''.G5_USER_ADMIN_URL.'/etc_expense_list.php', 'etc_expense_list'),
 	// array('960220', '부품/재고관리', ''.G5_USER_ADMIN_URL.'/itemlist.php', 'itemlist'),

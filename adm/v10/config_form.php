@@ -523,6 +523,20 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                 <input type="text" name="set_com_dc_rate" value="<?php echo $g5['setting']['set_com_dc_rate']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>
+		<tr>
+            <th scope="row">사내물품상태</th>
+            <td colspan="3">
+                <?php echo help('pending=사내보관,ok=지급상태,repair=수리중,scrap=폐기처리'); ?>
+                <input type="text" name="set_ast_status" value="<?php echo $g5['setting']['set_ast_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">사내물품관리자상태</th>
+            <td colspan="3">
+                <?php echo help('ok=사용중,pending=반납'); ?>
+                <input type="text" name="set_asm_status" value="<?php echo $g5['setting']['set_asm_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
 		</tbody>
 		</table>
 	</div>
