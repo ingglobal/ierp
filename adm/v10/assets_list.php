@@ -32,6 +32,14 @@ for($i=0;$mrow=sql_fetch_array($mres);$i++){
     $mbopt .= '<option value="'.$mrow['mb_id'].'">'.$mrow['mb_name'].'</option>'.PHP_EOL;
 }
 
+$part_arr = array();
+$part_opts = '';
+//'1' => 'ING', '5' => '지역사무소', '6' => '대리점', '7' => '울산TP'
+foreach($g5['department_name'] as $dk=>$dv){
+    if($dk == 1 || $dk == 5 || $dk == 6 || $dk == 7) continue;
+    $part_arr[$dk] = $dv;
+    $part_opts .= '<option value="'.$dk.'">'.$dv.'</option>'.PHP_EOL;
+}
 
 $sql_common = " FROM {$g5['assets_table']} ast
                 LEFT JOIN {$g5['member_table']} mbb ON ast.mb_id_buy = mbb.mb_id 
@@ -50,15 +58,29 @@ if ($stx) {
             break;
     }
 }
-
+/*
+SELECT GROUP_CONCAT(DISTINCT a.ast_idx) AS ast_idxs 
+    FROM g5_1_assets_manager a 
+    INNER JOIN ( 
+        SELECT ast_idx 
+            , MAX(asm_reg_dt) AS max_reg_dt 
+        FROM g5_1_assets_manager 
+        WHERE asm_status != 'trash' 
+        GROUP BY ast_idx 
+    ) b ON b.max_reg_dt = asm_reg_dt 
+WHERE mb_id_mng = 'lbk1130'
+*/
 if($ser_mb_id_mng){
     $sub_asmsql = " SELECT ast_idx
-                        , mb_id_mng
-                        , MAX(asm_reg_dt) OVER ( PARTITION BY ast_idx ORDER BY asm_reg_dt ) AS max_reg_dt 
-                    FROM {$g5['assets_manager_table']} WHERE asm_status = 'ok' GROUP BY ast_idx ";
-    $asmsql = " SELECT GROUP_CONCAT(DISTINCT ast_idx) AS ast_idxs 
-                    FROM ( {$sub_asmsql} ) s
-                    WHERE mb_id_mng = '{$ser_mb_id_mng}' ";
+                        , MAX(asm_reg_dt) AS max_reg_dt 
+                    FROM {$g5['assets_manager_table']} WHERE asm_status != 'trash' 
+                    GROUP BY ast_idx ";
+    // echo $sub_asmsql;
+    $asmsql = " SELECT GROUP_CONCAT(DISTINCT a.ast_idx) AS ast_idxs 
+                FROM {$g5['assets_manager_table']} a
+                INNER JOIN ( {$sub_asmsql} ) b ON b.max_reg_dt = asm_reg_dt
+                WHERE mb_id_mng = '{$ser_mb_id_mng}' ";
+    // echo $asmsql;
     $asmres = sql_fetch($asmsql); 
 
     $where[] = ($asmres['ast_idxs']) ? " ast.ast_idx IN ({$asmres['ast_idxs']}) " : " ast.ast_idx IN ('') ";
@@ -88,6 +110,7 @@ $sql = " SELECT *
             , ( SELECT asm_idx FROM {$g5['assets_manager_table']} WHERE ast_idx = ast.ast_idx AND asm_status != 'trash' ORDER BY asm_given_date DESC, asm_reg_dt DESC LIMIT 1  ) AS asm_idx
             , ( SELECT mb_id_mng FROM {$g5['assets_manager_table']} WHERE ast_idx = ast.ast_idx AND asm_status != 'trash' ORDER BY asm_given_date DESC, asm_reg_dt DESC LIMIT 1  ) AS mb_id_mng
             , ( SELECT asm_status FROM {$g5['assets_manager_table']} WHERE ast_idx = ast.ast_idx AND asm_status != 'trash' ORDER BY asm_given_date DESC, asm_reg_dt DESC LIMIT 1  ) AS asm_status
+            , ( SELECT asm_given_date FROM {$g5['assets_manager_table']} WHERE ast_idx = ast.ast_idx AND asm_status != 'trash' ORDER BY asm_given_date DESC, asm_reg_dt DESC LIMIT 1  ) AS asm_given_date
             , ( SELECT asm_return_date FROM {$g5['assets_manager_table']} WHERE ast_idx = ast.ast_idx AND asm_status != 'trash' ORDER BY asm_given_date DESC, asm_reg_dt DESC LIMIT 1  ) AS asm_return_date
 		{$sql_common}
 		{$sql_search}
@@ -99,7 +122,7 @@ $result = sql_query($sql,1);
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
 
-$colspan = 13;
+$colspan = 15;
 ?>
 <style>
 
@@ -135,7 +158,7 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
 </div>
 
 
-<form name="form01" id="form01" action="./card_list_update.php" onsubmit="return form01_submit(this);" method="post">
+<form name="form01" id="form01" action="./assets_list_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
@@ -157,12 +180,14 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
 		<th scope="col">번호</th>
 		<th scope="col">품명</th>
 		<th scope="col">시리얼번호</th>
+		<th scope="col">관리부서</th>
 		<th scope="col">구매자</th>
 		<th scope="col">구매일</th>
 		<th scope="col">구매처</th>
 		<th scope="col">메모</th>
-		<th scope="col">관리자</th>
+		<th scope="col">최종관리자</th>
 		<th scope="col">관리자상태</th>
+		<th scope="col">지급일</th>
 		<th scope="col">반납일</th>
 		<th scope="col">물품상태</th>
 		<th scope="col">등록일</th>
@@ -172,7 +197,7 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
 	<tbody>
     <?php
     for ($i=0; $row=sql_fetch_array($result); $i++) {
-        $s_mod = '<a href="./assets_form.php?'.$qstr.'&amp;w=u&amp;'.$pre.'_idx='.$row['ast_idx'].'">수정</a>';
+        $s_mod = '<a href="./assets_form.php?'.$qstr.'&amp;w=u&amp;ast_idx='.$row['ast_idx'].'">수정</a>';
         $bg = 'bg'.($i%2);
     ?>
     <tr class="<?=$bg?>" tr_id="<?=$row['ast_idx']?>">
@@ -184,30 +209,46 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
         <td class="td_ast_idx"><?=$row['ast_idx']?></td><!--번호-->
         <td class="td_ast_name"><?=$row['ast_name']?></td><!--품명-->
         <td class="td_ast_no"><?=$row['ast_no']?></td><!--시리얼번호-->
+        <td class="td_ast_part">
+            <?=$part_arr[$row['ast_part']]?>
+        </td><!--관리부서-->
         <td class="td_mb_id_buy"><?=$row['mb_name']?></td><!--구매자-->
         <td class="td_ast_date"><?=substr($row['ast_date'],2,8)?></td><!--구매일-->
         <td class="td_ast_buycom" style="width:120px;">
-            <input type="text" name="ast_buycom[<?=$i?>]" value="<?=$row['ast_buycom']?>" class="frm_input">
+            <!-- <input type="text" name="ast_buycom[<?=$i?>]" value="<?=$row['ast_buycom']?>" class="frm_input"> -->
+            <?=$row['ast_buycom']?>
         </td><!--구매처-->
         <td class="td_ast_memo">
-            <input name="ast_memo[<?=$i?>]" value="<?=$row['ast_memo']?>" class="frm_input">
+            <!-- <input name="ast_memo[<?=$i?>]" value="<?=$row['ast_memo']?>" class="frm_input"> -->
+            <?=$row['ast_memo']?>
         </td><!--메모-->
         <td class="td_mb_id_mng">
+            <input type="hidden" name="asm_idx[<?=$i?>]" value="<?=$row['asm_idx']?>">
             <?php
             $mb = sql_fetch(" SELECT mb_name FROM {$g5['member_table']} WHERE mb_id = '{$row['mb_id_mng']}' ");
             ?>
             <?=(($mb['mb_name'])?$mb['mb_name']:'-')?>
         </td><!--관리자-->
         <td class="td_asm_status" style="width:80px;">
+            <?php if($mb['mb_name']){ ?>
             <select name="asm_status[<?=$i?>]" class="frm_input asm_status_<?=$i?>">
                 <?=$g5['set_asm_status_value_options']?>
             </select>
             <script>
             $('.asm_status_<?=$i?>').val('<?=$row['asm_status']?>');
             </script>
+            <?php } else { echo '-'; echo '<input type="hidden" name="asm_status['.$i.']" value="">'; } ?>
         </td><!--관리자상태-->
+        <td class="td_asm_given_date" style="width:90px;">
+            <?=(($mb['mb_name'])?$row['asm_given_date']:'-')?>
+        </td><!--지급일-->
         <td class="td_asm_return_date" style="width:100px;">
-            <input type="text" name="asm_return_date[<?=$i?>]" value="<?=$row['asm_return_date']?>" class="frm_input" style="width:80px;text-align:center;">
+            <?php if($mb['mb_name']){ ?>
+            <input type="text" name="asm_return_date[<?=$i?>]" value="<?=$row['asm_return_date']?>" class="frm_input asm_return_date<?=$i?>" style="width:80px;text-align:center;">
+            <script>
+            $(".asm_return_date<?=$i?>").datepicker({changeMonth:true, changeYear:true, dateFormat:"yy-mm-dd", showButtonPanel:true, yearRange:"c-99:c+99"});
+            </script>
+            <?php } else { echo '-'; echo '<input type="hidden" name="asm_return_date['.$i.']" value="">'; } ?>
         </td>
         <td class="td_ast_status" style="width:80px;">
             <select name="ast_status[<?=$i?>]" class="frm_input ast_status_<?=$i?>">
@@ -243,6 +284,21 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
 
 <script>
 
+
+function form01_submit(f){
+    if (!is_checked("chk[]")) {
+        alert(document.pressed+" 하실 항목을 하나 이상 선택하세요.");
+        return false;
+    }
+
+    if(document.pressed == "선택삭제") {
+        if(!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
+            return false;
+        }
+    }
+
+    return true;
+}
 </script>
 
 <?php

@@ -1,5 +1,5 @@
 <?php
-$sub_menu = '960225';
+$sub_menu = '960226';
 include_once('./_common.php');
 
 if ($file = $_POST['ca_include_head']) {

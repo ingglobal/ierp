@@ -1,5 +1,5 @@
 <?php
-$sub_menu = '960225';
+$sub_menu = '960226';
 include_once('./_common.php');
 include_once(G5_EDITOR_LIB);
 
@@ -470,8 +470,8 @@ echo $g5['container_sub_title'];
 
 <?php } ?>
 <div class="btn_fixed_top">
-    <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
     <a href="./categorylist.php?<?php echo $qstr; ?>" class="btn_02 btn">목록</a>
+    <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
 </div>
 </form>
 

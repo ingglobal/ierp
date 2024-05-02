@@ -185,7 +185,7 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
 	<caption><?php echo $g5['title']; ?> 목록</caption>
 	<thead>
     <tr>
-        <th scope="col" rowspan="2" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
+        <th scope="col" rowspan="2">
 			<label for="chkall" class="sound_only">항목 전체</label>
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
@@ -216,7 +216,7 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
         $bg = 'bg'.($i%2);
     ?>
     <tr class="<?=$bg?>">
-        <td class="td_chk" style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
+        <td class="td_chk">
 			<input type="hidden" name="ppt_idx[<?=$i?>]" value="<?=$row['ppt_idx']?>" id="ppt_idx_<?=$i?>">
 			<input type="hidden" name="ppc_idx[<?=$i?>]" value="<?=$row['ppc_idx']?>" id="ppc_idx_<?=$i?>">
 			<label for="chk_<?=$i?>" class="sound_only"><?=get_text($row['ppt_subject'])?></label>
@@ -273,7 +273,7 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
         <a href="javascript:" id="ppt_to_ppc" class="btn btn_04">그룹발주등록</a>
         <input type="submit" name="act_button" value="선택그룹발주해제" onclick="document.pressed=this.value" class="btn_02 btn">
     <?php } ?>
-    <?php if($member['mb_manager_yn']) { ?>
+    <?php if(true){ //($member['mb_manager_yn']) { ?>
         <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn">
         <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
         <a href="./<?=$fname?>_form.php" id="btn_add" class="btn btn_01">발주추가</a>

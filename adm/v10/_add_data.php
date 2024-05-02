@@ -33,11 +33,12 @@ if($add_mode){
     // echo rand(0, count($buycom_arr)-1);
     // echo rand(0, count($part_id_arr)-1);
 
-    $ast_sql = " INSERT INTO {$g5['assets_table']} (mb_id_buy,ast_name,ast_no,ast_memo,ast_buycom,ast_date,ast_status,ast_reg_dt,ast_update_dt) VALUES ";
+    $ast_sql = " INSERT INTO {$g5['assets_table']} (mb_id_buy,ast_name,ast_no,ast_part,ast_memo,ast_buycom,ast_date,ast_status,ast_reg_dt,ast_update_dt) VALUES ";
     for($i=0;$i<$ast_cnt;$i++){
         $mb_id_buy = $mb_id_arr[rand(0, count($mb_id_arr)-1)];
         $ast_name = $ast_name_arr[rand(0, count($ast_name_arr)-1)];
         $ast_memo = $memo_arr[rand(0, count($memo_arr)-1)];
+        $ast_part = $part_id_arr[rand(0, count($part_id_arr)-1)];
         $ast_buycom = $buycom_arr[rand(0, count($buycom_arr)-1)];
 
         $ast_no = get_uniqid();
@@ -47,19 +48,19 @@ if($add_mode){
         // $time_his = substr($time_ymdhis,11,8);
         // echo $i." - ".$time_ymdhis."<br>";
         $ast_sql .= ($i == 0) ? '' : ',';
-        $ast_sql .= "('{$mb_id_buy}','{$ast_name}','{$ast_no}','{$ast_memo}','{$ast_buycom}','{$time_ymd}','ok','{$time_ymdhis}','{$time_ymdhis}')";
+        $ast_sql .= "('{$mb_id_buy}','{$ast_name}','{$ast_no}','{$ast_part}','{$ast_memo}','{$ast_buycom}','{$time_ymd}','ok','{$time_ymdhis}','{$time_ymdhis}')";
     }
     // echo $ast_sql;
     sql_query($ast_sql, 1);
 
     // echo '<br><br><br>';
-    $asm_sql = " INSERT INTO {$g5['assets_manager_table']} (ast_idx,mb_id,mb_id_mng,asm_memo,asm_part,asm_given_date,asm_return_date,asm_status,asm_reg_dt,asm_update_dt) VALUES ";
+    $asm_sql = " INSERT INTO {$g5['assets_manager_table']} (ast_idx,mb_id,mb_id_mng,asm_memo,asm_given_date,asm_return_date,mb_id_acceptor,asm_status,asm_reg_dt,asm_update_dt) VALUES ";
     for($j=0;$j<$asm_cnt;$j++){
         $ast_idx = rand(1,$ast_cnt);
         $mb_id = $mb_id_arr[rand(0, count($mb_id_arr)-1)];
         $mb_id_mng = $mb_id_arr[rand(0, count($mb_id_arr)-1)];
         $asm_memo = $memo_arr[rand(0, count($memo_arr)-1)];
-        $asm_part = $part_id_arr[rand(0, count($part_id_arr)-1)];
+        $mb_id_acceptor = $mb_id_arr[rand(0, count($mb_id_arr)-1)];
 
         $time = rand(strtotime('2024-01-01 09:42:16'),strtotime('2024-02-28 18:52:30'));
         $time_ymdhis = date('Y-m-d H:i:s', $time);
@@ -70,7 +71,7 @@ if($add_mode){
         $time_ymd2 = substr($time_ymdhis2,0,10);
 
         $asm_sql .= ($j == 0) ? '' : ',';
-        $asm_sql .= "('{$ast_idx}','{$mb_id}','{$mb_id_mng}','{$asm_memo}','{$asm_part}','{$time_ymd}','{$time_ymd2}','ok','{$time_ymdhis}','{$time_ymdhis2}')";
+        $asm_sql .= "('{$ast_idx}','{$mb_id}','{$mb_id_mng}','{$asm_memo}','{$time_ymd}','{$time_ymd2}','{$mb_id_acceptor}','ok','{$time_ymdhis}','{$time_ymdhis2}')";
     }
     // echo $asm_sql;
     sql_query($asm_sql, 1);
