@@ -537,6 +537,20 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                 <input type="text" name="set_asm_status" value="<?php echo $g5['setting']['set_asm_status']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>
+		<tr>
+            <th scope="row">회의타입</th>
+            <td colspan="3">
+                <?php echo help('in=내부회의,out=외부회의'); ?>
+                <input type="text" name="set_mtg_type" value="<?php echo $g5['setting']['set_mtg_type']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">회의상태</th>
+            <td colspan="3">
+                <?php echo help('ok=정상,pending=대기'); ?>
+                <input type="text" name="set_mtg_status" value="<?php echo $g5['setting']['set_mtg_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
 		</tbody>
 		</table>
 	</div>

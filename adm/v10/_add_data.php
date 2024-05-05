@@ -59,7 +59,7 @@ if($add_mode){
     $content_arr = array('이런저런 내용을 작성합니다01','이런저런 내용을 작성합니다02','이런저런 내용을 작성합니다03','이런저런 내용을 작성합니다04','이런저런 내용을 작성합니다05','이런저런 내용을 작성합니다06','이런저런 내용을 작성합니다07','이런저런 내용을 작성합니다08','이런저런 내용을 작성합니다09','이런저런 내용을 작성합니다10','이런저런 내용을 작성합니다11','이런저런 내용을 작성합니다12','이런저런 내용을 작성합니다13','이런저런 내용을 작성합니다14','이런저런 내용을 작성합니다15','이런저런 내용을 작성합니다16','이런저런 내용을 작성합니다17');
     $result_arr = array('결과내용입니다01','결과내용입니다02','결과내용입니다03','결과내용입니다04','결과내용입니다05','결과내용입니다06','결과내용입니다07','결과내용입니다08','결과내용입니다09','결과내용입니다10','결과내용입니다11','결과내용입니다12','결과내용입니다13','결과내용입니다14','결과내용입니다15','결과내용입니다16','결과내용입니다17');
     
-    
+    $time_arr = array('09:00:00','09:30:00','10:00:00','10:30:00','11:00:00','11:30:00','12:00:00','12:30:00','13:00:00','13:30:00','14:00:00','14:30:00','15:00:00','15:30:00','16:00:00','16:30:00');
     // echo rand(0, count($prj_id_arr)-1);
     // echo rand(0, count($type_arr)-1);
     // echo rand(0, count($part_id_arr)-1);
@@ -68,6 +68,7 @@ if($add_mode){
     // echo rand(0, count($subject_arr)-1);
     // echo rand(0, count($content_arr)-1);
     // echo rand(0, count($result_arr)-1);
+    // echo rand(0, count($time_arr)-1);
 
     $mtg_sql = " INSERT INTO {$g5['meeting_table']} ( prj_idx, mtg_type, mtg_part, mtg_rank, mb_id_writer, mtg_date, mtg_start_time, mtg_end_time, mtg_subject, mtg_content, mtg_result, mtg_status, mtg_reg_dt, mtg_update_dt ) VALUES ";
     for($i=0;$i<$mtg_cnt;$i++){
@@ -85,15 +86,8 @@ if($add_mode){
         $time_ymdhis = date('Y-m-d H:i:s', $time);
         $time_ymd = substr($time_ymdhis,0,10);
         // 시작 시간과 종료 시간을 정의합니다.
-        $startTime = '09:10:05';
-        $endTime = '16:25:34';
-        // 시간을 Unix timestamp로 변환합니다.
-        $startTimestamp = strtotime($startTime);
-        $endTimestamp = strtotime($endTime);
-        // 랜덤한 timestamp를 생성합니다.
-        $randomTimestamp = rand($startTimestamp, $endTimestamp);
-        // 랜덤한 timestamp를 시간 형식으로 변환하여 출력합니다.
-        $time_from_his = date('H:i:s', $randomTimestamp);
+        
+        $time_from_his = $time_arr[rand(0, count($time_arr)-1)];
         $timeToHis = strtotime($time_from_his) + 2 * 60 * 60;
         $time_to_his = date('H:i:s', $timeToHis);
         $time_dt = $time_ymd.' '.$time_to_his;
@@ -116,10 +110,10 @@ if($add_mode){
     $mtp_sql = " INSERT INTO {$g5['meeting_participant_table']} (mtg_idx,mtp_belong,mtp_name,mtp_rank,mtp_phone) VALUES ";
     for($j=0;$j<$mtp_cnt;$j++){
         $mtg_idx = rand(1,$mtg_cnt);
-        $mtp_belong = $result_arr[rand(0, count($belong_arr)-1)];
-        $mtp_name = $result_arr[rand(0, count($name_arr)-1)];
-        $mtp_rank = $result_arr[rand(0, count($rank_arr)-1)];
-        $mtp_phone= $result_arr[rand(0, count($phone_arr)-1)];
+        $mtp_belong = $belong_arr[rand(0, count($belong_arr)-1)];
+        $mtp_name = $name_arr[rand(0, count($name_arr)-1)];
+        $mtp_rank = $rank_arr[rand(0, count($rank_arr)-1)];
+        $mtp_phone= $phone_arr[rand(0, count($phone_arr)-1)];
 
         $mtp_sql .= ($j == 0) ? '' : ',';
         $mtp_sql .= "('{$mtg_idx}','{$mtp_belong}','{$mtp_name}','{$mtp_rank}','{$mtp_phone}')";

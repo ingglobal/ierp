@@ -173,7 +173,7 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
 	<caption><?php echo $g5['title']; ?> 목록</caption>
 	<thead>
 	<tr class="success">
-		<th scope="col" rowspan="2">
+		<th scope="col">
 			<label for="chkall" class="sound_only">물품목록 전체</label>
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
