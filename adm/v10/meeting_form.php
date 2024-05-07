@@ -28,9 +28,18 @@ foreach($_REQUEST as $key => $value ) {
 }
 
 if($w == ''){
+    $year = substr(G5_TIME_YMD,0,4);
+    $yres = sql_fetch(" SELECT COUNT(mtg_idx) AS cnt FROM {$g5['meeting_table']} WHERE mtg_date LIKE '{$year}%' AND mtg_status = 'ok' ");
+    $ycnt = $yres['cnt'];
+    // $initnum = 1000;
+    $initnum = 0;
+    $this_doc_num = $initnum + ($ycnt + 1);
+    $doc_num = sprintf("%04d",$this_doc_num);
+    $mtg['mtg_code'] = 'A'.$year.'-CTR-'.$doc_num;
+
     $sound_only = '<strong class="sound_only">필수</strong>';
     $w_display_none = ';display:none';  // 쓰기에서 숨김
-	$row['mtg_status'] = 'ok';
+	$mtg['mtg_status'] = 'ok';
 }
 else if($w == 'u'){
     $mtgsql = " SELECT mtg.*, mb_name, prj_name, mb_2, mb_3 FROM {$g5['meeting_table']} mtg
@@ -105,6 +114,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
 <input type="hidden" name="mtg_idx" value="<?php echo $mtg["mtg_idx"] ?>">
+<input type="hidden" name="mtg_code" value="<?php echo $mtg["mtg_code"] ?>">
 <input type="hidden" name="mtg_status" value="<?php echo $mtg["mtg_status"] ?>">
 <?=$form_input?>
 <div class="local_desc01 local_desc" style="display:none;">
@@ -348,7 +358,8 @@ function event_off(){
 </script>
 <div class="btn_fixed_top">
     <a href="./<?=$fname?>_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
-    <input type="submit" value="확인" class="btn_submit btn" accesskey='s'>
+    <input type="submit" name="act_button" value="삭제" onclick="document.pressed=this.value" class="btn_01 btn">
+    <input type="submit" name="act_button" value="확인" onclick="document.pressed=this.value" class="btn_submit btn" accesskey='s'>
 </div>
 </form>
 <script>
@@ -356,46 +367,57 @@ function event_off(){
 $("input[name*=_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", closeText:'취소',onClose: function(){if($(window.event.srcElement).hasClass('ui-datepicker-close')){ $(this).val('0000-00-00');}} });
 
 function form01_submit(f){
-    <?php echo get_editor_js("mtg_content"); ?>
-    <?php echo get_editor_js("mtg_result"); ?>
-
-    if(!f.mtg_subject.value){
-        alert('주요안건(제목)은 반드시 입력해 주세요.');
-        f.mtg_subject.focus();
-        return false;
-    }
-
-    if(!f.mtg_content.value){
-        alert('회의내용은 반드시 입력해 주세요.');
-        f.mtg_content.focus();
-        return false;
-    }
-
-    if(!f.mtg_result.value){
-        alert('회의결과는 반드시 입력해 주세요.');
-        f.mtg_result.focus();
-        return false;
-    }
-
-    if($('.ul_mtp li').length < 2){
-        alert('참석자 정보는 적어도 2명이상 등록해 주세요.');
-        return false;
-    }
-    
-    let mtp_false = 0
-    $('.ul_mtp li').each(function(){
-        let mtp_belong = $.trim($(this).find('.mtp_belong').val());
-        let mtp_name = $.trim($(this).find('.mtp_name').val());
-        let mtp_rank = $.trim($(this).find('.mtp_rank').val());
-        let mtp_phone = $.trim($(this).find('.mtp_phone').val());
-
-        if(!mtp_name){
-            mtp_false = 1;
+    if(document.pressed == "삭제"){
+        if(!confirm("복구가 불가능 합니다. 정말 삭제하시겠습니까?")) {
+            return false;
         }
-    });
-    if(mtp_false){
-        alert('참석자성명은 반드시 입력해 주세요.');
-        return false;
+
+        f.w.value = 'd';
+    }
+    else if(document.pressed == "확인"){
+    
+        <?php echo get_editor_js("mtg_content"); ?>
+        <?php echo get_editor_js("mtg_result"); ?>
+    
+        if(!f.mtg_subject.value){
+            alert('주요안건(제목)은 반드시 입력해 주세요.');
+            f.mtg_subject.focus();
+            return false;
+        }
+    
+        if(!f.mtg_content.value){
+            alert('회의내용은 반드시 입력해 주세요.');
+            f.mtg_content.focus();
+            return false;
+        }
+    
+        if(!f.mtg_result.value){
+            alert('회의결과는 반드시 입력해 주세요.');
+            f.mtg_result.focus();
+            return false;
+        }
+    
+        if($('.ul_mtp li').length < 2){
+            alert('참석자 정보는 적어도 2명이상 등록해 주세요.');
+            return false;
+        }
+        
+        let mtp_false = 0
+        $('.ul_mtp li').each(function(){
+            let mtp_belong = $.trim($(this).find('.mtp_belong').val());
+            let mtp_name = $.trim($(this).find('.mtp_name').val());
+            let mtp_rank = $.trim($(this).find('.mtp_rank').val());
+            let mtp_phone = $.trim($(this).find('.mtp_phone').val());
+    
+            if(!mtp_name){
+                mtp_false = 1;
+            }
+        });
+        if(mtp_false){
+            alert('참석자성명은 반드시 입력해 주세요.');
+            return false;
+        }
+
     }
 
     // alert('여기까지 OK');

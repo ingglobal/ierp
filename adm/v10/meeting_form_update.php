@@ -1,7 +1,8 @@
 <?php
 $sub_menu = '960265';
 include_once('./_common.php');
-
+// print_r2($_POST);
+// exit;
 auth_check($auth[$sub_menu], "r");
 
 // 변수 설정, 필드 구조 및 prefix 추출
@@ -89,28 +90,50 @@ else if($w == 'u') {
         sql_query($sql,1);
     }
 }
+else if($w == 'd'){
+    // 먼저 해당 mtg_idx와 관련된 모든파일을 삭제
+    $dfres = sql_fetch("SELECT GROUP_CONCAT(DISTINCT fle_idx) AS fle_idxs FROM {$g5['file_table']}
+        WHERE fle_db_table = 'mtg' AND fle_type = 'mtg' AND fle_db_id = '{$mtg_idx}' ");
+    $dfarr = ($dfres['fle_idxs']) ? explode(',',$dfres['fle_idxs']) : array();
+    if(count($dfarr)){
+        delete_idx_file($dfarr);
+        // ppt_idx와 관련된 fle_idx 데이터를 전부 삭제
+        $dfsql = " DELETE FROM {$g5['file_table']}
+            WHERE fle_db_table = 'mtg' AND fle_type = 'mtg' AND fle_db_id = '{$mtg_idx}'
+        ";
+        sql_query($dfsql,1);
+    }
+
+    // mtp테이블에서 mtg_idx를 가지고 있는 레코드를 다 삭제한다.
+    $psql = " DELETE FROM {$g5['meeting_participant_table']} WHERE mtg_idx = '{$mtg_idx}' ";
+    sql_query($psql,1);
+    // mtg테이블에서 mtg_idx를 가지고 있는 레코드를 삭제한다.
+    $gsql = " DELETE FROM {$g5['meeting_table']} WHERE mtg_idx = '{$mtg_idx}' ";
+    sql_query($gsql,1);
+}
 
 // exit;
 
-
-//파일 삭제처리
-$merge_del = array();
-$del_arr = array();
-if(@count($mtg_del)){
-	foreach($mtg_del as $k=>$v) {
-		$merge_del[$k] = $v;
-	}
+if($w == '' || $w == 'u'){
+    //파일 삭제처리
+    $merge_del = array();
+    $del_arr = array();
+    if(@count($mtg_del)){
+        foreach($mtg_del as $k=>$v) {
+            $merge_del[$k] = $v;
+        }
+    }
+    
+    if(count($merge_del)){
+        foreach($merge_del as $k=>$v) {
+            array_push($del_arr,$k);
+        }
+    }
+    if(count($del_arr)) delete_idx_file($del_arr);
+    
+    //멀티파일처리
+    upload_multi_file($_FILES['mtg_datas'],'mtg',$mtg_idx,'mtg');
 }
-
-if(count($merge_del)){
-	foreach($merge_del as $k=>$v) {
-		array_push($del_arr,$k);
-	}
-}
-if(count($del_arr)) delete_idx_file($del_arr);
-
-//멀티파일처리
-upload_multi_file($_FILES['mtg_datas'],'mtg',$mtg_idx,'mtg');
 
 
 foreach($_REQUEST as $key => $value ) {
@@ -125,7 +148,10 @@ foreach($_REQUEST as $key => $value ) {
         }
     }
 }
-
-$qstr .= '&mtg_idx='.$mtg_idx;
-
-goto_url('./meeting_view.php?'.$qstr, false);
+if($w == '' || $w == 'u'){
+    $qstr .= '&mtg_idx='.$mtg_idx;
+    goto_url('./meeting_view.php?'.$qstr, false);
+}
+else if($w == 'd'){
+    goto_url('./meeting_list.php?'.$qstr, false);
+}

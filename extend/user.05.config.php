@@ -17,6 +17,7 @@ $g5['companyetc_member_table']          = PROJ_TABLE_PREFIX.'companyetc_member';
 $g5['companyreseller_member_table']     = PROJ_TABLE_PREFIX.'companyreseller_member';
 $g5['company_saler_table']              = PROJ_TABLE_PREFIX.'company_saler';
 $g5['company_rate_table']               = PROJ_TABLE_PREFIX.'company_rate';
+$g5['draft_table']                      = PROJ_TABLE_PREFIX.'draft';
 $g5['meeting_table']                    = PROJ_TABLE_PREFIX.'meeting';
 $g5['meeting_participant_table']        = PROJ_TABLE_PREFIX.'meeting_participant';
 $g5['order_log_table']       	        = PROJ_TABLE_PREFIX.'order_log';
