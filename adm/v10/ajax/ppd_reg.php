@@ -11,8 +11,7 @@ $ppd_done_date
 $ppd_bank
 */
 // 천단위 제거
-if(preg_match("/_price$/",$ppd_price))
-    $ppd_price = preg_replace("/,/","",$ppd_price);
+$ppd_price = preg_replace("/,/","",$ppd_price);
 
 $ppd_status = ($ppd_done_date && $ppd_done_date != '0000-00-00') ? 'complete' : 'ok';
 

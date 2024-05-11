@@ -26,21 +26,21 @@ $wrp_cnt = 20;
 
 if($add_mode){
     $wrp_truncate_sql = " TRUNCATE {$g5['workreport_table']} ";
-    sql_query($wrp_truncate_sql, 1);
+    // sql_query($wrp_truncate_sql, 1);
 
     $prj_id_arr = array(771, 770, 769, 768, 767, 766, 765, 764, 763, 762, 761, 760, 759, 755, 754, 753, 752, 751, 750, 749);
     $wrp_cd_arr = array(
-        'W2024-CTR-0001','W2024-CTR-0002','W2024-CTR-0003','W2024-CTR-0004','W2024-CTR-0005','W2024-CTR-0006','W2024-CTR-0007','W2024-CTR-0008'
-        ,'W2024-CTR-0009','W2024-CTR-0010','W2024-CTR-0011','W2024-CTR-0012','W2024-CTR-0013','W2024-CTR-0014','W2024-CTR-0015','W2024-CTR-0016'
-        ,'W2024-CTR-0017','W2024-CTR-0018','W2024-CTR-0019','W2024-CTR-0020'
+        'W2024-CTR-0061','W2024-CTR-0062','W2024-CTR-0063','W2024-CTR-0064','W2024-CTR-0065','W2024-CTR-0066','W2024-CTR-0067','W2024-CTR-0068'
+        ,'W2024-CTR-0069','W2024-CTR-0070','W2024-CTR-0071','W2024-CTR-0072','W2024-CTR-0073','W2024-CTR-0074','W2024-CTR-0075','W2024-CTR-0076'
+        ,'W2024-CTR-0077','W2024-CTR-0078','W2024-CTR-0079','W2024-CTR-0080'
     );
     $part_id_arr = array(2,3,4,8,9,10,11,12,13,14,2,3,4,8,9,10,11,12,13,14);
     // $rank_id_arr = array(10,12,15,17,18,25,35,50,60,70,80,100,110,115,120,123,126,130,135,140,145,150,155);//직급
     $rank_id_arr = array(10,12,15,17,18,25,35,50,60,70,80,100,110,115,120,123,126,130,135,140);//직급
     $mb_id_arr = array('syeong230','sulmh','tomasjoa','idaekyun','ingcjh','syeong230','sulmh','tomasjoa','idaekyun','ingcjh','syeong230','sulmh','tomasjoa','idaekyun','ingcjh','syeong230','sulmh','tomasjoa','idaekyun','ingcjh');
     $wrp_date_arr = array(
-        '2024-01-01','2024-01-08','2024-01-13','2024-01-18','2024-01-25','2024-02-01','2024-02-09','2024-02-13','2024-02-18','2024-02-24'
-        ,'2024-03-01','2024-03-07','2024-03-13','2024-03-18','2024-03-28','2024-04-01','2024-04-05','2024-04-18','2024-04-23','2024-04-27'
+        '2024-01-02','2024-01-09','2024-01-14','2024-01-19','2024-01-26','2024-02-02','2024-02-10','2024-02-14','2024-02-19','2024-02-25'
+        ,'2024-03-02','2024-03-08','2024-03-14','2024-03-19','2024-03-29','2024-04-02','2024-04-06','2024-04-19','2024-04-24','2024-04-28'
     );
 
     $subject_arr = array(
@@ -83,12 +83,12 @@ if($add_mode){
 
         
         $wrp_sql .= ($i == 0) ? '' : ',';
-        $wrp_sql .= "('{$prj_idx}','day','{$wrp_code}','{$wrp_part}','{$wrp_rank}','{$mb_id}','{$wrp_date}','{$wrp_week}','{$wrp_month}','{$wrp_subject}','{$wrp_content}','{$wrp_status}','{$wrp_reg_dt}','{$wrp_update_dt}')";
+        $wrp_sql .= "('{$prj_idx}','month','{$wrp_code}','{$wrp_part}','{$wrp_rank}','{$mb_id}','{$wrp_date}','{$wrp_week}','{$wrp_month}','{$wrp_subject}','{$wrp_content}','{$wrp_status}','{$wrp_reg_dt}','{$wrp_update_dt}')";
     }
     // echo $wrp_sql."<br>";exit;
     sql_query($wrp_sql, 1);
 
-    echo '데이터등록완료';
+    echo '데이터2등록완료';
 }
 else{
     echo '비활성화 상태';

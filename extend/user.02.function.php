@@ -1683,4 +1683,38 @@ function months_range($cur_date,$mcnt,$sort='desc'){
         return array_reverse($ym_array);
 }
 }
+
+//특정날짜가 해당월의 몇번째 주차인지 반환하는 함수(월요일이 일주일의 시작)
+if(!function_exists('getWeekNumOfMonth')){
+function getWeekNumOfMonth($dateString){
+	// 날짜 형식 검사 및 유효성 확인
+	if ($dateString == '0000-00-00') {
+		return "Invalid date: $dateString";
+	}
+
+	try {
+		// 입력 날짜를 DateTime 객체로 생성
+		$date = new DateTime($dateString);
+		// 날짜가 속한 달의 첫날을 계산
+		$firstDayOfMonth = new DateTime($date->format('Y-m-01'));
+
+		// 첫날의 주를 가져오며, ISO-8601 기준 월요일이 시작일이 되게 설정
+		$firstWeek = $firstDayOfMonth->format('W');
+		// 입력된 날짜가 속한 주의 번호를 가져옴
+		$currentWeek = $date->format('W');
+
+		// 년말과 년초의 주 번호 예외 처리
+		if ($firstWeek == 52 || $firstWeek == 53) {
+			$firstWeek = 0;
+		}
+
+		// 주차를 계산 (현재 주차 - 해당 달 첫 주차 + 1)
+		$weekCountOfMonth = $currentWeek - $firstWeek + 1;
+
+		return $weekCountOfMonth;
+	} catch (Exception $e) {
+		return "Error: " . $e->getMessage();
+	}	
+}
+}
 ?>

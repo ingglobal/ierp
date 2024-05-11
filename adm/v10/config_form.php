@@ -551,6 +551,27 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                 <input type="text" name="set_mtg_status" value="<?php echo $g5['setting']['set_mtg_status']; ?>" class="frm_input" style="width:60%;">
             </td>
         </tr>
+		<tr>
+            <th scope="row">기안서상태</th>
+            <td colspan="3">
+                <?php echo help('pending=요청,repending=재요청,checking=검토중,ok=승인,reject=반려'); ?>
+                <input type="text" name="set_drf_status" value="<?php echo $g5['setting']['set_drf_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">업무보고서타입</th>
+            <td colspan="3">
+                <?php echo help('day=일일보고,week=주간보고,month=월간보고'); ?>
+                <input type="text" name="set_wrp_type" value="<?php echo $g5['setting']['set_wrp_type']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">업무보고서상태</th>
+            <td colspan="3">
+                <?php echo help('pending=대기,ok=완료'); ?>
+                <input type="text" name="set_wrp_status" value="<?php echo $g5['setting']['set_wrp_status']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
 		</tbody>
 		</table>
 	</div>

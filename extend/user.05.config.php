@@ -34,6 +34,7 @@ $g5['project_purchase_tmp_table']       = PROJ_TABLE_PREFIX.'project_purchase_tm
 $g5['contract_table']                   = PROJ_TABLE_PREFIX.'contract';
 $g5['personal_caruse_table']            = PROJ_TABLE_PREFIX.'personal_caruse';
 $g5['personal_expenses_table']          = PROJ_TABLE_PREFIX.'personal_expenses';
+$g5['workreport_table']                 = PROJ_TABLE_PREFIX.'workreport';
 
 $g5['data_table']           	        = PROJ_TABLE_PREFIX.'data';
 

@@ -146,6 +146,19 @@ if($ascnt){
 }
 echo $alrm_as;
 
+//기안서 알람추가
+$alrm_drf = '';
+$drf_table = $g5['draft_table'];
+$drfsql = sql_fetch(" SELECT COUNT(*) AS cnt FROM {$drf_table} WHERE mb_id_approval = '{$member['mb_id']}' AND drf_status IN ('pending','repending')  ");
+$drfcnt = $drfsql['cnt'];
+if($drfcnt){
+    $alrm_drf .= '<li id="alrm_drf" class="blink_a" style="display:none;">'.PHP_EOL;
+    $alrm_drf .= '<a href="'.G5_USER_ADMIN_URL.'/draft_list.php" class="txt_redblink" style="color:pink;">'.PHP_EOL;
+    $alrm_drf .= '기안서신청확인';
+    $alrm_drf .= '</a>'.PHP_EOL;
+    $alrm_drf .= '</li>'.PHP_EOL;
+}
+echo $alrm_drf;
 
 include_once(G5_PLUGIN_PATH.'/jquery-ui/datepicker.php');
 
@@ -196,6 +209,10 @@ $(function(){
 
     if($('#alrm_not').length > 0){
         $('#alrm_not').prependTo('#notice_box > ul.notice_ul').show();
+    }
+
+    if($('#alrm_drf').length > 0){
+        $('#alrm_drf').prependTo('#notice_box > ul.notice_ul').show();
     }
 });
 </script>

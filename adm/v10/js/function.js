@@ -259,3 +259,29 @@ function check_all3(f)
     }
 }
 }
+
+if(typeof(getWeekNumOfMonth)!='function') {
+function getWeekNumOfMonth(dd){
+    // 특정 날짜를 '2014-05-10'로 설정
+    const dateStr = dd;
+    const date = new Date(dateStr);
+
+    // 해당 달의 첫 날을 설정
+    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
+    // 해당 달 첫 날의 요일을 확인
+    const firstDayOfWeek = firstDayOfMonth.getDay();
+
+    // 요일을 월요일 시작으로 조정
+    // 월요일이 0이 되도록, 일요일은 6, 월요일은 0, 화요일은 1, ..., 토요일은 5
+    const adjustedFirstDayOfWeek = (firstDayOfWeek === 0) ? 6 : firstDayOfWeek - 1;
+
+    // 현재 날짜가 그 달에서 몇 번째 주차인지 계산
+    // 0일이 일요일이므로 일요일을 첫 요일로 기준을 설정
+    const dayOfMonth = date.getDate();
+    const adjustedDay = dayOfMonth + adjustedFirstDayOfWeek - 1;
+    const weekNumber = Math.floor(adjustedDay / 7) + 1;
+
+    return weekNumber;
+}
+}

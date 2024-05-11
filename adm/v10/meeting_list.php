@@ -55,7 +55,7 @@ if (!$sst) {
 }
 $sql_order = " ORDER BY {$sst} {$sod} ";
 
-$sql = " select count(mtg_idx) as cnt " . $sql_common;
+$sql = " select count(mtg_idx) as cnt " . $sql_common . $sql_search;
 $row = sql_fetch($sql);
 
 $rows = $config['cf_page_rows'];
@@ -91,6 +91,7 @@ $colspan = 13;
 	<option value="mtg_subject"<?php echo get_selected($_GET['sfl'], "mtg_subject"); ?>>안건제목</option>
     <option value="mb_name"<?php echo get_selected($_GET['sfl'], "mb_name"); ?>>작성자명</option>
     <option value="prj_name"<?php echo get_selected($_GET['sfl'], "prj_name"); ?>>프로젝트명</option>
+</select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
 <input type="submit" class="btn_submit" value="검색">

@@ -1,0 +1,41 @@
+@charset "utf-8";
+
+#cldform{}
+#cldform #date_box{padding:50px 0px 30px;}
+#cldform #date_box #date_con{position:relative;text-align:center;font-size:2em;}
+#cldform #date_box #date_con select{height:40px;line-height:40px;border:0;border-bottom:1px solid #333;}
+#cldform #date_box #date_con select option{}
+#cldform #date_box #date_con #yy{}
+#cldform #date_box #date_con #mm{margin-left:10px;}
+#cldform #date_box #date_con span{position:relative;top:3px;margin-left:5px;}
+#cldform #date_box #date_con .box_d{position:absolute;bottom:3px;z-index:5;}
+#cldform #date_box #date_con .box_d a{display:inline-block;color:#fff;font-size:0.8em;height:34px;line-height:32px;padding:0 20px;border-radius:5px;}
+#cldform #date_box #date_con .box_t{left:0;}
+#cldform #date_box #date_con .box_t a{background:gray;}
+#cldform #date_box #date_con .box_t a.t_day.focus{background:#497c39;}
+#cldform #date_box #date_con .box_t a.t_week.focus{background:#394480;}
+#cldform #date_box #date_con .box_t a.t_month.focus{background:#602046;}
+#cldform #date_box #date_con .box_m{right:0;}
+#cldform #date_box #date_con .box_m a{background:darkgreen;}
+#cldform #date_box #date_con .box_m a i{font-size:1.2em;}
+
+#cldform #tbl_cld{display:table;border-collapse:collapse;border-spacing:0px;border:1px solid #bbb;}
+#cldform #tbl_cld th{border:1px solid #bbb;height:32px;line-height:32px;background:#ddd;font-size:1.2em;}
+#cldform #tbl_cld th.th_sun{color:red;}
+#cldform #tbl_cld th.th_sat{color:blue;}
+#cldform #tbl_cld td{border:1px solid #bbb;position:relative;padding:0px 0px 0px 30px;background:#fff;width:14.285%;}
+#cldform #tbl_cld td.td_current{background:#f3f5cf;}
+#cldform #tbl_cld td .day_num{position:absolute;left:5px;top:5px;z-index:4;font-size:1.2em;}
+#cldform #tbl_cld td .day_num.day_current{font-weight:bold;}
+#cldform #tbl_cld td .day_red{color:red;}
+#cldform #tbl_cld td .day_blue{color:blue;}
+#cldform #tbl_cld td .day_con{position:relative;z-index:2;min-height:120px;background:none;padding-top:5px;}
+#cldform #tbl_cld td .day_con .add_rep{display:none;position:absolute;top:5px;right:5px;font-size:1.5em;cursor:pointer;}
+#cldform #tbl_cld td .day_con .add_rep.focus{display:block;}
+#cldform #tbl_cld td .day_con ul li{margin-bottom:3px;}
+#cldform #tbl_cld td .day_con ul li a{display:inline-block;padding:2px 8px;border-radius:5px;}
+#cldform #tbl_cld td .day_con ul li a.a_day{background:#497c39;color:#fff;}
+#cldform #tbl_cld td .day_con ul li a.a_week{background:#394480;color:#fff;}
+#cldform #tbl_cld td .day_con ul li a.a_month{background:#602046;color:#fff;}
+#cldform #tbl_cld td .day_con ul li .del_rep{font-size:1.3em;margin-left:5px;cursor:pointer;display:none;}
+#cldform #tbl_cld td .day_con ul li:hover .del_rep{display:inline-block;}
