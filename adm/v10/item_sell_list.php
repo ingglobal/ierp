@@ -50,7 +50,7 @@ $ca_list  = '<option value="">선택</option>'.PHP_EOL;
 $sql = " SELECT * FROM {$g5['g5_shop_category_table']} ";
 // if ($is_admin != 'super')
 // $sql .= " where ca_mb_id = '{$member['mb_id']}' ";
-$sql .= " where ca_id IN ('7m','8m') ";
+$sql .= " where (1) ";
 $sql .= " order by ca_order, ca_id ";
 $result = sql_query($sql);
 for ($i=0; $row=sql_fetch_array($result); $i++)
@@ -78,7 +78,6 @@ $sql_common = " FROM {$g5_table_name} a
 ";
 // echo $sql_common;exit;
 $where = array();
-$where[] = " a.ca_id IN ('7m','8m') ";   // 디폴트 검색조건
 
 if ($stx) {
     switch($sfl){
@@ -185,7 +184,7 @@ if(G5_IS_MOBILE){
 <select name="sca" id="sca">
     <option value="">전체분류</option>
     <?php
-    $sql1 = " select ca_id, ca_name from {$g5['g5_shop_category_table']} WHERE ca_id IN ('7m','8m') order by ca_order, ca_id ";
+    $sql1 = " select ca_id, ca_name from {$g5['g5_shop_category_table']} WHERE (1) order by ca_order, ca_id ";
     $result1 = sql_query($sql1);
     for ($i=0; $row1=sql_fetch_array($result1); $i++) {
         $len = strlen($row1['ca_id']) / 2 - 1;
@@ -232,10 +231,9 @@ if(G5_IS_MOBILE){
         <th scope="col">분류</th>
         <th scope="col" id="th_pc_title"><?php echo subject_sort_link('it_name', 'sca='.$sca); ?>상품명</a></th>
         <th scope="col"><?php echo subject_sort_link('it_id', 'sca='.$sca); ?>상품코드</a></th>
-        <th scope="col" id="th_amt"><?php echo subject_sort_link('it_price', 'sca='.$sca); ?>판매가격</a></th>
         <th scope="col">매입가</th>
+        <th scope="col" id="th_amt"><?php echo subject_sort_link('it_price', 'sca='.$sca); ?>판매가격</a></th>
         <!-- <th scope="col">매입처</th> -->
-        <th scope="col">매입처</th>
         <th scope="col">재고</th>
         <!-- <th scope="col">수량</th> -->
         <th scope="col">관리</th>
@@ -271,18 +269,11 @@ if(G5_IS_MOBILE){
             <input type="hidden" name="it_id[<?php echo $i; ?>]" value="<?php echo $row['it_id']; ?>">
             <?php echo $row['it_id']; ?>
         </td>
-        <td headers="th_amt" class="td_numbig td_input"><!-- 판매가격 -->
-            <input type="text" name="it_price[<?php echo $i; ?>]" value="<?php echo number_format($row['it_price']); ?>" id="price_<?php echo $i; ?>" class="tbl_input sit_amt" size="7">
-        </td>
         <td headers="th_camt" class="td_numbig td_input"><!-- 매입가 -->
             <input type="text" name="it_buy_price[<?php echo $i; ?>]" value="<?php echo number_format($row['it_buy_price']); ?>" id="cust_price_<?php echo $i; ?>" class="tbl_input sit_camt" size="7">
         </td>
-        <td class="td_com">
-            <select name="com_id[<?php echo $i; ?>]" id="com_id_<?php echo $i; ?>" style="width:100px;">
-                <option value="0">::종합::</option>
-                <?=$g5['set_buyer_value_options']?>
-            </select>
-            <script>$('select[name="com_id[<?php echo $i; ?>]"]').val('<?=$row['com_idx']?>');</script>
+        <td headers="th_amt" class="td_numbig td_input"><!-- 판매가격 -->
+            <input type="text" name="it_price[<?php echo $i; ?>]" value="<?php echo number_format($row['it_price']); ?>" id="price_<?php echo $i; ?>" class="tbl_input sit_amt" size="7">
         </td>
         <td headers="th_stock" class="td_numbig td_input"><!-- 재고 -->
             <input type="text" name="it_stock_qty[<?php echo $i; ?>]" value="<?php echo number_format($row['it_stock_qty']); ?>" id="stock_qty_<?php echo $i; ?>" class="tbl_input sit_qty" size="7">

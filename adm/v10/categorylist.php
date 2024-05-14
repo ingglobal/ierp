@@ -135,7 +135,7 @@ echo $g5['container_sub_title'];
         else $s_add = '';
         $s_upd = '<a href="./categoryform.php?w=u&amp;ca_id='.$row['ca_id'].'&amp;'.$qstr.'" class="btn btn_02"><span class="sound_only">'.get_text($row['ca_name']).' </span>수정</a> ';
 
-        if ($is_admin == 'super')
+        if ($super_admin)
             $s_del = '<a href="./categoryformupdate.php?w=d&amp;ca_id='.$row['ca_id'].'&amp;'.$qstr.'" onclick="return delete_confirm(this);" class="btn btn_02"><span class="sound_only">'.get_text($row['ca_name']).' </span>삭제</a> ';
 
         // 해당 분류에 속한 상품의 수
@@ -207,7 +207,7 @@ echo $g5['container_sub_title'];
     </tr>
     <tr class="<?php echo $bg; ?>">
         <td headers="sct_admin">
-            <?php if ($is_admin == 'super') {?>
+            <?php if ($super_admin) {?>
             <label for="ca_mb_id<?php echo $i; ?>" class="sound_only">관리회원아이디</label>
             <input type="text" name="ca_mb_id[<?php echo $i; ?>]" value="<?php echo $row['ca_mb_id']; ?>" id="ca_mb_id<?php echo $i; ?>" class="tbl_input full_input" size="15" maxlength="20">
             <?php } else { ?>
@@ -255,7 +255,7 @@ echo $g5['container_sub_title'];
 <div class="btn_fixed_top">
     <input type="submit" value="일괄수정" class="btn_02 btn">
 
-    <?php if ($is_admin == 'super') {?>
+    <?php if ($super_admin) {?>
     <a href="./categoryform.php" id="cate_add" class="btn btn_01">분류 추가</a>
     <?php } ?>
 </div>

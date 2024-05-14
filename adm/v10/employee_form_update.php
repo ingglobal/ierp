@@ -160,14 +160,13 @@ else
 //탈퇴 및 접근차단이 아닐때만 권한 재설정
 if(!$leave_flag){
     if($w == '' || $auth_reset){
-
+        
         //운영자에 추가하는 권한
         $mb_manager_auth = '';
         if($mb_manager_yn){
             //업체관리, 프로젝트견적, 수입관리(과제별) 권한부여
             $mb_manager_auth .= " 
                 ('{$mb_id}', '960200', 'r,w'),
-                ('{$mb_id}', '960210', 'r,w'),
                 ('{$mb_id}', '960240', 'r,w'),
                 ('{$mb_id}', '960245', 'r,w'),
             ";
@@ -225,7 +224,6 @@ if(!$leave_flag){
                 ('{$mb_id}', '960150', 'r,w'),
                 ('{$mb_id}', '960200', 'r,w'),
                 ('{$mb_id}', '960250', 'r,w'),
-                ('{$mb_id}', '960210', 'r,w'),
                 ('{$mb_id}', '960215', 'r,w'),
                 ('{$mb_id}', '960230', 'r,w'),
                 ('{$mb_id}', '960260', 'r,w'),
@@ -339,7 +337,20 @@ if(!$leave_flag){
                 sql_query($auth_ins_sql,1);
             }
         }
-    }   
+    }
+    
+    if($_POST['mb_id'] == 'idaekyun'){ // 임대균
+        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+            ('{$mb_id}', '960210', 'r,w'),
+            ('{$mb_id}', '960226', 'r,w') ";
+        sql_query($auth_ins_sql,1);
+    }
+    
+    if($_POST['mb_id'] == 'gurwo90'){ // 유혁재
+        $auth_ins_sql = " INSERT INTO {$g5['auth_table']} (`mb_id`, `au_menu`, `au_auth`) VALUES
+            ('{$mb_id}', '960226', 'r,w') ";
+        sql_query($auth_ins_sql,1);
+    }
 
     if($is_admin && $_POST['mb_6'] >= 2 && count($g5['set_mb_inoutprice_arr'])){
         $inout_arr = ($_POST['mb_8']) ? explode(',',$_POST['mb_8']) : array();

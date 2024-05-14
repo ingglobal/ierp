@@ -60,9 +60,9 @@ include_once('./_head.php');
         <div class="ttl_box">
             <h1><span>기</span><span>안</span><span>서</span></h1>
             <ul class="sign_box">
-                <li><h3>담당자</h3><p><?=$drf['mb_name']?></p></li>
-                <li><h3>부서장</h3><p><?=$drf['mb_name_approval']?></p></li>
-                <li><h3>대표이사</h3><p>이병구</p></li>
+                <li><h3>담당자</h3><p><?=(($drf['drf_who_check'] <= 3)?$drf['mb_name']:'')?></p></li>
+                <li><h3>부서장</h3><p><?=(($drf['drf_who_check'] > 1 && $drf['drf_who_check'] <= 3 && $drf['drf_status'] == 'ok')?$drf['mb_name_approval']:'')?></p></li>
+                <li><h3>대표이사</h3><p><?=(($drf['drf_who_check'] > 2 && $drf['drf_who_check'] <= 3 && $drf['drf_status'] == 'ok')?'이병구':'')?></p></li>
             </ul>
         </div>
         <div class="tbl_box">

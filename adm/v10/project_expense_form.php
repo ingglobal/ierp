@@ -12,7 +12,7 @@ $ppcs = array();//complete
 $prx = array();
 $exp_sql = " SELECT
 				(
-					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_done_date != '0000-00-00'
+					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'etc' AND prx_done_date != '0000-00-00'
 				) AS total
 				,(
 					SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = '{$prj_idx}' AND prx_type = 'machine' AND prx_done_date != '0000-00-00'
@@ -336,7 +336,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<td class="td_ord"><?=number_format($prs1['prp_price'])?>원</td>
 					</tr>
 					<tr>
-						<th class="th_dif">영업이익(<?=$dif_per?>%)<br>(수주금액 + 기타수입 기준%)</th>
+						<th class="th_dif">매출이익(<?=$dif_per?>%)<br>(수주금액 + 기타수입 기준%)</th>
 						<td class="td_dif">
 							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
 							<?=number_format($dif_price)?>원

@@ -12,7 +12,7 @@ for($j=0;$srow=sql_fetch_array($sres);$j++){
     $seller_opt .= '<option value="'.$srow['com_idx'].'" dc_rate="'.$g5['set_com_dc_rate_value'][$srow['com_level']].'">'.$srow['com_name'].'('.$g5['set_com_dc_rate_value'][$srow['com_level']].'%)</option>'.PHP_EOL;
 }
 
-$isql = " SELECT it_id,it_name,it_price FROM {$g5['g5_shop_item_table']} WHERE ca_id IN ('7m','8m') AND it_use = '1' ";
+$isql = " SELECT it_id,it_name,it_price FROM {$g5['g5_shop_item_table']} WHERE it_use = '1' ";
 $ires = sql_query($isql,1);
 for($j=0;$irow=sql_fetch_array($ires);$j++){
     $item_opt .= '<option value="'.$irow['it_id'].'" it_price="'.$irow['it_price'].'">'.$irow['it_name'].'</option>'.PHP_EOL;

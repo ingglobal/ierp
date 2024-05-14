@@ -77,7 +77,7 @@ else if($w == 'u'){
     // echo $tsql;exit;
     $tres = sql_fetch($tsql);
     $tfsql = "SELECT * FROM {$g5['file_table']}
-        WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id IN (".$tres['ppt_idxs'].") ORDER BY fle_db_id, fle_reg_dt DESC ";
+        WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id IN (".(($tres['ppt_idxs'])?$tres['ppt_idxs']:0).") ORDER BY fle_db_id, fle_reg_dt DESC ";
     // echo $tfsql;exit;
     $tfrs = sql_query($tfsql,1);
     $ppc['ppt_f_arr'] = array();

@@ -507,7 +507,8 @@ yAxis: {
                 align:'left',
                 formatter: function(){
                     if(this.point.name && this.point.com_name){
-                        return (this.point.name) ? '<a href="javascript:" class="pj_a" onclick="sch_project('+this.point.prj_idx+');"><span class="pj_c">'+this.point.com_name+'</span>'+this.point.name+'</a>' : "";
+                        // return (this.point.name) ? '<a href="javascript:" class="pj_a" onclick="sch_project('+this.point.prj_idx+');"><span class="pj_c">'+this.point.com_name+'</span>'+this.point.name+'</a>' : "";
+                        return (this.point.name) ? '<a href="./project_form.php?w=u&prj_idx='+this.point.prj_idx+'" target="_blank" class="pj_a"><span class="pj_c">'+this.point.com_name+'</span>'+this.point.name+'</a>' : "";
                     }else{
                         return (this.point.name) ? '<a href="javascript:" class-"pj_a1" onclick="sch_project('+this.point.prj_idx+');">'+this.point.name+'</a>' : "";
                     }  

@@ -111,7 +111,7 @@ input.readonly{background:#ededed;}
             <td>
                 <input type="text" name="ast_name" value="<?=$ast['ast_name']?>" class="frm_input" style="width:300px;">
             </td>
-            <th scope="row">시리얼번호</th>
+            <th scope="row">관리번호</th>
             <td>
                 <?php
                 $ast_no = ($w == '') ? get_uniqid() : $ast['ast_no'];

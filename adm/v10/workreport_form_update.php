@@ -146,8 +146,14 @@ foreach($_REQUEST as $key => $value ) {
 }
 if($w == '' || $w == 'u'){
     // $qstr .= '&wrp_idx='.$wrp_idx;
-    goto_url('./workreport_view.php?wrp_idx='.$wrp_idx.'&type='.$wrp_type.'&yy='.substr($wrp_date,0,4).'&mm='.$wrp_month, false);
+    if($list)
+        goto_url('./workreport_list.php?ser_wrp_type='.$ser_wrp_type.'&ser_mb_id='.$ser_mb_id.'&ser_from_date='.$ser_from_date.'&ser_to_date='.$ser_to_date, false);
+    else
+        goto_url('./workreport_view.php?wrp_idx='.$wrp_idx.'&type='.$wrp_type.'&yy='.substr($wrp_date,0,4).'&mm='.$wrp_month, false);
 }
 else if($w == 'd'){
-    goto_url('./workreport_calendar.php?type='.$type.'&yy='.$yy.'&mm='.$mm, false);
+    if($list)
+        goto_url('./workreport_list.php?ser_wrp_type='.$ser_wrp_type.'&ser_mb_id='.$ser_mb_id.'&ser_from_date='.$ser_from_date.'&ser_to_date='.$ser_to_date, false);
+    else
+        goto_url('./workreport_calendar.php?type='.$type.'&yy='.$yy.'&mm='.$mm, false);
 }

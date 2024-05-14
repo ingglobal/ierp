@@ -12,6 +12,21 @@ $pre = substr($fields[0],0,strpos($fields[0],'_'));
 $fname = preg_replace("/_form_update/","",$g5['file_name']); // _form_update를 제외한 파일명
 //$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
 
+
+if(!$com_idx){
+	alert('업체를 선택해 주세요.');
+}
+
+if(!$prj_type){
+	alert('프로젝트타입을 선택해 주세요.');
+}
+
+if(!$prj_name){
+	alert('프로젝트명을 입력해 주세요.');
+}
+
+
+
 // 변수 재설정
 for($i=0;$i<sizeof($fields);$i++) {
     // 공백 제거
@@ -19,7 +34,7 @@ for($i=0;$i<sizeof($fields);$i++) {
 }
 
 // 공통쿼리
-$skips = array($pre.'_idx',$pre.'_reg_dt',$pre.'_update_dt','mb_id_company','mb_id_saler'
+$skips = array($pre.'_idx',$pre.'_content2',$pre.'_status',$pre.'_reg_dt',$pre.'_update_dt','mb_id_company','mb_id_saler'
 				,'mb_id_account',$pre.'_doc_no',$pre.'_quot_yn',$pre.'_belongto',$pre.'_order_price'
 				,$pre.'_receivable',$pre.'_keys',$pre.'_quot_file',$pre.'_order_file',$pre.'_contract_file'
 				,$pre.'_ask_date',$pre.'_submit_date',$pre.'_contract_date');
@@ -31,10 +46,15 @@ $sql_common = (is_array($sql_commons)) ? implode(",",$sql_commons) : '';
 
 $quot_yn = ($_POST['prj_status'] == 'request' || $_POST['prj_status'] == 'inprocess' || $_POST['prj_status'] == 'ok') ? 1 : 0;
 
+$sql_content2 = ($super_admin || $member['mb_id'] == 'idaekyun') ? " , prj_content2 = '{$prj_content2}' " : "";
+$sql_status = ($super_admin || $member['mb_id'] == 'idaekyun') ? " , prj_status = '{$prj_status}' " : "";
+
 if ($w == '') {
     
     $sql = " INSERT into {$g5_table_name} SET 
                 {$sql_common} 
+				{$sql_content2}
+				{$sql_status}
                 , ".$pre."_reg_dt = '".G5_TIME_YMDHIS."'
                 , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
 				, ".$pre."_quot_yn = '".$quot_yn."'
@@ -51,6 +71,8 @@ else if ($w == 'u') {
  
     $sql = "	UPDATE {$g5_table_name} SET 
 					{$sql_common}
+					{$sql_content2}
+					{$sql_status}
 					, ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
 					, ".$pre."_quot_yn = '".$quot_yn."'
 				WHERE ".$pre."_idx = '".${$pre."_idx"}."' 

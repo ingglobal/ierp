@@ -198,9 +198,10 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 	<?php } ?>
 	<tr>
 		<th scope="row">최종고객</th>
-		<td>
+		<td<?=(($super_admin || $member['mb_id'] == 'idaekyun')?'':' colspan="3"')?>>
 			<input type="text" name="prj_end_company" value="<?=$row['prj_end_company']?>" class="frm_input" style="width:250px;">
 		</td>
+		<?php if($super_admin || $member['mb_id'] == 'idaekyun'){ ?>
 		<th scope="row"><label for="com_status">상태</label></th>
 		<td>
 			<select name="<?=$pre?>_status" id="<?=$pre?>_status">
@@ -208,19 +209,24 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 			</select>
 			<script>$('select[name="prj_status"]').val("<?=$row['prj_status']?>");</script>
 		</td>
+		<?php } ?>
 	</tr>
 	<tr>
 		<th scope="row">프로젝트 지시사항</th>
-		<td>
+		<td colspan="3">
 			<?php //echo editor_html('prj_content', get_text(html_purifier($row['prj_content']), 0)); ?>
 			<textarea name="prj_content"><?=$row['prj_content']?></textarea>
 		</td>
+	</tr>
+	<?php if($super_admin || $member['mb_id'] == 'idaekyun'){ ?>
+	<tr>
 		<th scope="row">수입지출 지시사항</th>
-		<td>
+		<td colspan="3">
 			<?php //echo editor_html('prj_content2', get_text(html_purifier($row['prj_content2']), 0)); ?>
 			<textarea name="prj_content2"><?=$row['prj_content2']?></textarea>
 		</td>
 	</tr>
+	<?php } ?>
 	<tr>
 		<th scope="row"><label for="prj_ref_file">기초자료파일</label></th>
 		<td colspan="3">

@@ -316,7 +316,8 @@ if(!$member['mb_manager_yn']&&!$member['mb_account_yn']) {
 }
 
 $super_admin = ($member['mb_6'] == '1' || $member['mb_id'] == 'super') ? true : false;
-$super_ceo_admin = ($member['mb_level'] >= 8) ? true : false;  
+$super_ceo_admin = ($member['mb_level'] >= 8) ? true : false;
+$super_mng_admin = ($super_admin || $member['mb_id'] == 'idaekyun') ? true : false;
 
 // 기본 업체 할당
 // 디폴트 업체 (운영권한이 있으면 디폴트 com_idx=1, 일반업체담당자는 자기 업체 com_idx)

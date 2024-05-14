@@ -185,7 +185,20 @@ $('#ser_drf_status').val('<?=$ser_drf_status?>');
         <td class="td_mb_name_approval<?=(($member['mb_id'] == $row['mb_id_approval'])?' txt_blueblink':'')?>"><?=$row['mb_name_approval']?></td><!--승인자-->
         <td class="td_drf_date"><?=$row['drf_date']?></td><!--기안날짜-->
         <td class="td_drf_reg_dt"><?=substr($row['drf_reg_dt'],2,8)?></td><!--기안등록일-->
-        <td class="td_drf_status status_<?=$row['drf_status']?>"><?=$g5['set_drf_status_value'][$row['drf_status']]?></td>
+        <td class="td_drf_status status_<?=$row['drf_status']?>">
+            <?php
+            if($row['drf_who_check'] == 1){
+                echo '<span style="color:#000;">담당자</span> ';
+            }
+            else if($row['drf_who_check'] == 2){
+                echo '<span style="color:#000;">부서장</span> ';
+            }
+            else if($row['drf_who_check'] == 3){
+                echo '<span style="color:#000;">대표님</span> ';
+            }
+            ?>
+            <?=$g5['set_drf_status_value'][$row['drf_status']]?>
+        </td>
         <td class="td_mng"><?=$s_mod?></td><!--관리-->
     </tr>
     <?php

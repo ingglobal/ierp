@@ -116,8 +116,9 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 .td_prj_idx{}
 .td_mb_name{}
 .td_ppc_subject{}
-.td_ppc_price{width:120px;text-align:right !important;}
+.td_ppc_price{width:120px;text-align:right !important;position:relative;}
 .td_ppc_price::after{content:' 원'}
+.td_ppc_price .sp_msg{position:absolute;top:0px;left:0px;font-size:0.8em;}
 .td_ppc_price .sp_red{color:red;}
 .td_ppc_price .sp_blue{color:blue;}
 .td_ppc_date{width:90px;}
@@ -138,7 +139,7 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 	<option value="com_name"<?php echo get_selected($_GET['sfl'], "com_name"); ?>>공급업체명</option>
 	<option value="ppc_idx"<?php echo get_selected($_GET['sfl'], "ppc_idx"); ?>>그룹발주번호</option>
 	<option value="ppt_subject"<?php echo get_selected($_GET['sfl'], "ppt_subject"); ?>>그룹발주제목</option>
-	<option value="prj_idx"<?php echo get_selected($_GET['sfl'], "prj_idx"); ?>>프로젝트번호</option>
+	<option value="ppc.prj_idx"<?php echo get_selected($_GET['sfl'], "ppc.prj_idx"); ?>>프로젝트번호</option>
 	<option value="prj_name"<?php echo get_selected($_GET['sfl'], "prj_name"); ?>>프로젝트명</option>
 	<option value="ppc_idx"<?php echo get_selected($_GET['sfl'], "ppc_idx"); ?>>그룹발주번호</option>
 	<option value="mb_name"<?php echo get_selected($_GET['sfl'], "mb_name"); ?>>발주자명</option>
@@ -200,7 +201,7 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
         
         //관련파일 추출2
         $fsql2 = " SELECT COUNT(*) AS cnt FROM {$g5['file_table']}
-                WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id IN (".$row['ppt_idxs'].") ORDER BY fle_reg_dt DESC ";
+                WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id IN (".(($row['ppt_idxs'])?$row['ppt_idxs']:0).") ORDER BY fle_reg_dt DESC ";
         // echo $fsql2;
 	    $fres2 = sql_fetch($fsql2,1);
         $bg = 'bg'.($i%2);
@@ -225,8 +226,10 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
             $price_class = '';
             if($row['ppc_price'] - $row['ppd_sum_price'] < 0){
                 $price_class = 'sp_red';
+                echo '<span class="sp_red sp_msg">금액초과</span>';
             } else if($row['ppc_price'] - $row['ppd_sum_price'] > 0){
                 $price_class = 'sp_blue';
+                echo '<span class="sp_blue sp_msg">금액미만</span>';
             }
             ?>
             <span class="<?=$price_class?>"><?=number_format($row['ppc_price'])?></span>

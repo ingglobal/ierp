@@ -24,7 +24,7 @@ for($i=0;$i<sizeof($drf_fields);$i++) {
         $_POST[$drf_fields[$i]] = preg_replace("/,/","",$_POST[$drf_fields[$i]]);
 }
 
-$drf_skips = array('drf_idx','drf_reg_dt','drf_update_dt');
+$drf_skips = array('drf_idx','drf_who_check','drf_reg_dt','drf_update_dt');
 for($i=0;$i<sizeof($drf_fields);$i++) {
     if(in_array($drf_fields[$i],$drf_skips)) {continue;}
     $drf_commons[] = " ".$drf_fields[$i]." = '".$_POST[$drf_fields[$i]]."' ";
@@ -40,6 +40,7 @@ $drf_common = (is_array($drf_commons)) ? implode(",",$drf_commons) : '';
 if($w == '') {
     $sql = " INSERT into {$drf_tbl} SET 
                 {$drf_common} 
+                , drf_who_check = '1'
                 , drf_reg_dt = '".G5_TIME_YMDHIS."'
                 , drf_update_dt = '".G5_TIME_YMDHIS."'
 	";
@@ -48,8 +49,16 @@ if($w == '') {
 	$drf_idx = sql_insert_id();
 }
 else if($w == 'u') {
+    $who_check = 1;
+    if($mb_id_approval == $member['mb_id']){
+        $who_check = 2;
+    }
+    if($super_ceo_admin){
+        $who_check = 3;
+    }
     $sql = " UPDATE {$drf_tbl} SET 
                 {$drf_common} 
+                , drf_who_check = '{$who_check}'
                 , drf_update_dt = '".G5_TIME_YMDHIS."'
             WHERE drf_idx = '{$drf_idx}'
 	";

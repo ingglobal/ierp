@@ -379,7 +379,7 @@ include_once('./item_order_in_reg.php');
         <th scope="col" id="th_com_mb_name">판매처담당자</th>
         <th scope="col" id="th_com_mb_hp">담당자연락처</th>
         <th scope="col" id="th_od_end_com">최종고객</th>
-        <th scope="col" id="th_sum_price">주문합계</th>
+        <th scope="col" id="th_sum_price" style="display:none;">주문합계</th>
         <th scope="col" id="th_od_time">판매일자</th>
         <th scope="col" id="th_ca_name">분류</th>
         <th scope="col" id="th_item_name">상품명</th>
@@ -436,7 +436,7 @@ include_once('./item_order_in_reg.php');
         <td headers="th_od_end_com"<?=$rowspan?>>
             <input type="text" name="od_end_com[<?=$i?>]" value="<?=$row['od_end_com']?>" class="frm_input" style="width:100px;padding:0 5px;">
         </td>
-        <td class="td_num td_numsum"<?=$rowspan?>>
+        <td class="td_num td_numsum"<?=$rowspan?> style="display:none;">
             <?php $od_cart_price = number_format($row['od_cart_price']); ?>
             <input type="text" name="od_cart_price[<?=$i?>]" ono="<?=$i?>" value="<?=$od_cart_price?>" readonly class="frm_input od_cart_price_<?=$i?> od_cart_price_<?=$od_id?>" style="width:110px;text-align:right;padding-right:5px;background:#ededed;">
         </td><!-- 주문합계 -->

@@ -145,6 +145,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="wrp_idx" value="<?php echo $wrp["wrp_idx"] ?>">
 <input type="hidden" name="wrp_code" value="<?php echo $wrp["wrp_code"] ?>">
 <input type="hidden" name="wrp_status" value="<?php echo $wrp["wrp_status"] ?>">
+<input type="hidden" name="list" value="<?=$list?>">
 <?=$form_input?>
 <div class="local_desc01 local_desc" style="display:none;">
     <p><?=$g5['set_wrp_type_value'][$type]?>서의 내용을 작성 및 수정하는 페이지입니다.</p>
@@ -284,7 +285,11 @@ $(function(){
 });
 </script>
 <div class="btn_fixed_top">
+    <?php if($list){ ?>
+    <a href="./workreport_list.php?ser_wrp_type=<?=$ser_wrp_type?>&amp;ser_mb_id=<?=$ser_mb_id?>&amp;ser_from_date=<?=$ser_from_date?>&amp;ser_to_date=<?=$ser_to_date?>" class="btn btn_02">목록</a>
+    <?php } else { ?>
     <a href="./workreport_calendar.php?type=<?=$type?>&amp;yy=<?=$yy?>&amp;mm=<?=$mm?>" class="btn btn_02">달력</a>
+    <?php } ?>
     <input type="submit" name="act_button" value="삭제" onclick="document.pressed=this.value" class="btn_01 btn">
     <input type="submit" name="act_button" value="확인" onclick="document.pressed=this.value" class="btn_submit btn" accesskey='s'>
 </div>

@@ -9,6 +9,9 @@ $sql_common = " from {$g5['member_table']} ";
 $where = array();
 //$where[] = " mb_level >= 6 AND mb_2 > 0 ";   // 디폴트 검색조건
 $where[] = " mb_level >= 6 AND mb_level <= 8 ";   // 디폴트 검색조건
+$where[] = " mb_6 != '' ";
+// $where[] = " mb_intercept_date <> '' ";
+// $where[] = " mb_leave_date <> '' ";
 
 
 // 관리자는 전부, 다른 사람들은 자기 이하만 노출
@@ -64,18 +67,19 @@ if ($where)
 
 
 if (!$sst) {
-    $sst = "mb_datetime";
-    $sod = "desc";
+    $sst = "mb_name";
+    $sod = "";
 }
 
 $sql_order = " order by {$sst} {$sod} ";
 
 $sql = " select count(*) as cnt {$sql_common} {$sql_search} ";
+// echo $sql;exit;
 $row = sql_fetch($sql,1);
 $total_count = $row['cnt'];
 //echo print_r3($sql);
 
-$rows = $config['cf_page_rows'];
+$rows = 30;//$config['cf_page_rows'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
@@ -95,7 +99,7 @@ include_once('./_head.php');
 
 $sql = " select * {$sql_common} {$sql_search} {$sql_order} limit {$from_record}, {$rows} ";
 $result = sql_query($sql);
-//echo $sql.'<br>';
+// echo $sql.'<br>';
 
 $colspan = 16;
 
@@ -162,6 +166,9 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
         <th scope="col"><?php echo subject_sort_link('mb_2') ?>소속</a></th>
         <th scope="col"><?php echo subject_sort_link('mb_1', '', 'desc') ?>직책</a></th>
         <th scope="col">운영권한</th>
+        <?php if($super_admin){?>
+        <th scope="col">정보등급</th>
+        <?php } ?>
         <th scope="col" style="width:90px;">푸시키</th>
         <th scope="col">접속일</th>
         <th scope="col">관리</th>
@@ -263,6 +270,9 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs;
         <td class="td_manager"><!-- 운영권한 -->
             <i class="fa fa-check" style="display:<?=(!$row['mb_manager_yn'])?'none':''?>;"></i>
         </td>
+        <?php if($super_admin){?>
+        <td class="td_info_level"><?=$row['mb_6']?></td>
+        <?php } ?>
         <td class="td_manager"><!-- 푸시키 -->
             <?php
             if($row['mb_5']) {

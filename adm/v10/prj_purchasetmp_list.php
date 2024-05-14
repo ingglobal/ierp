@@ -149,6 +149,7 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 	<option value="com_name"<?php echo get_selected($_GET['sfl'], "com_name"); ?>>공급업체명</option>
 	<option value="ppt_idx"<?php echo get_selected($_GET['sfl'], "ppt_idx"); ?>>개별발주번호</option>
 	<option value="ppt_subject"<?php echo get_selected($_GET['sfl'], "ppt_subject"); ?>>개별발주제목</option>
+	<option value="ppt.prj_idx"<?php echo get_selected($_GET['sfl'], "ppt.prj_idx"); ?>>프로젝트번호</option>
 	<option value="prj_name"<?php echo get_selected($_GET['sfl'], "prj_name"); ?>>프로젝트명</option>
 	<option value="ppc_idx"<?php echo get_selected($_GET['sfl'], "ppc_idx"); ?>>그룹발주번호</option>
 	<option value="mb_name"<?php echo get_selected($_GET['sfl'], "mb_name"); ?>>발주자명</option>

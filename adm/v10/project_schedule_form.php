@@ -57,6 +57,16 @@ else if ($w == 'u') {
 		@array_push($row['prj_f_'.$row2['fle_type']],array('file'=>$file_down_del));
 		@array_push($row['prj_'.$row2['fle_type'].'_fidxs'],$row2['fle_idx']);
 	}
+
+	$exsc_sql = " SELECT prs_task, prs_content, mb_id_worker, mb_name, prs_start_date, prs_end_date FROM {$g5['project_schedule_table']} prs
+					LEFT JOIN {$g5['member_table']} mb ON prs.mb_id_worker = mb.mb_id
+					WHERE prj_idx = '{$prs['prj_idx']}' 
+						AND prs_idx != '{$prs['prs_idx']}' 
+						AND prs_status != 'trash'
+					ORDER BY prs_start_date
+	";
+	// echo $exsc_sql;exit;
+	$exscres = sql_query($exsc_sql,1);
 }
 else
     alert('제대로 된 값이 넘어오지 않았습니다.');
@@ -190,8 +200,18 @@ if(G5_IS_MOBILE){
 	</tr>
 	<tr>
 		<th scope="row">종료일</th>
-		<td colspan="3">
+		<td>
             <input type="text" name="prs_end_date" value="<?=$prs['prs_end_date']?>" required<?=$data_readonly?> class="frm_input required" style="width:90px;<?=$data_bg_change?>">
+		</td>
+		<th scope="row">PM담당자</th>
+		<td>
+			<?php
+			$pmres = sql_fetch(" SELECT mb_id_worker, mb_name FROM {$g5['project_schedule_table']} prs
+							LEFT JOIN {$g5['member_table']} mb ON prs.mb_id_worker = mb.mb_id
+						WHERE prs_role = 'pm' AND prs_status != 'trash' LIMIT 1
+			");
+			echo $pmres['mb_name'];
+			?>
 		</td>
 	</tr>	
 	<tr>
@@ -205,7 +225,7 @@ if(G5_IS_MOBILE){
 		<th scope="row">프로젝트<br>지시사항</th>
 		<td colspan="3" <?=(($super_ceo_admin)?'':'style="white-space:pre-line;"')?>>
 			<?php if($super_ceo_admin){ ?>
-				<textarea name="prj_content" style="height:400px;"><?php echo $prs['prj_content'] ?></textarea>
+				<textarea name="prj_content" style="height:150px;"><?php echo $prs['prj_content'] ?></textarea>
 			<?php } else { ?>
 				<?php echo $prs['prj_content'] ?>
 			<?php } ?>
@@ -228,7 +248,7 @@ if(G5_IS_MOBILE){
 	<?php } ?>
 	<tr>
 		<th scope="row">담당<br>업무기록</th>
-		<td colspan="3"><textarea name="prs_content"<?=$data_readonly?> id="prs_content" style="<?=$data_bg_change?>"><?php echo $prs['prs_content'] ?></textarea></td>
+		<td colspan="3"><textarea name="prs_content"<?=$data_readonly?> id="prs_content" style="<?=$data_bg_change?>height:300px;"><?php echo $prs['prs_content'] ?></textarea></td>
 	</tr>
 	<tr>
 		<th scope="row"><label for="com_status">상태</label></th>
@@ -264,6 +284,30 @@ $gant_val = ($gant) ? '&amp;gant=1' : '';
     <input type="submit" value="<?=(($copy) ? '복제':'확인')?>" class="btn_submit btn" accesskey='s'>
 </div>
 </form>
+<?php if($exscres->num_rows){ ?>
+<div id="ex_con" class="tbl_frm01 tbl_wrap">
+<h2>타담당자 업무기록</h2>
+<table>
+	<caption><?php echo $g5['title']; ?></caption>
+	<colgroup>
+		<col class="grid_4" style="width:20%;">
+		<col style="width:80%;">
+	</colgroup>
+	<tbody>
+		<?php for($i=0;$row=sql_fetch_array($exscres);$i++){ ?>
+		<tr>
+			<th>
+			<p class="p_ttl" style="color:darkred;"><?=cut_str($row['prs_task'],30,'...')?></p>
+			<p class="p_mb" style="color:darkblue;"><?=$row['mb_name']?></p>
+			<p class="p_scd"><?=$row['prs_start_date']?> ~ <?=$row['prs_end_date']?></p>
+			</th>
+			<td style="vertical-align:top;text-align:left;"><?=nl2br($row['prs_content'])?></td>
+		</tr>
+		<?php } ?>
+	</tbody>
+</table>
+</div>
+<?php } ?>
 
 <script>
 $(function() {

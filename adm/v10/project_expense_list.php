@@ -13,7 +13,7 @@ $fname = preg_replace("/_list/","",$g5['file_name']); // _list을 제외한 파�
 //$qstr .= '&mms_idx='.$mms_idx; // 추가로 확장해서 넘겨야 할 변수들
 
 
-$g5['title'] = '지출관리';
+$g5['title'] = '실행가관리';
 include_once('./_top_menu_exprice.php');
 include_once('./_head.php');
 echo $g5['container_sub_title'];
@@ -67,7 +67,7 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
             , com.com_idx AS com_idx
             , (SELECT prp_price FROM {$g5['project_price_table']} WHERE prj_idx = prj.prj_idx AND prp_type = 'order' AND prp_status = 'ok' ) AS prp_order_price
-            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_done_date != '0000-00-00' ) AS prx_sum_exprice
+            , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'etc' AND prx_done_date != '0000-00-00' ) AS prx_sum_exprice
             , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'machine' AND prx_done_date != '0000-00-00' ) AS prx_mcn_exprice
             , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'electricity' AND prx_done_date != '0000-00-00' ) AS prx_elt_exprice
             , (SELECT SUM(prx_price) FROM {$g5['project_exprice_table']} WHERE prj_idx = prj.prj_idx AND prx_status = 'ok' AND prx_type = 'etc' AND prx_done_date != '0000-00-00' ) AS prx_etc_exprice
@@ -230,12 +230,12 @@ else $colspan = 5;
         <th scope="col">공사프로젝트</th>
         <?php if($super_admin){ ?>
         <th scope="col">수주금액</th>
+        <th scope="col">매출이익<br>(총수입-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
         <th scope="col">수금액<br>(수주금액기준%)</th>
         <th scope="col">미수금<br>(수주금액기준%)</th>
-        <th scope="col">지출상태<br>(수금합계-지출합계)</th>
+        <th scope="col" style="display:none;">지출상태<br>(수금합계-지출합계)</th>
         <?php } ?>
-        <th scope="col">총지출액<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
-        <?php if($super_admin){ ?><th scope="col">영업이익<br>(총수입-총지출액)<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th><?php } ?>
+        <th scope="col" style="display:none;">총지출액<?php if($super_admin){ ?><br>(총수입금기준%)<?php } ?></th>
         <th scope="col" style="width:40px;">관리</th>
 	</tr>
 	</thead>
@@ -263,7 +263,8 @@ else $colspan = 5;
         ";
         //echo $ssql;
         $sugeum = sql_fetch($ssql);
-        $row['prx_sum_exprice'] = $row['prx_sum_exprice'] + $row['pur_complete_price']; // 총지출정보 수정(240415)
+        // $row['prx_sum_exprice'] = $row['pur_total_price']; // 총지출정보 수정(240415)
+        $row['prx_sum_exprice'] = $row['prx_sum_exprice'] + $row['pur_total_price']; // 총지출정보 수정(240415)
         $row['tot_income'] = $row['prp_order_price'] + $row['prn_tot_inprice'];
         $row['prj_mi_price'] = $row['prp_order_price'] - $sugeum['sum_price'];
         $row['prj_su_price'] = $sugeum['sum_price'];
@@ -288,7 +289,12 @@ else $colspan = 5;
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['com_name']?></td><!-- 의뢰기업 -->
             <td rowspan="<?=$p_cnt?>" class="td_left"><?=$row['prj_name']?></td><!-- 공사프로젝트 -->
             <?php if($super_admin){ ?>
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;"><?=number_format($row['prp_order_price'])?></td><!--수주금액-->
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;font-weight:700;"><?=number_format($row['prp_order_price'])?></td><!--수주금액-->
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
+                <span class="prc" style="font-weight:700;"><?=number_format($row['prp_dif_exprice'])?></span>
+                <div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
+                <span class="per">(<?=$dif_per?>%)</span>
+            </td>
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prj_su_price'])?></span>
                 <div class="grp_box"><div class="grp_in grp_in_su" style="width:<?=$sug_per?>%"></div></div>
@@ -299,22 +305,15 @@ else $colspan = 5;
                 <div class="grp_box"><div class="grp_in grp_in_mi" style="width:<?=$mis_per?>%"></div></div>
                 <span class="per">(<?=$mis_per?>%)</span>
             </td><!--미수금-->
-            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;color:<?=(($row['prj_stat_price']<0)?'red':'')?>;">
+            <td rowspan="<?=$p_cnt?>" style="text-align:right;width:110px;color:<?=(($row['prj_stat_price']<0)?'red':'')?>;display:none;">
                 <?=number_format($row['prj_stat_price'])?>
             </td><!--지출상태-->
             <?php } ?>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
+            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;display:none;">
                 <span class="prc"><?=number_format($row['prx_sum_exprice'])?></span>
                 <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
                 <?php if($super_admin){ ?><span class="per">(<?=$exp_per?>%)</span><?php } ?>
             </td>
-            <?php if($super_admin){ ?>
-            <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:100px;">
-                <span class="prc"><?=number_format($row['prp_dif_exprice'])?></span>
-                <?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div><?php } ?>
-                <?php if($super_admin){ ?><span class="per">(<?=$dif_per?>%)</span><?php } ?>
-            </td>
-            <?php } ?>
             <td class="td_mngsmall">
                 <?=$s_mod?>
             </td>

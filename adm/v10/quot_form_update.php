@@ -27,7 +27,7 @@ $_POST['prj_quot_yn'] = ($_POST['prj_status'] == 'request' || $_POST['prj_status
 //$_POST['prj_type'] = 'normal';
 
 // 공통쿼리
-$skips = array($pre.'_idx',$pre.'_reg_dt',$pre.'_update_dt');
+$skips = array($pre.'_idx',$pre.'_type',$pre.'_reg_dt',$pre.'_update_dt');
 for($i=0;$i<sizeof($fields);$i++) {
     if(in_array($fields[$i],$skips)) {continue;}
     $sql_commons[] = " ".$fields[$i]." = '".$_POST[$fields[$i]]."' ";
@@ -55,7 +55,8 @@ $prj_price_order = str_replace(',','',trim($prj_price_order));
 if ($w == '') {
     
     $sql = " INSERT into {$g5_table_name} SET 
-                {$sql_common} 
+                {$sql_common}
+				, prj_type = 'etc'
                 , ".$pre."_reg_dt = '".G5_TIME_YMDHIS."'
                 , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
 	";

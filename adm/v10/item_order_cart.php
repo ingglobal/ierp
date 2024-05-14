@@ -76,8 +76,7 @@ $cart_com_dc_rate = 0;
 					LEFT JOIN {$g5['company_table']} d ON ( d.com_idx = b.com_idx )
 					LEFT JOIN {$g5['g5_shop_category_table']} c ON ( c.ca_id = b.ca_id )
 					LEFT JOIN {$g5['companyreseller_table']} e ON a.com_idx = e.com_idx
-				WHERE a.od_id = '$s_cart_id' 
-					AND c.ca_id IN ('7m','8m')  ";
+				WHERE a.od_id = '$s_cart_id'  ";
 		$sql .= " GROUP BY a.it_id ";
 		$sql .= " ORDER BY a.ct_id ";
         // echo $sql.'<br>';

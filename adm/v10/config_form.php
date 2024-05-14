@@ -552,6 +552,13 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
             </td>
         </tr>
 		<tr>
+            <th scope="row">기안서 확인단계</th>
+            <td colspan="3">
+                <?php echo help('1=신청자작성,2=부서장작성,3=대표님작성'); ?>
+                <input type="text" name="set_drf_who_check" value="<?php echo $g5['setting']['set_drf_who_check']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
             <th scope="row">기안서상태</th>
             <td colspan="3">
                 <?php echo help('pending=요청,repending=재요청,checking=검토중,ok=승인,reject=반려'); ?>

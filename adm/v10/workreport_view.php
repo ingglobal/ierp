@@ -120,8 +120,13 @@ include_once('./_head.php');
 </article>
 <div class="btn_fixed_top">
     <a href="javascript:" class="btn btn_03 pdf_btn">PDF다운로드</a>
+    <?php if($list){ ?>
+        <a href="./workreport_list.php?ser_wrp_type=<?=$ser_wrp_type?>&amp;ser_mb_id=<?=$ser_mb_id?>&amp;ser_from_date=<?=$ser_from_date?>&amp;ser_to_date=<?=$ser_to_date?>" class="btn btn_04">목록</a>
+        <a href="./workreport_form.php?wrp_idx=<?=$wrp_idx?>&amp;w=u&amp;type=<?=$type?>&amp;yy=<?=$yy?>&amp;mm=<?=$mm?>&amp;ser_wrp_type=<?=$ser_wrp_type?>&amp;ser_mb_id=<?=$ser_mb_id?>&amp;ser_from_date=<?=$ser_from_date?>&amp;ser_to_date=<?=$ser_to_date?>&amp;list=<?=$list?>" class="btn btn_02">수정</a>
+    <?php } else { ?>
     <a href="./workreport_calendar.php?type=<?=$type?>&amp;yy=<?=$yy?>&amp;mm=<?=$mm?>" class="btn btn_04">달력</a>
     <a href="./workreport_form.php?wrp_idx=<?=$wrp_idx?>&amp;w=u&amp;type=<?=$type?>&amp;yy=<?=$yy?>&amp;mm=<?=$mm?>" class="btn btn_02">수정</a>
+    <?php } ?>
 </div>
 
 <script>

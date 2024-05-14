@@ -1,5 +1,5 @@
 <?php
-$isql = " SELECT it_id,it_name,it_price FROM {$g5['g5_shop_item_table']} WHERE ca_id IN ('7m','8m') AND it_use = '1' ";
+$isql = " SELECT it_id,it_name,it_price FROM {$g5['g5_shop_item_table']} WHERE it_use = '1' ";
 $ires = sql_query($isql,1);
 for($j=0;$irow=sql_fetch_array($ires);$j++){
     $item_opt .= '<option value="'.$irow['it_id'].'" it_price="'.$irow['it_price'].'">'.$irow['it_name'].'</option>'.PHP_EOL;

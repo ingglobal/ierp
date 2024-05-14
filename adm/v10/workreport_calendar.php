@@ -82,8 +82,9 @@ $last_week = date('w', strtotime($yy."-".$mm."-".$last_day));
 
 
 $g5['title'] = '업무보고달력';
-//include_once('./_top_menu_company.php');
+include_once('./_top_menu_workreport.php');
 include_once('./_head.php');
+if($super_mng_admin) echo $g5['container_sub_title'];
 $cmonth = $yy.'-'.sprintf("%02d",$mm).'-01';
 $cyy = substr(G5_TIME_YMD,0,4);
 $cmm = (int)substr(G5_TIME_YMD,5,2);

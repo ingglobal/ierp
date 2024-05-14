@@ -143,7 +143,7 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
 </script>
 <label for="sfl" class="sound_only">검색대상</label>
 <select name="sfl" id="sfl">
-	<option value="ast_no"<?php echo get_selected($_GET['sfl'], "ast_no"); ?>>시리얼번호</option>
+	<option value="ast_no"<?php echo get_selected($_GET['sfl'], "ast_no"); ?>>관리번호</option>
     <option value="mb_id_buy"<?php echo get_selected($_GET['sfl'], "mb_id_buy"); ?>>구매자ID</option>
     <option value="mb_name"<?php echo get_selected($_GET['sfl'], "mb_name"); ?>>구매자명</option>
     <option value="ast_memo"<?php echo get_selected($_GET['sfl'], "ast_memo"); ?>>메모</option>
@@ -179,7 +179,7 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
 		</th>
 		<th scope="col">번호</th>
 		<th scope="col">품명</th>
-		<th scope="col">시리얼번호</th>
+		<th scope="col">관리번호</th>
 		<th scope="col">관리부서</th>
 		<th scope="col">구매자</th>
 		<th scope="col">구매일</th>
@@ -250,7 +250,7 @@ $('#ser_mb_id_mng').val('<?=$ser_mb_id_mng?>');
             </script>
             <?php } else { echo '-'; echo '<input type="hidden" name="asm_return_date['.$i.']" value="">'; } ?>
         </td>
-        <td class="td_ast_status" style="width:80px;">
+        <td class="td_ast_status" style="width:90px;">
             <select name="ast_status[<?=$i?>]" class="frm_input ast_status_<?=$i?>">
                 <?=$g5['set_ast_status_value_options']?>
             </select>

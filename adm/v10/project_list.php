@@ -237,6 +237,8 @@ $items = array(
 		
         // 관리 버튼
         $s_mod = ($row['prj_status'] == 'ok' && !$member['mb_manager_yn']) ? '':'<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;'.$pre.'_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'">수정</a>';
+
+        $s_prj_name = ($row['prj_status'] == 'ok' && !$member['mb_manager_yn']) ? $row['prj_name']:'<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;'.$pre.'_idx='.$row['prj_idx'].'&amp;ser_prj_type='.$ser_prj_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'">'.$row['prj_name'].'</a>';
         
         $bg = 'bg'.($i%2);
 		
@@ -264,7 +266,7 @@ $items = array(
                     $list[$k1] = substr($row[$k1],0,10);
                 }
                 else if($k1=='prj_name') {
-                    $list[$k1] = $row[$k1];
+                    $list[$k1] = $s_prj_name; //$row[$k1];
                     $list[$k1] .= ($row['prj_name_req']) ? '<span class="pm_req txt_redblink">수정요청</span>' : '';
                 }
                 else if($k1=='prj_contract_date'){
