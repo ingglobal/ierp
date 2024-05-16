@@ -198,10 +198,10 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 	<?php } ?>
 	<tr>
 		<th scope="row">최종고객</th>
-		<td<?=(($super_admin || $member['mb_id'] == 'idaekyun')?'':' colspan="3"')?>>
+		<td<?=(($super_admin || in_array($member['mb_id'],$super_mng_arr))?'':' colspan="3"')?>>
 			<input type="text" name="prj_end_company" value="<?=$row['prj_end_company']?>" class="frm_input" style="width:250px;">
 		</td>
-		<?php if($super_admin || $member['mb_id'] == 'idaekyun'){ ?>
+		<?php if($super_admin || in_array($member['mb_id'],$super_mng_arr)){ ?>
 		<th scope="row"><label for="com_status">상태</label></th>
 		<td>
 			<select name="<?=$pre?>_status" id="<?=$pre?>_status">
@@ -218,7 +218,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 			<textarea name="prj_content"><?=$row['prj_content']?></textarea>
 		</td>
 	</tr>
-	<?php if($super_admin || $member['mb_id'] == 'idaekyun'){ ?>
+	<?php if($super_admin || in_array($member['mb_id'],$super_mng_arr)){ ?>
 	<tr>
 		<th scope="row">수입지출 지시사항</th>
 		<td colspan="3">

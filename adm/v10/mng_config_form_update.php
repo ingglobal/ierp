@@ -17,16 +17,18 @@ $db_fields[] = "var_name";
 foreach($_REQUEST as $key => $value ) {
 	//-- 해당 테이블에 있는 필드 제외하고 테이블 prefix 로 시작하는 변수들만 업데이트, array 타입 변수들도 저장 안 함 --//
 	if(!in_array($key,$db_fields) && substr($key,0,3)==$db_prefix && gettype($value) != 'array') {
-		//echo $key."=".$_REQUEST[$key]."<br>";
-		setting_update(array(
+		// echo $key."=".$_REQUEST[$key]."<br>";
+		$set_arr = array(
 			"set_key"=>"",	// key 값을 별도로 주면 환경설정값 그룹으로 분리됩니다.
 			"set_name"=>$key,
 			"set_value"=>$value,
 			"set_auto_yn"=>1
-		));
+		);
+		// print_r2($set_arr);
+		setting_update($set_arr);
 	}
 }
-
+// exit;
 
 //exit;
 goto_url('./mng_config_form.php?'.$qstr, false);

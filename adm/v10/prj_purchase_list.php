@@ -152,7 +152,9 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 //날짜입력
 $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99",closeText:'취소', onClose: function(){if($(window.event.srcElement).hasClass('ui-datepicker-close')){ $(this).val('');}} });
 </script>
-
+<style>
+.td_status_complete{background:#bbb;width:130px;}
+</style>
 <div class="local_desc01 local_desc" style="display:none;">
     <p>발주관리 페이지입니다.</p>
 </div>
@@ -247,7 +249,7 @@ $("#ser_ppc_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
             -
             <?php } ?>
         </td>
-        <td class="td_ppc_status">
+        <td class="td_ppc_status<?=(($row['ppc_status'] == 'complete')?' td_status_complete':'')?>">
             <select name="ppc_status[<?=$i?>]" class="ppc_status_<?=$i?>">
                 <?=$g5['set_ppc_status_options']?>
             </select>

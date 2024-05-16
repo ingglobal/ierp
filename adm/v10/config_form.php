@@ -15,6 +15,8 @@ echo $g5['container_sub_title'];
 
 $pg_anchor = '<ul class="anchor">
     <li><a href="#anc_cf_default">기본설정</a></li>
+    <li><a href="#anc_cf_mng">관리자 설정</a></li>
+    <li><a href="#anc_cf_item">판매상품관리 설정</a></li>
     <li><a href="#anc_cf_message">메시지설정</a></li>
     <li><a href="#anc_cf_secure">관리설정</a></li>
 </ul>';
@@ -25,8 +27,21 @@ if (!$config['cf_icode_server_port']) $config['cf_icode_server_port'] = '7295';
 if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
     $userinfo = get_icode_userinfo($config['cf_icode_id'], $config['cf_icode_pw']);
 }
-?>
 
+$mb_sql = " SELECT mb_id,mb_name FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 9 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일','최호기','허준영','손지식','이병구') ORDER BY mb_name ";
+// echo $mb_sql;
+$mb_result = sql_query($mb_sql,1);
+$mb_arr = array();
+for($i=0;$mrow=sql_fetch_array($mb_result);$i++){
+    $mb_arr[$mrow['mb_id']] = $mrow['mb_name'];
+}
+?>
+<style>
+.ul_mb{margin-top:10px;}
+.ul_mb::after{display:block;visibility:hidden;clear:both;content:'';}
+.ul_mb li{float:left;cursor:pointer;border:1px solid #ddd;border-radius:3px;padding:3px 5px;background:#efefef;margin-right:5px;}
+.ul_mb li.focus{background:darkblue;color:#fff;}
+</style>
 <form name="fconfigform" id="fconfigform" method="post" onsubmit="return fconfigform_submit(this);">
 <input type="hidden" name="token" value="" id="token">
 
@@ -510,20 +525,6 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
             </td>
         </tr>
 		<tr>
-            <th scope="row">판매업체등급</th>
-            <td colspan="3">
-                <?php echo help('1=최종고객,2=SI기업,3=SI우수,4=SI최우수,5=대리점기본,6=대리점우수,7=대리점최우수'); ?>
-                <input type="text" name="set_com_level" value="<?php echo $g5['setting']['set_com_level']; ?>" class="frm_input" style="width:60%;">
-            </td>
-        </tr>
-		<tr>
-            <th scope="row">판매업체등급별할인률</th>
-            <td colspan="3">
-                <?php echo help('1=0,2=3,3=5,4=8,5=10,6=12,7=15'); ?>
-                <input type="text" name="set_com_dc_rate" value="<?php echo $g5['setting']['set_com_dc_rate']; ?>" class="frm_input" style="width:60%;">
-            </td>
-        </tr>
-		<tr>
             <th scope="row">사내물품상태</th>
             <td colspan="3">
                 <?php echo help('pending=사내보관,ok=지급상태,repair=수리중,scrap=폐기처리'); ?>
@@ -584,7 +585,99 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 	</div>
 </section>
 
+<section id="anc_cf_mng">
+	<h2 class="h2_frm">관리자 설정</h2>
+	<?php echo $pg_anchor ?>
 
+	<div class="tbl_frm01 tbl_wrap">
+		<table>
+		<caption>관리자설정</caption>
+		<colgroup>
+			<col class="grid_4" style="width:15%;">
+			<col style="width:35%;">
+			<col class="grid_4" style="width:15%;">
+			<col style="width:35%;">
+		</colgroup>
+		<tbody>
+		<tr>
+            <th scope="row">회계관리자설정</th>
+            <td colspan="3">
+                <?php echo help('회계관리자를 선택해 주세요'); ?>
+                <input type="hidden" name="set_mng_accounting" value="<?php echo $g5['setting']['set_mng_accounting']; ?>" class="frm_input" style="width:60%;">
+                <ul class="ul_mb ul_mb_accounting">
+                   <?php 
+                   $mng_acc_arr = explode(',',$g5['setting']['set_mng_accounting']);
+                   foreach($mb_arr as $mk=>$mv){ ?>
+                    <li mb_id="<?=$mk?>" class="<?=((in_array($mk,$mng_acc_arr))?'focus':'')?>"><?=$mv?></li>
+                   <?php } ?> 
+                </ul>
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">운영관리자설정</th>
+            <td colspan="3">
+                <?php echo help('운영관리자를 선택해 주세요'); ?>
+                <input type="hidden" name="set_mng_operate" value="<?php echo $g5['setting']['set_mng_operate']; ?>" class="frm_input" style="width:60%;">
+                <ul class="ul_mb ul_mb_operate">
+                   <?php 
+                   $mng_ope_arr = explode(',',$g5['setting']['set_mng_operate']);
+                   foreach($mb_arr as $mk=>$mv){ ?>
+                    <li mb_id="<?=$mk?>" class="<?=((in_array($mk,$mng_ope_arr))?'focus':'')?>"><?=$mv?></li>
+                   <?php } ?> 
+                </ul>
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">영업권한자설정</th>
+            <td colspan="3">
+                <?php echo help('영업권한자를 선택해 주세요'); ?>
+                <input type="hidden" name="set_auth_sales" value="<?php echo $g5['setting']['set_auth_sales']; ?>" class="frm_input" style="width:60%;">
+                <ul class="ul_mb ul_mb_operate">
+                   <?php 
+                   $mng_sal_arr = explode(',',$g5['setting']['set_auth_sales']);
+                   foreach($mb_arr as $mk=>$mv){ ?>
+                    <li mb_id="<?=$mk?>" class="<?=((in_array($mk,$mng_sal_arr))?'focus':'')?>"><?=$mv?></li>
+                   <?php } ?> 
+                </ul>
+            </td>
+        </tr>
+		</tbody>
+		</table>
+	</div>
+</section>
+
+<section id="anc_cf_item">
+	<h2 class="h2_frm">판매상품관리 설정</h2>
+	<?php echo $pg_anchor ?>
+
+	<div class="tbl_frm01 tbl_wrap">
+		<table>
+		<caption>판매설정</caption>
+		<colgroup>
+			<col class="grid_4" style="width:15%;">
+			<col style="width:35%;">
+			<col class="grid_4" style="width:15%;">
+			<col style="width:35%;">
+		</colgroup>
+		<tbody>
+		<tr>
+            <th scope="row">판매업체등급</th>
+            <td colspan="3">
+                <?php echo help('1=최종고객,2=SI기업,3=SI우수,4=SI최우수,5=대리점기본,6=대리점우수,7=대리점최우수'); ?>
+                <input type="text" name="set_com_level" value="<?php echo $g5['setting']['set_com_level']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">판매업체등급별할인률</th>
+            <td colspan="3">
+                <?php echo help('1=0,2=3,3=5,4=8,5=10,6=12,7=15'); ?>
+                <input type="text" name="set_com_dc_rate" value="<?php echo $g5['setting']['set_com_dc_rate']; ?>" class="frm_input" style="width:60%;">
+            </td>
+        </tr>
+		</tbody>
+		</table>
+	</div>
+</section>
 
 <section id="anc_cf_message">
     <h2 class="h2_frm">메시지설정</h2>
@@ -692,7 +785,24 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 
 <script>
 $(function(){
-
+    $('.ul_mb > li').on('click',function(){
+        if($(this).hasClass('focus')){
+            $(this).removeClass('focus');
+        }
+        else {
+            $(this).addClass('focus');
+        }
+        let inp = $(this).parent().siblings('input');
+        let li = $(this).parent().find('li');
+        inp.val('');
+        let str_val = '';
+        li.each(function(){
+            if($(this).hasClass('focus')){
+                str_val += (!str_val) ? $(this).attr('mb_id') : ',' + $(this).attr('mb_id');
+            }
+        });
+        inp.val(str_val);
+    });
 });
 
 function fconfigform_submit(f) {

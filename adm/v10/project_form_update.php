@@ -46,8 +46,8 @@ $sql_common = (is_array($sql_commons)) ? implode(",",$sql_commons) : '';
 
 $quot_yn = ($_POST['prj_status'] == 'request' || $_POST['prj_status'] == 'inprocess' || $_POST['prj_status'] == 'ok') ? 1 : 0;
 
-$sql_content2 = ($super_admin || $member['mb_id'] == 'idaekyun') ? " , prj_content2 = '{$prj_content2}' " : "";
-$sql_status = ($super_admin || $member['mb_id'] == 'idaekyun') ? " , prj_status = '{$prj_status}' " : "";
+$sql_content2 = ($super_admin || in_array($member['mb_id'],$super_mng_arr)) ? " , prj_content2 = '{$prj_content2}' " : "";
+$sql_status = ($super_admin || in_array($member['mb_id'],$super_mng_arr)) ? " , prj_status = '{$prj_status}' " : "";
 
 if ($w == '') {
     

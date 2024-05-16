@@ -488,12 +488,13 @@ function setting_update($set_array)
 						WHERE set_name='{$set_array['set_name']}'
 							AND set_country='$set_country'
 							AND set_key = '{$set_key}' ");
+
 	if($row1['set_idx']) {
 		sql_query(" UPDATE {$g5['setting_table']} SET
-						set_key='{$set_key}',
-						set_value='{$set_array['set_value']}',
-						set_auto_yn='$set_auto_yn'
-					WHERE set_idx='".$row1['set_idx']."' ", 1);
+							set_key='{$set_key}',
+							set_value='{$set_array['set_value']}',
+							set_auto_yn='$set_auto_yn'
+						WHERE set_idx='".$row1['set_idx']."' ", 1);
 	}
 	else {
 		sql_query(" INSERT INTO {$g5['setting_table']} SET

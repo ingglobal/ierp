@@ -35,6 +35,10 @@ $sql_common = " FROM {$g5['draft_table']} drf
 $where = array();
 $where[] = " drf_status != 'trash' ";   // 디폴트 검색조건
 
+if(!$super_admin){
+    $where[] = " ( drf.mb_id = '{$member['mb_id']}' OR drf.mb_id_approval = '{$member['mb_id']}' ) ";
+}
+
 if ($stx) {
     switch ($sfl) {
 		case ($sfl == 'drf_idx' || $sfl == 'prj.prj_idx') :
