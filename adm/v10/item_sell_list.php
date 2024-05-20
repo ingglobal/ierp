@@ -232,7 +232,7 @@ if(G5_IS_MOBILE){
         <th scope="col" id="th_pc_title"><?php echo subject_sort_link('it_name', 'sca='.$sca); ?>상품명</a></th>
         <th scope="col"><?php echo subject_sort_link('it_id', 'sca='.$sca); ?>상품코드</a></th>
         <th scope="col">매입가</th>
-        <th scope="col" id="th_amt"><?php echo subject_sort_link('it_price', 'sca='.$sca); ?>판매가격</a></th>
+        <th scope="col" id="th_amt"><?php echo subject_sort_link('it_price', 'sca='.$sca); ?>기준단가</a></th>
         <!-- <th scope="col">매입처</th> -->
         <th scope="col">재고</th>
         <!-- <th scope="col">수량</th> -->

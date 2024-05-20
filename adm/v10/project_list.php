@@ -329,11 +329,11 @@ $items = array(
 
 <div class="btn_fixed_top">
     <?php if($member['mb_manager_yn']) { ?>
-        <a href="./project_list_excel_down.php?<?=$qstr?>" id="btn_excel_down" class="btn btn_03">엑셀다운</a>
-        <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn" style="display:none;">
-        <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
-        <a href="./<?=$fname?>_form.php" id="btn_add" class="btn btn_01">등록하기</a>
+    <a href="./project_list_excel_down.php?<?=$qstr?>" id="btn_excel_down" class="btn btn_03">엑셀다운</a>
+    <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn_02 btn" style="display:none;">
+    <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn_02 btn">
     <?php } ?>
+    <a href="./<?=$fname?>_form.php" id="btn_add" class="btn btn_01">등록하기</a>
 </div>
 
 </form>

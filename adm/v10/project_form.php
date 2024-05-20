@@ -62,6 +62,17 @@ else if ($w == 'u') {
 		@array_push($row['prj_'.$row2['fle_type'].'_fidxs'],$row2['fle_idx']);
 	}
 	
+
+
+	$exsc_sql = " SELECT prs_task, prs_content, mb_id_worker, mb_name, prs_start_date, prs_end_date FROM {$g5['project_schedule_table']} prs
+					LEFT JOIN {$g5['member_table']} mb ON prs.mb_id_worker = mb.mb_id
+					WHERE prj_idx = '{$row['prj_idx']}' 
+						AND prs_status != 'trash'
+					ORDER BY prs_start_date
+	";
+	// echo $exsc_sql;exit;
+	$exscres = sql_query($exsc_sql,1);
+
 }
 else
     alert('제대로 된 값이 넘어오지 않았습니다.');
@@ -180,7 +191,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 		<th scope="row">프로젝트명</th>
 		<td>
 			<?php $preadonly = ($w != '' && $member['mb_level'] < 8) ? ' readonly' : ''; ?>
-			<input type="text" name="prj_name" value="<?=$row['prj_name']?>" required<?=$preadonly?> class="frm_input required<?=$preadonly?>" style="width:250px;">
+			<input type="text" name="prj_name" value="<?=$row['prj_name']?>" required<?=$preadonly?> class="frm_input required<?=$preadonly?>" style="width:250px;">&nbsp;&nbsp;<span style="color:red;">프로젝트명은 수정불가</span>
 		</td>
 		<th scope="row">진행율</th>
 		<td>
@@ -252,6 +263,31 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
     <input type="submit" value="확인" class="btn_submit btn" accesskey='s'>
 </div>
 </form>
+
+<?php if($exscres->num_rows){ ?>
+<div id="ex_con" class="tbl_frm01 tbl_wrap">
+<h2>업무일정담당자 업무기록</h2>
+<table>
+	<caption>업무일정담당자 업무기록</caption>
+	<colgroup>
+		<col class="grid_4" style="width:20%;">
+		<col style="width:80%;">
+	</colgroup>
+	<tbody>
+		<?php for($i=0;$row=sql_fetch_array($exscres);$i++){ ?>
+		<tr>
+			<th>
+			<p class="p_ttl" style="color:darkred;"><?=cut_str($row['prs_task'],30,'...')?></p>
+			<p class="p_mb" style="color:darkblue;"><?=$row['mb_name']?></p>
+			<p class="p_scd"><?=$row['prs_start_date']?> ~ <?=$row['prs_end_date']?></p>
+			</th>
+			<td style="vertical-align:top;text-align:left;"><?=nl2br($row['prs_content'])?></td>
+		</tr>
+		<?php } ?>
+	</tbody>
+</table>
+</div>
+<?php } ?>
 
 <script>
 $(function() {

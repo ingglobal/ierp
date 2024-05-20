@@ -87,7 +87,7 @@ for($i=0;$row=sql_fetch_array($res);$i++){
 
 $csql = " SELECT ppc.*, com.com_name FROM {$g5['project_purchase_table']} ppc
 			LEFT JOIN {$g5['company_table']} com ON ppc.com_idx = com.com_idx
-			WHERE prj_idx = '{$prj_idx}' AND ppc_status = 'complete'
+			WHERE prj_idx = '{$prj_idx}' AND ppc_status IN ('complete','ok')
 ";
 $cres = sql_query($csql, 1);
 
@@ -190,13 +190,11 @@ $exp['total'] = $exp['total'] + $puc['pur_total_price']; //추가(240415)
 $stat_price = $sugm_price - $exp['total'];
 
 //계약금에 대한 총지출금액 비율
-$exp_per = ($prs1['prp_price'])?round($exp['total'] / ($prs1['prp_price'] + $inp['prn_tot_price']) * 100,2):0;
+$exp_per = ($prs1['prp_price'])?round($exp['total'] / ($prs1['prp_price']) * 100,2):0;
 
-$dif_price = ($prs1['prp_price'] + $inp['prn_tot_price']) - $exp['total'];
-$dif_per = ($prs1['prp_price'])?round($dif_price / ($prs1['prp_price'] + $inp['prn_tot_price']) * 100,2):0;
-$mcn_per = ($exp['total'])?round($exp['mcn_total']/$exp['total']*100,2):0;
-$elt_per = ($exp['total'])?round($exp['elt_total']/$exp['total']*100,2):0;
-$ppc_per = ($exp['total'])?round($puc['pur_complete_price']/$exp['total']*100,2):0;
+$dif_price = $prs1['prp_price'] - $exp['total'];
+$dif_per = ($prs1['prp_price'])?round($dif_price / ($prs1['prp_price']) * 100,2):0;
+$ppc_per = ($exp['total'])?round(($puc['pur_total_price']/$exp['total'])*100,2):0;
 $etc_per = ($exp['total'])?round($exp['etc_total']/$exp['total']*100,2):0;
 
 
@@ -335,9 +333,9 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 						<th class="th_ord">수주금액</th>
 						<td class="td_ord"><?=number_format($prs1['prp_price'])?>원</td>
 					</tr>
-					<tr>
-						<th class="th_dif">매출이익(<?=$dif_per?>%)<br>(수주금액 + 기타수입 기준%)</th>
-						<td class="td_dif">
+					<tr style="display:no ne;">
+						<th class="th_dif">매출이익(<?=$dif_per?>%)<br>(수주금액 - 총지출 기준%)</th>
+						<td class="td_dif" style="font-weight:bold;">
 							<div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
 							<?=number_format($dif_price)?>원
 						</td>
@@ -356,48 +354,30 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 							<?=number_format($mis_price)?>원
 						</td>
 					</tr>
-					<tr>
+					<tr style="display:none;">
 						<th class="th_sta">지출상태<br>(수금합계 - 지출합계)</th>
 						<td class="td_sta"><?=number_format($sugm_price)?> - <?=number_format($exp['total'])?> = <b style="font-size:1.05em;color:<?=(($stat_price<0)?'red':'')?>;"><?=number_format($stat_price)?></b>원</td>
 					</tr>
 					<?php } ?>
-					<tr>
-						<th class="th_tot">총지출금액<?php if($super_admin){ ?>(<?=$exp_per?>%)<br>(수주금액 + 기타수입 기준%)<?php } ?></th>
-						<td class="td_tot">
+					<tr style="display:no ne;">
+						<th class="th_tot">총지출금액<?php if($super_admin){ ?>(<?=$exp_per?>%)<br>(수주금액 + 지출총액 기준%)<?php } ?></th>
+						<td class="td_tot" style="color:#000;">
 							<?php if($super_admin){ ?><div class="grp_box"><div class="grp_in" style="width:<?=$exp_per?>%"></div></div><?php } ?>
 							<?=number_format($exp['total'])?>원
 						</td>
 					</tr>
-					<?php if($exp['mcn_total']){ ?>
-					<tr>
-						<th class="th_mcn">기계지출(<?=$mcn_per?>%)<br><span>(총지출기준%)</span></th>
-						<td class="td_mcn">
-							<div class="grp_box"><div class="grp_in" style="width:<?=$mcn_per?>%"></div></div>
-							<?=number_format($exp['mcn_total'])?>원
-						</td>
-					</tr>
-					<?php } ?>
-					<?php if($exp['elt_total']){ ?>
-					<tr>
-						<th class="th_elt">전기지출(<?=$elt_per?>%)<br><span>(총지출기준%)</span></th>
-						<td class="td_elt">
-							<div class="grp_box"><div class="grp_in" style="width:<?=$elt_per?>%"></div></div>
-							<?=number_format($exp['elt_total'])?>원
-						</td>
-					</tr>
-					<?php } ?>
-					<?php if($puc['pur_complete_price']){ ?>
+					<?php if(true){ //if($puc['pur_complete_price']){ ?>
 					<tr>
 						<th class="th_cmp">매입지출(<?=$ppc_per?>%)<br><span>(총지출기준%)</span></th>
 						<td class="td_cmp">
 							<div class="grp_box"><div class="grp_in" style="width:<?=$ppc_per?>%"></div></div>
-							<?=number_format($puc['pur_complete_price'])?>원
+							<?=number_format($puc['pur_total_price'])?>원
 						</td>
 					</tr>
 					<?php } ?>
-					<?php if($exp['etc_total']){ ?>
+					<?php if(true){ //if($exp['etc_total']){ ?>
 					<tr>
-						<th class="th_etc">기타지출(<?=$etc_per?>%)<br><span>(총지출기준%)</span></th>
+						<th class="th_etc">추가 총기타지출(<?=$etc_per?>%)<br><span>(총지출기준%)</span></th>
 						<td class="td_etc">
 							<div class="grp_box"><div class="grp_in" style="width:<?=$etc_per?>%"></div></div>
 							<?=number_format($exp['etc_total'])?>원

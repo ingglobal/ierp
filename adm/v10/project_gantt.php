@@ -162,6 +162,7 @@ for($i=0;$row=sql_fetch_array($result);$i++) {
         $list[$i]['name'] =  ($prj_idx_old != $row['prj_idx']) ? '['.$row['prj_idx'].']'.cut_str($row['prj_name'],20) : '';
     $list[$i]['com_name'] = $row['com_name'];
     $list[$i]['prj_idx'] = $row['prj_idx'];
+    $list[$i]['prs_idx'] = $row['prs_idx'];
     $list[$i]['role'] = $g5['set_worker_type_value'][$row['prs_role']];
     $list[$i]['assignee'] = $row['mb_name'];
     $list[$i]['content'] = $row['prs_task'];
@@ -586,7 +587,7 @@ series: [
                 role: '".$list[$i]['role']."',
                 com_name: '".$list[$i]['com_name']."',
                 assignee: '".$list[$i]['assignee']."',
-                content: '".$list[$i]['content']."',
+                content: '소(".$list[$i]['prs_idx'].') '.$list[$i]['content']."',
                 start: Date.UTC(".$list[$i]['start_year'].", ".($list[$i]['start_month']-1).", ".$list[$i]['start_day']."),
                 start_dt: '".$list[$i]['prs_start_month'].".".$list[$i]['prs_start_day']."',
                 end: Date.UTC(".$list[$i]['end_year'].", ".($list[$i]['end_month']-1).", ".$list[$i]['end_day'].", 23, 59, 59),

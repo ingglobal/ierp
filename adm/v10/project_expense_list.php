@@ -294,7 +294,7 @@ else $colspan = 5;
                 <span class="prc" style="font-weight:700;"><?=number_format($row['prp_dif_exprice'])?></span>
                 <div class="grp_box"><div class="grp_in" style="width:<?=$dif_per?>%"></div></div>
                 <span class="per">(<?=$dif_per?>%)</span>
-            </td>
+            </td><!--매출이익-->
             <td rowspan="<?=$p_cnt?>" class="td_grp" style="text-align:right;width:110px;">
                 <span class="prc"><?=number_format($row['prj_su_price'])?></span>
                 <div class="grp_box"><div class="grp_in grp_in_su" style="width:<?=$sug_per?>%"></div></div>

@@ -59,6 +59,7 @@ if ($w == '') {
                 , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
 				, ".$pre."_quot_yn = '".$quot_yn."'
 	";
+	// echo $sql;exit;
     sql_query($sql,1);
 	${$pre."_idx"} = sql_insert_id();
     

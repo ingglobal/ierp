@@ -21,12 +21,13 @@ foreach($_REQUEST as $key => $value ) {
 }
 
 
-$mb0 = sql_fetch(" SELECT mb_id FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 9 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일','최호기','허준영','손지식','이병구') ORDER BY mb_name LIMIT 1 ");
-$default_mb_id = $mb0['mb_id'];
+// $mb0 = sql_fetch(" SELECT mb_id FROM {$g5['member_table']} WHERE mb_level >= 6 AND mb_level < 9 AND mb_leave_date = '' AND mb_intercept_date = '' AND mb_name NOT IN('일정관리','테스트','테스일','최호기','허준영','손지식','이병구') ORDER BY mb_name LIMIT 1 ");
+// $default_mb_id = $mb0['mb_id'];
 
 
 $ser_wrp_type = ($ser_wrp_type) ? $ser_wrp_type : 'day';
-$ser_mb_id = ($ser_mb_id) ? $ser_mb_id : $default_mb_id;
+// $ser_mb_id = ($ser_mb_id) ? $ser_mb_id : $default_mb_id;
+$ser_mb_id_where = ($ser_mb_id) ? " AND wrp.mb_id = '{$ser_mb_id}' " : "";
 $ser_from_date = ($ser_from_date) ? $ser_from_date : substr(G5_TIME_YMD,0,8).'01';
 $ser_to_date = ($ser_to_date) ? $ser_to_date : date("Y-m-t", strtotime(G5_TIME_YMD));
 
@@ -35,7 +36,7 @@ $sql = " SELECT wrp.*, mb_name, mb_2, mb_3, prj_name FROM {$g5['workreport_table
             LEFT JOIN {$g5['member_table']} mb ON wrp.mb_id = mb.mb_id
             LEFT JOIN {$g5['project_table']} prj ON wrp.prj_idx = prj.prj_idx
         WHERE wrp_type = '{$ser_wrp_type}'
-            AND wrp.mb_id = '{$ser_mb_id}'
+            {$ser_mb_id_where}
             AND wrp_date >= '{$ser_from_date}'
             AND wrp_date <= '{$ser_to_date}'
             AND wrp_status != 'trash'
@@ -113,7 +114,7 @@ $pdf_ttl = $mres['mb_name'].'_'.$g5['set_wrp_type_value'][$ser_wrp_type].'_'.$se
 <article id="mt_v">
 <div id="pdf_v">
 <div class="ttl_box">
-    <h1><?=$mres['mb_name'].'의 '.$g5['set_wrp_type_value'][$ser_wrp_type]?></h1>
+    <h1><?=(($mres['mb_name'])?$mres['mb_name']:'전체인원').'의 '.$g5['set_wrp_type_value'][$ser_wrp_type]?></h1>
     <p><?=$ser_from_date?> ~ <?=$ser_to_date?></p>
 </div>
 <form name="form01" id="form01" action="./workreport_list_update.php" onsubmit="return form01_submit(this);" method="post">

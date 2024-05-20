@@ -188,7 +188,7 @@ if(G5_IS_MOBILE){
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="it_price">판매가격</label></th>
+                <th scope="row"><label for="it_price">기준단가</label></th>
                 <td>
                     <input type="text" name="it_price" value="<?php echo $it['it_price']; ?>" id="it_price" class="frm_input" size="8"> 원
                 </td>
@@ -200,7 +200,7 @@ if(G5_IS_MOBILE){
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="it_buy_price">원가</label></th>
+                <th scope="row"><label for="it_buy_price">원가(매입가)</label></th>
                 <td>
                     <input type="text" name="it_buy_price" value="<?php echo $it['it_buy_price']; ?>" id="it_buy_price" class="frm_input" size="8"> 원
                 </td>
@@ -253,9 +253,9 @@ if(G5_IS_MOBILE){
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="it_use">견적가능</label></th>
+                <th scope="row"><label for="it_use">노출여부</label></th>
                 <td>
-                    <?php echo help("잠시 중단하거나 재고가 없을 경우에 체크를 해제해 놓으면 출력되지 않으며, 견적할 수 없는 상품이 됩니다."); ?>
+                    <?php echo help("체크를 해제해 놓으면 출력되지 않으며, 목록에서도 표시되지 않습니다."); ?>
                     <input type="checkbox" name="it_use" value="1" id="it_use" <?php echo ($it['it_use']) ? "checked" : ""; ?>> 예
                 </td>
                 <td class="td_grpset">
