@@ -25,7 +25,7 @@ $sql_common = " FROM {$g5['project_exprice_table']} AS prx
 
 $where = array();
 //$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
-$where[] = " prx_status = 'ok' ";   // 디폴트 검색조건
+$where[] = " prx_status IN ('ok','etc') ";   // 디폴트 검색조건
 
 if ($stx) {
     switch ($sfl) {

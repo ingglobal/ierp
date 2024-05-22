@@ -24,7 +24,7 @@ $sql_common = " FROM {$g5['project_table']} AS prj
 
 $where = array();
 //$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
-$where[] = " prj_status = 'ok' ";   // 디폴트 검색조건
+$where[] = " prj_status IN ('ok','etc') ";   // 디폴트 검색조건
 
 // 운영권한이 없으면 자기 업체만
 if (!$member['mb_manager_yn']) {
