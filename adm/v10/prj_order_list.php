@@ -39,7 +39,7 @@ $sql_common = " FROM {$g5['project_purchase_table']} AS ppc
 ";
 
 $where = array();
-$where[] = " prj_status IN ('ok','complete') ";   // 디폴트 검색조건
+$where[] = " prj_status IN ('ok','complete','etc') ";   // 디폴트 검색조건
 // $where[] = " prj_status IN ('empty') ";   // 디폴트 검색조건
 
 if ($stx) {
