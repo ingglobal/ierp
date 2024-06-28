@@ -6,9 +6,9 @@ $sql_common = " FROM {$g5['project_table']} AS prj
 ";
 
 $where = array();
-//$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
+$where[] = " prj_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
 $where[] = " prj.prj_status IN ('ok','etc') ";
-$where[] = " prj.prj_percent < 100 ";   // 디폴트 검색조건
+// $where[] = " prj.prj_percent < 100 ";   // 디폴트 검색조건
 //$where[] = " com_class = 'normal' ";   // 디폴트 검색조건
 //$where[] = " com_type NOT IN ('buyer') ";   // 디폴트 검색조건
 
@@ -16,6 +16,7 @@ if ($stx) {
     switch ($sfl) {
 		case 'prj_idx' :
 			$where[] = " prj_idx = '{$stx}' ";
+			break;
         default :
             $where[] = " ({$sfl} LIKE '%{$stx}%') ";
             break;
@@ -54,7 +55,7 @@ $sql = " SELECT
 		{$sql_order}
 		LIMIT {$from_record}, {$rows} 
 ";
-//echo $sql;
+// echo $sql;
 $result = sql_query($sql,1);
 
 

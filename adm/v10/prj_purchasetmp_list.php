@@ -65,6 +65,10 @@ if ($ser_ppc_has != "") {
     }
 }
 
+//프로젝트번호검색
+if($ser_prj_idx){
+    $where[] = " prj.prj_idx = {$ser_prj_idx} ";
+}
 
 // 최종 WHERE 생성
 if ($where)
@@ -108,6 +112,7 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS *
         {$sql_order}
 		LIMIT {$from_record}, {$rows}
 ";
+// echo $sql;exit;
 $result = sql_query($sql,1);
 $count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") ); 
 $total_count = $count['total'];
