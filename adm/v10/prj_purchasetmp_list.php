@@ -89,7 +89,7 @@ if (!$sst2) {
 
 $sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} ";
 
-$rows = $config['cf_page_rows'];
+$rows = 100;//$config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 $sql = " SELECT SQL_CALC_FOUND_ROWS *
@@ -138,6 +138,9 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 .td_ppt_date{width:90px;}
 .td_ppt_date input{text-align:center;}
 .td_ppt_status{width:120px;}
+
+.td_last{padding:20px 0 !important;font-size:1.2em;}
+.td_total_price{font-size:1.2em;color:red;padding-right:5px !important;}
 </style>
 <script src="<?=G5_USER_ADMIN_JS_URL?>/multifile/jquery.MultiFile.min.js" type="text/javascript" language="javascript"></script>
 <div class="local_ov01 local_ov">
@@ -211,7 +214,9 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
     </tr>
     </thead>
     <tbody>
-    <?php for($i=0;$row=sql_fetch_array($result);$i++){ 
+    <?php 
+    $total_price = 0;
+    for($i=0;$row=sql_fetch_array($result);$i++){ 
         // 관리 버튼
         $s_mod = '<a href="./'.$fname.'_form.php?'.$qstr.'&amp;w=u&amp;'.$pre.'_idx='.$row['ppt_idx'].'">수정</a>';
 
@@ -220,6 +225,9 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
                 WHERE fle_db_table = 'ppt' AND fle_type = 'ppt' AND fle_db_id = '".$row['ppt_idx']."' ORDER BY fle_reg_dt DESC ";
 	    $fres = sql_fetch($fsql,1);
         $bg = 'bg'.($i%2);
+
+
+        $total_price += $row['ppt_price'];
     ?>
     <tr class="<?=$bg?>">
         <td class="td_chk">
@@ -265,6 +273,15 @@ $("#ser_ppt_date").datepicker({ changeMonth: true, changeYear: true, dateFormat:
     <?php } 
     if($i == 0){
         echo '<tr><td colspan="14" class="empty_table">자료가 없습니다.</td></tr>';
+    }
+    else{
+    ?>
+    <tr>
+        <td class="td_last" colspan="8">개별발주 총합계</td>
+        <td class="td_last td_right td_total_price"><?=number_format($total_price)?></td>
+        <td class="td_last" colspan="4"></td>
+    </tr>
+    <?php
     }
     ?>
     </tbody>
